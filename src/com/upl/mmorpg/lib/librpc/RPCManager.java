@@ -1,18 +1,40 @@
 package com.upl.mmorpg.lib.librpc;
 
+import java.io.IOException;
+import java.net.Socket;
+
 import com.upl.mmorpg.lib.StackBuffer;
 import com.upl.mmorpg.lib.liblog.Log;
-import com.upl.mmorpg.lib.libnet.ClientManager;
-import com.upl.mmorpg.lib.libnet.ClientManagerListener;
+import com.upl.mmorpg.lib.libnet.NetworkManager;
+import com.upl.mmorpg.lib.libnet.NetworkListener;
 import com.upl.mmorpg.lib.libnet.TicketManager;
 
-public class RPCManager implements ClientManagerListener
+public class RPCManager implements NetworkListener
 {
-	public RPCManager(ClientManager client, RPCCallee callee)
+	public void setup(Socket socket, int cid, RPCCallee callee)
 	{
-		this.client = client;
-		this.callee = callee;
-		tickets = new TicketManager();
+		try 
+		{
+			NetworkManager client = new NetworkManager(this, socket, cid);
+			
+			this.tickets = new TicketManager();
+			this.client = client;
+			this.callee = callee;
+		} catch (IOException e) { }	
+	}
+	
+	public RPCManager(Socket socket, int cid, RPCCallee callee)
+	{
+		setup(socket, cid, callee);
+	}
+	
+	public RPCManager(String address, int port, int cid, RPCCallee callee)
+	{
+		try 
+		{
+			Socket socket = new Socket(address, port);
+			setup(socket, cid, callee);
+		} catch (Exception e) { }
 	}
 	
 	public StackBuffer do_call(StackBuffer buff)
@@ -77,7 +99,7 @@ public class RPCManager implements ClientManagerListener
 		Log.vvln("Connection to server lost!!");
 	}
 	
-	private ClientManager client;
+	private NetworkManager client;
 	private TicketManager tickets;
 	private RPCCallee callee;
 	

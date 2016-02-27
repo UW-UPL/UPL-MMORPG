@@ -1,6 +1,7 @@
 package com.upl.mmorpg.lib.libnet;
 
 import java.net.*;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.upl.mmorpg.lib.liblog.Log;;
@@ -63,8 +64,20 @@ public class Server implements Runnable
 		}
 	}
 	
+	/**
+	 * Shutdown the server and disconnect all clients
+	 */
 	public void shutdown()
 	{
+		Iterator<NetworkManager> it = clients.iterator();
+		while(it.hasNext())
+		{
+			NetworkManager client = it.next();
+			client.shutdown();
+			client = null;
+			it.remove();
+		}
+		
 		/* Close the server socket */
 		try { serverSocket.close(); } catch(Exception e){}
 		running = false;
@@ -85,12 +98,13 @@ public class Server implements Runnable
 		listenThread = null;
 	}
 	
-	private int clientCounter;
-	private LinkedList<ClientManager> clients;
+	private int clientCounter; /* The amount of clients that have connected. */
+	private LinkedList<NetworkManager> clients;
 	
-	private ServerSocket serverSocket;
-	private Thread listenThread;
+	private ServerSocket serverSocket; /* The socket used to accept clients */
+	private Thread listenThread; /* The thread that is used to listen for clients. */
 	private boolean running;
 	
+	/** If a port is not supplied, the default port will be used. */
 	private final static int DEFAULT_PORT = 8081;
 }

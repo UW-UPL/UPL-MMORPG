@@ -22,8 +22,9 @@ public class RPCStubGenerator
 	
 	public static void main(String[] args) throws IOException 
 	{
-		String callee_receiver_object = "game";
+		String callee_receiver_object = "client";
 		String callee_prefix_args = "player_info";
+		boolean callee_prefix = false;
 		
 		if(args.length != 1)
 		{
@@ -94,14 +95,14 @@ public class RPCStubGenerator
 	
 			StringBuilder prototype = new StringBuilder("(");
 			StringBuilder callee_args = new StringBuilder("("
-					+ callee_prefix_args);
+					+ (callee_prefix ? callee_prefix_args : ""));
 			
 			/* Parse function arguments -- do proto and callee_args */
 			String arg_types[] = new String[parts.length - 2];
 			int arg_num = 0;
 			for(arg_num = 0;arg_num < parts.length - 2;arg_num++)
 			{
-				callee_args.append(", ");
+				if(callee_prefix)callee_args.append(", ");
 				if(arg_num != 0)
 					prototype.append(", ");
 				

@@ -1,12 +1,16 @@
-package com.upl.examplegame;
+package com.upl.examplegame.server;
 
 import com.upl.mmorpg.lib.StackBuffer;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCCallee;
-import com.upl.mmorpg.lib.librpc.RPCManager;
 
 public class RPCCalleeStubs implements RPCCallee
 {
+	public RPCCalleeStubs(ClientHandler client)
+	{
+		this.client = client;
+	}
+	
 	@Override
 	public void invalid_rpc(int num) 
 	{
@@ -42,7 +46,7 @@ public class RPCCalleeStubs implements RPCCallee
 		String arg0 = stack.popString();
 
 		/* Do the function call */
-		boolean result = game.broadcast_message(player_info, arg0);
+		boolean result = client.broadcast_message(arg0);
 		/* Make a result stack */
 		StackBuffer ret_stack = new StackBuffer();
 		ret_stack.pushBoolean(result);
@@ -54,13 +58,12 @@ public class RPCCalleeStubs implements RPCCallee
 		String arg0 = stack.popString();
 
 		/* Do the function call */
-		boolean result = game.register(arg0);
+		boolean result = client.register(arg0);
 		/* Make a result stack */
 		StackBuffer ret_stack = new StackBuffer();
 		ret_stack.pushBoolean(result);
 		return ret_stack;
 	}
 	
-	private ExampleServer game;
-	private String player_info;
+	private ClientHandler client;
 }

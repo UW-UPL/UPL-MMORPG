@@ -7,7 +7,7 @@ import java.net.Socket;
 
 import com.upl.mmorpg.lib.liblog.Log;
 
-public class ClientManager implements Runnable
+public class NetworkManager implements Runnable
 {
 	private void setup() throws IOException
 	{	
@@ -22,7 +22,7 @@ public class ClientManager implements Runnable
 		Log.vnetln("Client " + cid + " network setup success.");
 	}
 	
-	public ClientManager(ClientManagerListener cmlisten, 
+	public NetworkManager(NetworkListener cmlisten, 
 			Socket socket, int cid) throws IOException
 	{
 		address = null;
@@ -33,7 +33,7 @@ public class ClientManager implements Runnable
 		setup();
 	}
 	
-	public ClientManager(ClientManagerListener cmlisten, 
+	public NetworkManager(NetworkListener cmlisten, 
 			String address, int port, int cid) throws Exception
 	{
 		this.cmlisten = cmlisten;
@@ -69,6 +69,10 @@ public class ClientManager implements Runnable
 		return true;
 	}
 	
+	/**
+	 * Flush the output stream.
+	 * @return Whether or not the stream could be flushed.
+	 */
 	public boolean flush()
 	{
 		try
@@ -157,6 +161,7 @@ public class ClientManager implements Runnable
 	public void shutdown()
 	{
 		Log.vvln("Client " + cid + " is shutting down.");
+		
 		/* Stop the thread */
 		running = false;
 		try 
@@ -196,9 +201,9 @@ public class ClientManager implements Runnable
 	private Thread thread; /* Seperate thread for listening for packets */
  
 	/* Listener we will pass messages to */
-	private ClientManagerListener cmlisten;
+	private NetworkListener cmlisten;
 	
 	/* If this is a client connecting to a server, these will be defined: */
-	private String address;
-	private int port;
+	private String address; /* The address of the server */
+	private int port; /* The port used to connect to the server */
 }
