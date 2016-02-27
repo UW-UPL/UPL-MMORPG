@@ -11,6 +11,7 @@ public class FileManager
 {
 	private void open(String path, boolean create) throws IOException
 	{
+		this.path = path;
 		Log.vvln("Opening file: " + path);
 		opened = false;
 		file = new File(path);
@@ -168,6 +169,10 @@ public class FileManager
 			return null;
 		}
 		
+		/* Did we get anything? */
+		if(build.length() == 0)
+			return null;
+		
 		if(!successful_read)
 		{
 			Log.e("didn't complete full read on file: " + path);
@@ -191,6 +196,9 @@ public class FileManager
 	 */
 	public void close()
 	{
+		/* Flush anything in the output pipe */
+		try { fos.flush(); } catch(Exception e){}
+		
 		try { fos.close(); } catch(Exception e){}
 		try { fis.close(); } catch(Exception e){}
 

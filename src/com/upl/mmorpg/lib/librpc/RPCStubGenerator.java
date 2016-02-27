@@ -32,6 +32,7 @@ public class RPCStubGenerator
 		FileManager interface_file = new FileManager(args[0] + ".int", true);
 		FileManager caller_stubs = new FileManager(args[0] + ".caller", true);
 		FileManager callee_stubs = new FileManager(args[0] + ".callee", true);
+		
 		String s;
 		int line = 0;
 		int func_num = 1;
@@ -111,12 +112,19 @@ public class RPCStubGenerator
 						+ "(arg" + x + ");");
 			}
 			caller_stubs.println("\t/* Do the network call */");
-			
+			caller_stubs.println("\trpc.do_call(stack);");
+			caller_stubs.println("\tStackBuffer res = rpc.do_call(stack);");
+			caller_stubs.println("\treturn res." 
+					+ StackBuffer.getPopMethod(ret_type) + "();");
 			caller_stubs.println("}");
 			
 			line++;
 			func_num++;
 		}
+		
+		file.close();
+		interface_file.close();
+		caller_stubs.close();
+		callee_stubs.close();
 	}
-
 }
