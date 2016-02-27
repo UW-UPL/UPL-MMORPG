@@ -1,0 +1,7 @@
+# Eclipse cruft
+.classpath
+.project
+.settings/
+
+# Object files
+bin/
