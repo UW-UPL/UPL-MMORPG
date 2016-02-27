@@ -28,10 +28,13 @@ public class RPCStubGenerator
 			return;
 		}
 		
-		FileManager file = new FileManager(args[0]);
-		FileManager interface_file = new FileManager(args[0] + ".int", true);
-		FileManager caller_stubs = new FileManager(args[0] + ".caller", true);
-		FileManager callee_stubs = new FileManager(args[0] + ".callee", true);
+		FileManager file = new FileManager(args[0], true, false);
+		FileManager interface_file = new FileManager(args[0] + ".int", 
+				true, false, true);
+		FileManager caller_stubs = new FileManager(args[0] + ".caller", 
+				true, false, true);
+		FileManager callee_stubs = new FileManager(args[0] + ".callee", 
+				true, false, true);
 		
 		String s;
 		int line = 0;
@@ -57,14 +60,14 @@ public class RPCStubGenerator
 			if(ret_type == null)
 			{
 				Log.e("Syntax error, line " + line);
-				Log.e("\tNot a valid type: " + parts[0]);
+				Log.e("\tNot a valid ret type: " + parts[0]);
 				continue;
 			}
 			
-			String header = new String("public " 
+			String header = new String("\tpublic " 
 					+ ret_type + " "
 					+ parts[1].trim());
-			String callee_header = new String("public " 
+			String callee_header = new String("\tpublic " 
 					+ ret_type + " "
 					+ "__" + parts[1].trim());
 	
@@ -75,14 +78,14 @@ public class RPCStubGenerator
 			for(arg_num = 0;arg_num < parts.length - 2;arg_num++)
 			{
 				if(arg_num != 0)
-					arg_list.append(",");
+					arg_list.append(", ");
 				
 				int pos = arg_num + 2;
-				String arg_type = StackBuffer.typeSupported(parts[pos]);
+				String arg_type = StackBuffer.typeSupported(parts[pos].trim());
 				if(arg_type == null)
 				{
 					Log.e("Syntax error, line " + line);
-					Log.e("\tNot a valid type: " + parts[0]);
+					Log.e("\tNot a valid type: " + parts[pos]);
 					continue;
 				}
 				
@@ -93,30 +96,30 @@ public class RPCStubGenerator
 			arg_list.append(")");
 			
 			/* Write the header to all 3 files */
-			interface_file.println(header.toString() + ";");
-			caller_stubs.println(header.toString());
+			interface_file.println(header.toString() + arg_list.toString() + ";");
+			caller_stubs.println(header.toString() + arg_list.toString());
 			callee_stubs.println(callee_header.toString());
 			
 			/* Generate the caller stubs */
-			caller_stubs.println("{");
-			caller_stubs.println("\tStackBuffer stack = new StackBuffer();");
+			caller_stubs.println("\t{");
+			caller_stubs.println("\t\tStackBuffer stack = new StackBuffer();");
 			caller_stubs.println("");
-			caller_stubs.println("\t/* Push the function number */");
-			caller_stubs.println("\tstack.pushInt(" + func_num + ")");
-			caller_stubs.println("\t/* Push the arguments */");
+			caller_stubs.println("\t\t/* Push the function number */");
+			caller_stubs.println("\t\tstack.pushInt(" + func_num + ");");
+			caller_stubs.println("\t\t/* Push the arguments */");
 			for(int x = 0;x < arg_types.length;x++)
 			{
 				String arg_type = arg_types[x];
-				caller_stubs.println("\t" 
+				caller_stubs.println("\t\t" 
 						+ StackBuffer.getPushMethod(arg_type) 
 						+ "(arg" + x + ");");
 			}
-			caller_stubs.println("\t/* Do the network call */");
-			caller_stubs.println("\trpc.do_call(stack);");
-			caller_stubs.println("\tStackBuffer res = rpc.do_call(stack);");
-			caller_stubs.println("\treturn res." 
+			caller_stubs.println("\t\t/* Do the network call */");
+			caller_stubs.println("\t\tStackBuffer res = rpc.do_call(stack);");
+			caller_stubs.println("\t\treturn res." 
 					+ StackBuffer.getPopMethod(ret_type) + "();");
-			caller_stubs.println("}");
+			caller_stubs.println("\t}");
+			caller_stubs.println("");
 			
 			line++;
 			func_num++;

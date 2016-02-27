@@ -1,2 +1,5 @@
 # Return Value, Method name, arg1, arg2, ...
-int,testmethod,char,byte,int
+int,do_damage,int
+int,check_health
+String,get_name
+boolean,check_login,String,String

@@ -9,9 +9,12 @@ import com.upl.mmorpg.lib.liblog.Log;
 
 public class FileManager 
 {
-	private void open(String path, boolean create) throws IOException
-	{
+	private void open(String path, boolean create, 
+			boolean read_perm, boolean write_perm) throws IOException
+			{
 		this.path = path;
+		this.read_perm = read_perm;
+		this.write_perm = write_perm;
 		Log.vvln("Opening file: " + path);
 		opened = false;
 		file = new File(path);
@@ -20,9 +23,15 @@ public class FileManager
 		{
 			if(!file.exists())
 			{
-				Log.vvln("File doesn't exist: " + path);
-				file.createNewFile();
-				Log.vvln("File create success.");
+				if(write_perm)
+				{
+					Log.vvln("File doesn't exist: " + path);
+					file.createNewFile();
+					Log.vvln("File create success.");
+				} else {
+					Log.vvln("File doesn't exist and no wr perm: " + path);
+					return;
+				}
 			} else {
 				Log.vvln("File exists.");
 			}
@@ -30,30 +39,34 @@ public class FileManager
 
 		if(file.exists())
 		{
-			fis = new FileInputStream(file);
-			fos = new FileOutputStream(file);
+			if(read_perm)
+				fis = new FileInputStream(file);
+			else fis = null;
+			if(write_perm)
+				fos = new FileOutputStream(file);
+			else fos = null;
+
 			opened = true;
 		} else {
 			Log.e("Warning: File not opened: " + path);
 		}
 
 		Log.vvln("Opening file " + path + " success.");
-	}
+			}
 
-	public FileManager(String path)
+	public FileManager(String path, boolean read, boolean write)
 	{
-		this.path = path;
 		try
 		{
-			open(path, false);
+			open(path, false, read, write);
 		} catch(IOException e){}
 	}
 
-	public FileManager(String path, boolean create) throws IOException
-	{
-		this.path = path;
-		open(path, create);
-	}
+	public FileManager(String path, boolean create,
+			boolean read, boolean write) throws IOException
+			{
+		open(path, create, read, write);
+			}
 
 	/**
 	 * Write bytes to a file.
@@ -168,11 +181,11 @@ public class FileManager
 			Log.wtf("Failed to read line from file: " + path, e);
 			return null;
 		}
-		
+
 		/* Did we get anything? */
 		if(build.length() == 0)
 			return null;
-		
+
 		if(!successful_read)
 		{
 			Log.e("didn't complete full read on file: " + path);
@@ -196,19 +209,25 @@ public class FileManager
 	 */
 	public void close()
 	{
-		/* Flush anything in the output pipe */
-		try { fos.flush(); } catch(Exception e){}
-		
-		try { fos.close(); } catch(Exception e){}
-		try { fis.close(); } catch(Exception e){}
+		Log.vvln("Closed file: " + path);
+
+		if(write_perm)
+		{
+			/* Flush anything in the output pipe */
+			try { fos.flush(); } catch(Exception e){}
+			try { fos.close(); } catch(Exception e){}
+		}
+
+		if(read_perm)
+		{
+			try { fis.close(); } catch(Exception e){}
+		}
 
 		fos = null;
 		fis = null;
 		file = null;
 		opened = false;
 		path = null;
-
-		Log.vvln("Closed file: " + path);
 	}
 
 	/**
@@ -224,5 +243,7 @@ public class FileManager
 	private FileInputStream fis;
 	private FileOutputStream fos;
 	private boolean opened;
+	private boolean read_perm;
+	private boolean write_perm;
 	private String path;
 }
