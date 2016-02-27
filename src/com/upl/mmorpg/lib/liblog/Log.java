@@ -14,7 +14,7 @@ public class Log
 	/* Whether or not to display very verbose messages */
 	public static final boolean NETWORK =      true && DEBUG;
 	/* Whether or not to display very verbose messages */
-	public static final boolean TICKET =       true && DEBUG;
+	public static final boolean TICKET =       false && DEBUG;
 	
 	
 	public static void v(String s)

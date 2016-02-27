@@ -19,17 +19,6 @@ public class TestMain
 		new Thread(new Client(s)).start();
 		new Thread(new Client(s)).start();
 		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
-		new Thread(new Client(s)).start();
 	}
 
 	TicketManager tickets;

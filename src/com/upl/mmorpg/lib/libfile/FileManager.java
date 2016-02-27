@@ -1,4 +1,4 @@
-package com.upl.mmorpg.libfile;
+package com.upl.mmorpg.lib.libfile;
 
 import java.io.File;
 import java.io.FileInputStream;

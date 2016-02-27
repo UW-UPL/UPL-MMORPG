@@ -3,8 +3,8 @@ package com.upl.mmorpg.lib.librpc;
 import java.io.IOException;
 
 import com.upl.mmorpg.lib.StackBuffer;
+import com.upl.mmorpg.lib.libfile.FileManager;
 import com.upl.mmorpg.lib.liblog.Log;
-import com.upl.mmorpg.libfile.FileManager;
 
 public class RPCStubGenerator 
 {
@@ -45,6 +45,12 @@ public class RPCStubGenerator
 		callee_receiver_object = callee_receiver_object + ".";
 		
 		/* Setup the basic stuff for the handler */
+		handler.println("\t@Override");
+		handler.println("\tpublic StackBuffer handle_call(StackBuffer stack)");
+		handler.println("\t{");
+		handler.println("\t\t/* Get the function number */");
+		handler.println("\t\tint func_num = stack.popInt();");
+		handler.println("\t\t/* We are expecting a result stack buffer */");
 		handler.println("\t\tStackBuffer result = null;");
 		handler.println("\t\tswitch(func_num)");
 		handler.println("\t\t{");
@@ -84,8 +90,7 @@ public class RPCStubGenerator
 					+ ret_type + " "
 					+ func_name);
 			String callee_header = new String("\tpublic " 
-					+ ret_type + " "
-					+ "__" + func_name);
+					+ "StackBuffer __" + func_name);
 	
 			StringBuilder prototype = new StringBuilder("(");
 			StringBuilder callee_args = new StringBuilder("("
@@ -164,8 +169,15 @@ public class RPCStubGenerator
 			
 			callee_stubs.println("");
 			callee_stubs.println("\t\t/* Do the function call */");
-			callee_stubs.println("\t\treturn " + callee_receiver_object 
+			callee_stubs.println("\t\t" + ret_type + " result = " 
+					+ callee_receiver_object 
 					+ func_name  + callee_args.toString() + ";");
+			callee_stubs.println("\t\t/* Make a result stack */");
+			callee_stubs.println("\t\tStackBuffer ret_stack = " 
+					+ "new StackBuffer();");
+			callee_stubs.println("\t\tret_stack." 
+					+ StackBuffer.getPushMethod(ret_type) + "(result);");
+			callee_stubs.println("\t\treturn ret_stack;");
 			callee_stubs.println("\t}");
 			
 			line++;
@@ -176,6 +188,9 @@ public class RPCStubGenerator
 		handler.println("\t\t\t\tinvalid_rpc(func_num);");
 		handler.println("\t\t\t\tbreak;");
 		handler.println("\t\t};");
+		handler.println("");
+		handler.println("\t\treturn result;");
+		handler.println("\t};");
 		
 		file.close();
 		interface_file.close();

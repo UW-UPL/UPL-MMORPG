@@ -8,9 +8,10 @@ import com.upl.mmorpg.lib.libnet.TicketManager;
 
 public class RPCManager implements ClientManagerListener
 {
-	public RPCManager(ClientManager client)
+	public RPCManager(ClientManager client, RPCCallee callee)
 	{
 		this.client = client;
+		this.callee = callee;
 		tickets = new TicketManager();
 	}
 	
@@ -20,6 +21,8 @@ public class RPCManager implements ClientManagerListener
 		int ticket = tickets.take();
 		/* Append the ticket */
 		buff.appendFlag(ticket);
+		/* Append the call flag */
+		buff.appendFlag(RPC_CALL);
 		
 		/* Send the bytes */
 		client.writeBytes(buff.toArray());
@@ -35,13 +38,37 @@ public class RPCManager implements ClientManagerListener
 		return result;
 	}
 	
+	public void send_result(StackBuffer buff, int ticket)
+	{
+		/* Append the ticket number for the other end to use */
+		buff.appendFlag(ticket);
+		/* Append the result flag */
+		buff.appendFlag(RPC_RESULT);
+		/* Write the result bytes */
+		client.writeBytes(buff.toArray());
+		/* Flush the stream */
+		client.flush();
+	}
+	
 	@Override
 	public void bytesReceived(byte[] bytes) 
 	{
 		StackBuffer buffer = new StackBuffer(bytes);
-		int ticket_num = buffer.popInt();
-		Log.vvln("Received RPC ticket :"+ ticket_num);
-		tickets.release(ticket_num, buffer);
+		int rpc_type = buffer.popInt();
+		int ticket_num;
+		
+		switch(rpc_type)
+		{
+			case RPC_CALL:
+				/* Call the handler */
+				callee.handle_call(buffer);
+				break;
+			case RPC_RESULT:
+				ticket_num = buffer.popInt();
+				Log.vvln("Received RPC ticket :"+ ticket_num);
+				tickets.release(ticket_num, buffer);
+				break;
+		}
 	}
 
 	@Override
@@ -52,4 +79,8 @@ public class RPCManager implements ClientManagerListener
 	
 	private ClientManager client;
 	private TicketManager tickets;
+	private RPCCallee callee;
+	
+	private static final int RPC_CALL = 1;
+	private static final int RPC_RESULT = 2;
 }
