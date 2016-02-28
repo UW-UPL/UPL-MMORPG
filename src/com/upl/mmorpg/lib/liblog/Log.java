@@ -7,7 +7,7 @@ public class Log
 	/* Whether or not to display error messages */
 	public static final boolean ERROR =        true && DEBUG;
 	/* Whether or not to display basic output */
-	public static final boolean VERBOSE =      false && DEBUG;
+	public static final boolean VERBOSE =      true && DEBUG;
 	/* Whether or not to display very verbose messages */
 	public static final boolean VERY_VERBOSE = true && DEBUG && VERBOSE;
 	
@@ -15,6 +15,8 @@ public class Log
 	public static final boolean NETWORK =      true && DEBUG && VERBOSE;
 	/* Whether or not to display very verbose messages */
 	public static final boolean TICKET =       true && DEBUG && VERY_VERBOSE;
+	/* Whether or not to display rendering debug messages */
+	public static final boolean RENDER =       false && DEBUG && VERBOSE;
 	
 	
 	public static void v(String s)
@@ -123,6 +125,28 @@ public class Log
 	public static void vtickfail()
 	{
 		if(TICKET)
+			System.out.println("[FAIL]");
+	}
+	
+	/* Render debugging */
+	public static void vrnd(String s)
+	{
+		if(RENDER)
+			System.out.print("   TIK: " + s);
+	}
+	public static void vrndln(String s)
+	{
+		if(RENDER)
+			System.out.println("   TIK: " + s);
+	}
+	public static void vrndok()
+	{
+		if(RENDER)
+			System.out.println("[ OK ]");
+	}
+	public static void vrndfail()
+	{
+		if(RENDER)
 			System.out.println("[FAIL]");
 	}
 }

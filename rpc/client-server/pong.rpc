@@ -1,0 +1,13 @@
+# Return Value, Method name, arg1, arg2, ...
+
+# public void updatePaddle(int x, int y)
+void,updatePaddle,int,int
+
+# public void puckDeflected(float angle, float velocity)
+void,puckDeflected,float,float
+
+# public void setName(String playername)
+void,setName,String
+
+# public void ready()
+void,ready

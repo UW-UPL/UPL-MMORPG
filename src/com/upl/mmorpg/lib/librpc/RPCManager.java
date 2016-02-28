@@ -11,31 +11,29 @@ import com.upl.mmorpg.lib.libnet.TicketManager;
 
 public class RPCManager implements NetworkListener
 {
-	public void setup(RPCListener listen, Socket socket, 
-			int cid, RPCCallee callee) throws IOException
+	public RPCManager(Socket socket, int cid, RPCCallee callee) throws IOException
 	{
-		NetworkManager client = new NetworkManager(this, socket, cid);
-
-		this.tickets = new TicketManager();
-		this.client = client;
 		this.callee = callee;
-		this.listen = listen;
+		
+		tickets = new TicketManager();
+		client = new NetworkManager(this, socket, cid);
 	}
 
-	public RPCManager(RPCListener listen, Socket socket, 
-			int cid, RPCCallee callee) throws IOException
-	{
-		setup(listen, socket, cid, callee);
-	}
-
-	public RPCManager(RPCListener listen, String address, 
-			int port, RPCCallee callee) throws IOException
+	public RPCManager(String address, int port, RPCCallee callee) throws IOException
 	{
 		Socket socket = new Socket(address, port);
-		setup(listen, socket, 0, callee);
+		this.callee = callee;
+		
+		tickets = new TicketManager();
+		client = new NetworkManager(this, socket, 0);
 	}
-
-	public StackBuffer do_call(StackBuffer buff)
+	
+	public void setListener(RPCListener listen)
+	{
+		this.listen = listen;
+	}
+	
+	public StackBuffer do_call(StackBuffer buff, boolean block)
 	{
 		/* Generate a ticket */
 		int ticket = tickets.take();
@@ -50,6 +48,8 @@ public class RPCManager implements NetworkListener
 		
 		Log.vln("Sent out RPC CALL: " + ticket);
 
+		if(!block) return null;
+		
 		/* Wait on the ticket */
 		StackBuffer result = (StackBuffer)
 				tickets.block(ticket, 5000);
@@ -85,7 +85,8 @@ public class RPCManager implements NetworkListener
 				/* Call the handler */
 				Log.vvln("Received RPC CALL ticket: "+ ticket_num);
 				buffer = callee.handle_call(buffer);
-				send_result(buffer, ticket_num);
+				if(buffer != null)
+					send_result(buffer, ticket_num);
 				break;
 			case RPC_RESULT:
 				Log.vvln("Received RPC RESULT ticket: "+ ticket_num);
@@ -106,8 +107,11 @@ public class RPCManager implements NetworkListener
 	@Override
 	public void connectionLost() 
 	{
+		/* Just shutdown for now */
+		client.shutdown();
 		Log.vvln("Connection has been lost!!");
-		listen.connectionLost();
+		if(listen != null)
+			listen.connectionLost();
 	}
 
 	private NetworkManager client;

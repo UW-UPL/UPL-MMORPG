@@ -11,20 +11,21 @@ public class Server implements Runnable
 	public Server(ServerListener listener)
 	{
 		this.listener = listener;
-		if(!setup(DEFAULT_PORT))
-			shutdown();
+		this.port = DEFAULT_PORT;
+		clients = new LinkedList<Socket>();
 	}
 	
 	public Server(ServerListener listener, int port)
 	{
 		this.listener = listener;
-		if(!setup(port))
-			shutdown();
+		this.port = port;
+		clients = new LinkedList<Socket>();
 	}
 	
-	private boolean setup(int port)
+	public boolean startServer()
 	{
-		clients = new LinkedList<Socket>();
+		if(running) return true;
+		
 		clientCounter = 1;
 		
 		try
@@ -115,6 +116,7 @@ public class Server implements Runnable
 		listenThread = null;
 	}
 	
+	private int port; /* The port the server is running on */
 	private int clientCounter; /* The amount of clients that have connected. */
 	private LinkedList<Socket> clients; /* Connected sockets */
 	private ServerListener listener; /* The object waiting for clients to accept */

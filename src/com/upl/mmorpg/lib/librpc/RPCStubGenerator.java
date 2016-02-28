@@ -63,7 +63,25 @@ public class RPCStubGenerator
 			handler.println("\t\tStackBuffer result = null;");
 			handler.println("\t\tswitch(func_num)");
 			handler.println("\t\t{");
-
+			
+			caller_stubs.println("\tpublic ClassName(RPCManager rpc)");
+			caller_stubs.println("\t{");
+			caller_stubs.println("\t\tthis.rpc = rpc;");
+			caller_stubs.println("\t}");
+			caller_stubs.println("");
+			
+			callee_stubs.println("\tpublic ClassName(ClientHandler client)");
+			callee_stubs.println("\t{");
+			callee_stubs.println("\t\tthis.client = client;");
+			callee_stubs.println("\t}");
+			callee_stubs.println("");
+			callee_stubs.println("\t@Override");
+			callee_stubs.println("\tpublic void invalid_rpc(int num) ");
+			callee_stubs.println("\t{");
+			callee_stubs.println("\t\tLog.e(\"Invalid RPC used!\");");
+			callee_stubs.println("\t}");
+			callee_stubs.println("");
+			
 			String s;
 			int line = 0;
 			int func_num = 1;
@@ -84,7 +102,14 @@ public class RPCStubGenerator
 					continue;
 				} 
 
-				String ret_type = StackBuffer.typeSupported(parts[0]);
+				String block = "true";
+				String ret_type = null;
+				if(parts[0].trim().equalsIgnoreCase("void"))
+				{
+					block = "false";
+					ret_type = "void";
+				}else StackBuffer.typeSupported(parts[0]);
+				
 				String func_name = parts[1].trim();
 				if(ret_type == null)
 				{
@@ -99,7 +124,8 @@ public class RPCStubGenerator
 						+ ret_type + " "
 						+ func_name);
 				String callee_header = new String("\tpublic " 
-						+ "StackBuffer __" + func_name);
+						+ (block.equalsIgnoreCase("true") ? "StackBuffer" : "void") 
+						+ " __" + func_name);
 
 				StringBuilder prototype = new StringBuilder("(");
 				StringBuilder callee_args = new StringBuilder("("
@@ -152,7 +178,12 @@ public class RPCStubGenerator
 				/* Generate the start of a handler case */
 				handler.println("\t\t\tcase " + func_num 
 						+ ": /** " + func_name + " */");
-				handler.println("\t\t\t\tresult = __" + func_name + "(stack);");
+				if(block.equalsIgnoreCase("true"))
+				{
+					handler.println("\t\t\t\tresult = __" + func_name + "(stack);");
+				} else {
+					handler.println("\t\t\t\t__" + func_name + "(stack);");
+				}
 				handler.println("\t\t\t\tbreak;");
 
 				/* Do any needed pushing or popping off of the stack */
@@ -170,24 +201,42 @@ public class RPCStubGenerator
 				}
 
 				caller_stubs.println("\t\t/* Do the network call */");
-				caller_stubs.println("\t\tStackBuffer res = rpc.do_call(stack);");
-				caller_stubs.println("\t\treturn res." 
-						+ StackBuffer.getPopMethod(ret_type) + "();");
+				if(block.equalsIgnoreCase("true"))
+				{
+					caller_stubs.println("\t\tStackBuffer res = rpc.do_call(stack, " 
+							+ block + ");");
+					caller_stubs.println("\t\treturn res." 
+							+ StackBuffer.getPopMethod(ret_type) + "();");
+				} else {
+					caller_stubs.println("\t\trpc.do_call(stack, false);");
+				}
 				caller_stubs.println("\t}");
 				caller_stubs.println("");
 
 				callee_stubs.println("");
 				callee_stubs.println("\t\t/* Do the function call */");
-				callee_stubs.println("\t\t" + ret_type + " result = " 
-						+ callee_receiver_object 
-						+ func_name  + callee_args.toString() + ";");
-				callee_stubs.println("\t\t/* Make a result stack */");
-				callee_stubs.println("\t\tStackBuffer ret_stack = " 
-						+ "new StackBuffer();");
-				callee_stubs.println("\t\tret_stack." 
-						+ StackBuffer.getPushMethod(ret_type) + "(result);");
-				callee_stubs.println("\t\treturn ret_stack;");
+				if(block.equalsIgnoreCase("true"))
+				{
+					callee_stubs.println("\t\t" + ret_type + " result = " 
+							+ callee_receiver_object 
+							+ func_name  + callee_args.toString() + ";");
+				} else {
+					callee_stubs.println("\t\t" + callee_receiver_object 
+							+ func_name  + callee_args.toString() + ";");
+				}
+				
+				/* Only send a response if we care about it */
+				if(block.equalsIgnoreCase("true"))
+				{
+					callee_stubs.println("\t\t/* Make a result stack */");
+					callee_stubs.println("\t\tStackBuffer ret_stack = " 
+							+ "new StackBuffer();");
+					callee_stubs.println("\t\tret_stack." 
+							+ StackBuffer.getPushMethod(ret_type) + "(result);");
+					callee_stubs.println("\t\treturn ret_stack;");
+				}
 				callee_stubs.println("\t}");
+				callee_stubs.println("");
 
 				line++;
 				func_num++;
@@ -200,6 +249,10 @@ public class RPCStubGenerator
 			handler.println("");
 			handler.println("\t\treturn result;");
 			handler.println("\t}");
+			
+			caller_stubs.println("\tprivate RPCManager rpc;");
+			
+			callee_stubs.println("\tprivate ClientHandler client;");
 
 			file.close();
 			interface_file.close();
