@@ -11,32 +11,30 @@ import com.upl.mmorpg.lib.libnet.TicketManager;
 
 public class RPCManager implements NetworkListener
 {
-	public void setup(Socket socket, int cid, RPCCallee callee)
+	public void setup(RPCListener listen, Socket socket, 
+			int cid, RPCCallee callee) throws IOException
 	{
-		try 
-		{
-			NetworkManager client = new NetworkManager(this, socket, cid);
-			
-			this.tickets = new TicketManager();
-			this.client = client;
-			this.callee = callee;
-		} catch (IOException e) { }	
+		NetworkManager client = new NetworkManager(this, socket, cid);
+
+		this.tickets = new TicketManager();
+		this.client = client;
+		this.callee = callee;
+		this.listen = listen;
 	}
-	
-	public RPCManager(Socket socket, int cid, RPCCallee callee)
+
+	public RPCManager(RPCListener listen, Socket socket, 
+			int cid, RPCCallee callee) throws IOException
 	{
-		setup(socket, cid, callee);
+		setup(listen, socket, cid, callee);
 	}
-	
-	public RPCManager(String address, int port, int cid, RPCCallee callee)
+
+	public RPCManager(RPCListener listen, String address, 
+			int port, RPCCallee callee) throws IOException
 	{
-		try 
-		{
-			Socket socket = new Socket(address, port);
-			setup(socket, cid, callee);
-		} catch (Exception e) { }
+		Socket socket = new Socket(address, port);
+		setup(listen, socket, 0, callee);
 	}
-	
+
 	public StackBuffer do_call(StackBuffer buff)
 	{
 		/* Generate a ticket */
@@ -45,21 +43,23 @@ public class RPCManager implements NetworkListener
 		buff.appendFlag(ticket);
 		/* Append the call flag */
 		buff.appendFlag(RPC_CALL);
-		
+
 		/* Send the bytes */
 		client.writeBytes(buff.toArray());
 		client.flush();
 		
+		Log.vln("Sent out RPC CALL: " + ticket);
+
 		/* Wait on the ticket */
 		StackBuffer result = (StackBuffer)
 				tickets.block(ticket, 5000);
-		
+
 		if(result == null)
 			throw new RPCTimeoutException();
-		
+
 		return result;
 	}
-	
+
 	public void send_result(StackBuffer buff, int ticket)
 	{
 		/* Append the ticket number for the other end to use */
@@ -71,37 +71,49 @@ public class RPCManager implements NetworkListener
 		/* Flush the stream */
 		client.flush();
 	}
-	
+
 	@Override
 	public void bytesReceived(byte[] bytes) 
 	{
 		StackBuffer buffer = new StackBuffer(bytes);
 		int rpc_type = buffer.popInt();
-		int ticket_num;
-		
+		int ticket_num = buffer.popInt();
+
 		switch(rpc_type)
 		{
 			case RPC_CALL:
 				/* Call the handler */
-				callee.handle_call(buffer);
+				Log.vvln("Received RPC CALL ticket: "+ ticket_num);
+				buffer = callee.handle_call(buffer);
+				send_result(buffer, ticket_num);
 				break;
 			case RPC_RESULT:
-				ticket_num = buffer.popInt();
-				Log.vvln("Received RPC ticket :"+ ticket_num);
+				Log.vvln("Received RPC RESULT ticket: "+ ticket_num);
 				tickets.release(ticket_num, buffer);
 				break;
+			default:
+				Log.e("RECEIVED JUNK");
+				break;
 		}
+	}
+	
+	public void shutdown()
+	{
+		client.shutdown();
+		tickets.release_all();
 	}
 
 	@Override
 	public void connectionLost() 
 	{
-		Log.vvln("Connection to server lost!!");
+		Log.vvln("Connection has been lost!!");
+		listen.connectionLost();
 	}
-	
+
 	private NetworkManager client;
 	private TicketManager tickets;
 	private RPCCallee callee;
+	private RPCListener listen;
 	
 	private static final int RPC_CALL = 1;
 	private static final int RPC_RESULT = 2;

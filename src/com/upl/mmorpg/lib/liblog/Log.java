@@ -7,14 +7,14 @@ public class Log
 	/* Whether or not to display error messages */
 	public static final boolean ERROR =        true && DEBUG;
 	/* Whether or not to display basic output */
-	public static final boolean VERBOSE =      true && DEBUG;
+	public static final boolean VERBOSE =      false && DEBUG;
 	/* Whether or not to display very verbose messages */
-	public static final boolean VERY_VERBOSE = true && DEBUG;
+	public static final boolean VERY_VERBOSE = true && DEBUG && VERBOSE;
 	
 	/* Whether or not to display very verbose messages */
-	public static final boolean NETWORK =      true && DEBUG;
+	public static final boolean NETWORK =      true && DEBUG && VERBOSE;
 	/* Whether or not to display very verbose messages */
-	public static final boolean TICKET =       false && DEBUG;
+	public static final boolean TICKET =       true && DEBUG && VERY_VERBOSE;
 	
 	
 	public static void v(String s)
@@ -31,13 +31,13 @@ public class Log
 	
 	public static void vok()
 	{
-		if(DEBUG)
+		if(VERBOSE)
 			System.out.println("[ OK ]");
 	}
 	
 	public static void vfail()
 	{
-		if(DEBUG)
+		if(VERBOSE)
 			System.out.println("[FAIL]");
 	}
 	
@@ -55,13 +55,13 @@ public class Log
 	
 	public static void vvok()
 	{
-		if(DEBUG)
+		if(VERY_VERBOSE)
 			System.out.println("[ OK ]");
 	}
 	
 	public static void vvfail()
 	{
-		if(DEBUG)
+		if(VERY_VERBOSE)
 			System.out.println("[FAIL]");
 	}
 	

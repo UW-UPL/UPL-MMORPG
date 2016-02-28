@@ -159,6 +159,7 @@ public class StackBuffer
 		for(int x = 0;x < 4;x++)
 			buffer.put(rbuff[x + rbuff_pos]);
 		rbuff_pos += 4;
+		buffer.position(0);
 		return buffer.getInt();
 	}
 	
@@ -169,6 +170,7 @@ public class StackBuffer
 		for(int x = 0;x < 8;x++)
 			buffer.put(rbuff[x + rbuff_pos]);
 		rbuff_pos += 8;
+		buffer.position(0);
 		return buffer.getLong();
 	}
 	
@@ -221,6 +223,7 @@ public class StackBuffer
 		for(int x = 0;x < 4;x++)
 			buffer.put(rbuff[x + rbuff_pos]);
 		rbuff_pos += 4;
+		buffer.position(0);
 		return buffer.getFloat();
 	}
 	
@@ -240,6 +243,7 @@ public class StackBuffer
 		for(int x = 0;x < 8;x++)
 			buffer.put(rbuff[x + rbuff_pos]);
 		rbuff_pos += 8;
+		buffer.position(0);
 		return buffer.getDouble(); 
 	}
 	

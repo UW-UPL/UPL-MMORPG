@@ -2,8 +2,10 @@ package com.upl.mmorpg.lib.libnet;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 import com.upl.mmorpg.lib.liblog.Log;
 
@@ -14,12 +16,14 @@ public class NetworkManager implements Runnable
 		/* Setup the IO streams */
 		dis = new DataInputStream(socket.getInputStream());
 		dos = new DataOutputStream(socket.getOutputStream());
+		output_dirty = false;
 		
 		/* Setup and run the thread */
 		running = true;
 		thread = new Thread(this);
 		thread.start();
 		Log.vnetln("Client " + cid + " network setup success.");
+		
 	}
 	
 	public NetworkManager(NetworkListener cmlisten, 
@@ -50,7 +54,7 @@ public class NetworkManager implements Runnable
 	 * @param bytes The bytes to send.
 	 * @return Whether or not the send was successful.
 	 */
-	public boolean writeBytes(byte[] bytes)
+	public synchronized boolean writeBytes(byte[] bytes)
 	{
 		if(!running)
 			return false;
@@ -59,13 +63,14 @@ public class NetworkManager implements Runnable
 		{
 			dos.writeInt(bytes.length);
 			dos.write(bytes, 0, bytes.length);
+			output_dirty = true;
 		} catch (Exception e)
 		{
 			Log.wtf("Failed to write bytes!", e);
 			return false;
 		}
 		
-		Log.vnet("Client " + cid + " wrote " + bytes.length + " bytes.");
+		Log.vnetln("Client " + cid + " wrote " + bytes.length + " bytes.");
 		return true;
 	}
 	
@@ -73,12 +78,20 @@ public class NetworkManager implements Runnable
 	 * Flush the output stream.
 	 * @return Whether or not the stream could be flushed.
 	 */
-	public boolean flush()
+	public synchronized boolean flush()
 	{
+		/* OPTIMIZATION: don't flush if not dirty */
+		if(!output_dirty) 
+		{
+			Log.vvln("WARNING: Flushed skipped because not dirty.");
+			return true;
+		}
+		
 		try
 		{
 			dos.flush();
-			Log.vnet("Client " + cid + " flushed the stream.");
+			output_dirty = false;
+			Log.vnetln("Client " + cid + " flushed the stream.");
 		} catch(Exception e){ return false; }
 		return true;
 	}
@@ -93,6 +106,7 @@ public class NetworkManager implements Runnable
 			{
 				/* Read the length of the message */
 				int len = dis.readInt();
+				if(!running) break;
 				Log.vvln("Client " + cid + " got " + len + " bytes.");
 				
 				if(len > NetSecurity.MAX_READLEN)
@@ -107,17 +121,46 @@ public class NetworkManager implements Runnable
 				byte buffer[] = new byte[len];
 				
 				/* Read the data */
-				dis.read(buffer, 0, len);
+				int index = 0;
+				boolean fault = false;
+				while(index != len)
+				{
+					int read = dis.read(buffer, index, len - index);
+					if(read <= 0 || !running)
+					{
+						throw new IOException("DataInputStream fault.");
+					} else {
+						index += read;
+						if(index != len)
+							Log.e("WARNING: Network overloaded!");
+					}
+				}
+				
+				/* did the read complete? */
+				if(fault)
+					throw new IOException("DataInputStream fault.");
 				
 				if(cmlisten != null)
 				{
-					cmlisten.bytesReceived(buffer);
+					/* Put this on a seperate thread */
+					final byte received_bytes[] = buffer;
+					Runnable runnable = new Runnable()
+					{
+						public void run()
+						{
+							cmlisten.bytesReceived(received_bytes);
+						}
+					};
+					new Thread(runnable).start();
 				} else {
 					Log.vnetln("Client " + cid + " has no listener!");
 				}
 				buffer = null; /* Free the buffer */
 			}catch(Exception e) 
 			{
+				if(e instanceof EOFException 
+						|| e instanceof SocketException)
+					break;
 				Log.wtf("Read Fault cid=" + cid, e);
 			}
 		}
@@ -196,6 +239,7 @@ public class NetworkManager implements Runnable
 	private Socket socket; /* Socket for network i/o */
 	private DataInputStream dis; /* Input stream */
 	private DataOutputStream dos; /* Output stream */
+	private boolean output_dirty; /* Is there something in the output stream? */
 	
 	private boolean running; /* Are we listening for packets? */
 	private Thread thread; /* Seperate thread for listening for packets */

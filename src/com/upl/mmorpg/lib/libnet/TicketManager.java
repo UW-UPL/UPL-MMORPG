@@ -16,7 +16,7 @@ public class TicketManager
 	
 	/**
 	 * Take a new ticket number.
-	 * @return
+	 * @return The ticket number
 	 */
 	public int take()
 	{
@@ -103,11 +103,22 @@ public class TicketManager
 			if(tick.num() == ticket_num)
 			{
 				tick.wake(result);
+				it.remove();
 				return true;
 			}
 		}
 		
 		return false;
+	}
+	
+	public synchronized void release_all()
+	{
+		Iterator<Ticket> it = tickets.iterator();
+		while(it.hasNext())
+		{
+			it.next().wake(null);
+			it.remove();
+		}
 	}
 	
 	private int curr_ticket; /* Current ticket available (wrapping is ok) */

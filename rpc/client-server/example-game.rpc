@@ -5,3 +5,6 @@ boolean,broadcast_message,String
 
 # public boolean register(String username);
 boolean,register,String
+
+# public boolean echo(String);
+boolean,echo,String

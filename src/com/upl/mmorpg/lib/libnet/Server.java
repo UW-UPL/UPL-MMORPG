@@ -8,8 +8,23 @@ import com.upl.mmorpg.lib.liblog.Log;;
 
 public class Server implements Runnable 
 {
+	public Server(ServerListener listener)
+	{
+		this.listener = listener;
+		if(!setup(DEFAULT_PORT))
+			shutdown();
+	}
+	
+	public Server(ServerListener listener, int port)
+	{
+		this.listener = listener;
+		if(!setup(port))
+			shutdown();
+	}
+	
 	private boolean setup(int port)
 	{
+		clients = new LinkedList<Socket>();
 		clientCounter = 1;
 		
 		try
@@ -34,34 +49,36 @@ public class Server implements Runnable
 		return true;
 	}
 	
-	public Server()
-	{
-		if(setup(DEFAULT_PORT))
-			shutdown();
-	}
-	
-	public Server(int port)
-	{
-		if(!setup(port))
-			shutdown();
-	}
-	
 	@Override
 	public void run()
 	{
+		Log.vln("Ready for clients...");
 		while(running)
 		{
 			try
 			{
-				Log.vln("Ready for clients...");
 				/* Accept a client socket */
 				Socket client = serverSocket.accept();
+				clients.add(client);
 				Log.vln("Received client " + clientCounter);
 				
+				listener.acceptClient(client, clientCounter++);
 				/* Were we interrupted due to a shutdown? */
 				if(!running) break;
-			} catch(Exception e){}
+			} catch(Exception e)
+			{
+				Log.wtf("Failed to accept client!", e);
+			}
 		}
+	}
+	
+	/**
+	 * Notify the server that a client has lost connection
+	 * @param socket The socket the client was connected to
+	 */
+	public void disconnected(Socket socket)
+	{
+		clients.remove(socket);
 	}
 	
 	/**
@@ -69,11 +86,11 @@ public class Server implements Runnable
 	 */
 	public void shutdown()
 	{
-		Iterator<NetworkManager> it = clients.iterator();
+		Iterator<Socket> it = clients.iterator();
 		while(it.hasNext())
 		{
-			NetworkManager client = it.next();
-			client.shutdown();
+			Socket client = it.next();
+			try { client.close(); } catch (Exception e){};
 			client = null;
 			it.remove();
 		}
@@ -99,7 +116,8 @@ public class Server implements Runnable
 	}
 	
 	private int clientCounter; /* The amount of clients that have connected. */
-	private LinkedList<NetworkManager> clients;
+	private LinkedList<Socket> clients; /* Connected sockets */
+	private ServerListener listener; /* The object waiting for clients to accept */
 	
 	private ServerSocket serverSocket; /* The socket used to accept clients */
 	private Thread listenThread; /* The thread that is used to listen for clients. */

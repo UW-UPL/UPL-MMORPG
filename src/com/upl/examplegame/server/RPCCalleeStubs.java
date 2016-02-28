@@ -32,13 +32,16 @@ public class RPCCalleeStubs implements RPCCallee
 			case 2: /** register */
 				result = __register(stack);
 				break;
+			case 3: /** echo */
+				result = __echo(stack);
+				break;
 			default:
 				invalid_rpc(func_num);
 				break;
 		};
 
 		return result;
-	};
+	}
 	
 	public StackBuffer __broadcast_message(StackBuffer stack)
 	{
@@ -59,6 +62,18 @@ public class RPCCalleeStubs implements RPCCallee
 
 		/* Do the function call */
 		boolean result = client.register(arg0);
+		/* Make a result stack */
+		StackBuffer ret_stack = new StackBuffer();
+		ret_stack.pushBoolean(result);
+		return ret_stack;
+	}
+	public StackBuffer __echo(StackBuffer stack)
+	{
+		/* Pop the arguments */
+		String arg0 = stack.popString();
+
+		/* Do the function call */
+		boolean result = client.echo(arg0);
 		/* Make a result stack */
 		StackBuffer ret_stack = new StackBuffer();
 		ret_stack.pushBoolean(result);

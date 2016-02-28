@@ -1,17 +1,21 @@
 package com.upl.examplegame.server;
 
+import java.io.IOException;
 import java.net.Socket;
 
+import com.upl.mmorpg.lib.librpc.RPCListener;
 import com.upl.mmorpg.lib.librpc.RPCManager;
 
-public class ClientHandler 
+public class ClientHandler implements RPCListener
 {
-	public ClientHandler(ExampleServer server, Socket socket, int cid)
+	public ClientHandler(ExampleServer server, Socket socket, int cid) 
+			throws IOException
 	{
-		calleeStubs = new RPCCalleeStubs(this);
-		serverrpc = new RPCManager(socket, cid, calleeStubs);
-		
+		rpc = new RPCManager(this, socket, cid, new RPCCalleeStubs(this));
+		caller = new RPCCallerStubs(rpc);
 		this.server = server;
+		this.socket = socket;
+		sender = null;
 	}
 	
 	public boolean broadcast_message(String message)
@@ -33,8 +37,36 @@ public class ClientHandler
 		return false;
 	}
 	
+	public boolean echo(String message)
+	{
+		System.out.println("Received echo: " + message);
+		return true;
+	}
+	
+	public boolean send_message(String sender, String message)
+	{
+		caller.receive_message(sender, message);
+		return true;
+	}
+	
+	public void shutdown()
+	{
+		socket = null;
+		server = null;
+		rpc = null;
+		caller = null;
+	}
+	
+	@Override
+	public void connectionLost() 
+	{
+		server.disconnected(this, socket);
+		shutdown();
+	}
+	
+	private Socket socket;
 	private String sender;
 	private ExampleServer server;
-	private RPCCalleeStubs calleeStubs;
-	private RPCManager serverrpc;
+	private RPCManager rpc;
+	private RPCCallerStubs caller;
 }
