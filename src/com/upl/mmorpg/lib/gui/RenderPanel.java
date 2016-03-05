@@ -323,7 +323,7 @@ public class RenderPanel extends JPanel implements Runnable
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 600;
 
-	private static final int FRAMES_PER_SECOND = 200;
+	private static final int FRAMES_PER_SECOND = 100;
 
 	private static final boolean CENTER_LINES = true;
 

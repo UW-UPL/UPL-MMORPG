@@ -51,15 +51,15 @@ public class CollideBox extends CollideShape
 			return true;
 		if(Math.abs(cx - x2) < r && (cy > y && cy < y2))
 			return true;
-		if(Math.abs(y - cy) < r && (cy > x && cy < x2))
+		if(Math.abs(y - cy) < r && (cx > x && cx < x2))
 			return true;
-		if(Math.abs(cy - y) < r && (cy > x && cy < x2))
+		if(Math.abs(cy - y2) < r && (cx > x && cx < x2))
 			return true;
 		
 		if(shape.inside(x, y)) return true;
 		if(shape.inside(x, y2)) return true;
 		if(shape.inside(x2, y)) return true;
-		return shape.inside(x2, x2);
+		return shape.inside(x2, y2);
 	}
 	
 	public boolean boundsBox(CollideBox box)
