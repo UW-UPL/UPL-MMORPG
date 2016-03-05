@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -92,17 +91,6 @@ public class RenderPanel extends JPanel implements Runnable
 		
 		if(fps != null)
 			fps.startMeasuring();
-		
-		/* Tell all components to start animating */
-		Iterator<Renderable> it = backPane.iterator();
-		while(it.hasNext())
-			it.next().startAnimation();
-		it = midPane.iterator();
-		while(it.hasNext())
-			it.next().startAnimation();
-		it = glassPane.iterator();
-		while(it.hasNext())
-			it.next().startAnimation();
 	}
 
 	public synchronized void addRenderable(Renderable render)
@@ -291,7 +279,7 @@ public class RenderPanel extends JPanel implements Runnable
 		public void render(Graphics2D g) 
 		{
 			g.setColor(Color.red);
-			g.drawString(getText(), locX, locY);
+			g.drawString(getText(), (float)locX, (float)locY);
 		}
 
 		@Override
@@ -341,7 +329,6 @@ public class RenderPanel extends JPanel implements Runnable
 		
 		private synchronized void setFPS(int fps)
 		{
-			this.last_fps = fps;
 			this.setText("FPS: " + fps);
 			this.setX(0);
 			this.setY(this.getHeight());
@@ -349,7 +336,6 @@ public class RenderPanel extends JPanel implements Runnable
 		
 		private Thread framesThread; /* Thread for measuring fps */
 		private boolean measuring; /* whether or not we are generating stats */
-		private int last_fps;
 		private RenderPanel panel;
 	}
 }
