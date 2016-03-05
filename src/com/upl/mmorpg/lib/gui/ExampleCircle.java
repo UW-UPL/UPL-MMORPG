@@ -4,29 +4,28 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Random;
 
-import com.upl.mmorpg.lib.collision.CollideBox;
+import com.upl.mmorpg.lib.collision.CollideCircle;
 import com.upl.mmorpg.lib.collision.CollisionManager;
 
-public class ExampleBox extends Renderable
+public class ExampleCircle extends Renderable
 {
-	public ExampleBox(int x, int y, int width, int height)
+	public ExampleCircle(double x, double y, double radius)
 	{
 		super();
 		this.locX = x;
 		this.locY = y;
-		this.width = width;
-		this.height = height;
+		this.radius = radius;
 		
-		collide = new CollideBox(locX, locY, width, height);
+		collide = new CollideCircle(x, y, radius);
 		collision_shapes.add(collide);
 		color = Color.BLUE;
 		this.hasAnimation = false;
 	}
 	
-	public ExampleBox(int x, int y, int width, int height, 
+	public ExampleCircle(double x, double y, double radius, 
 			CollisionManager collision_manager)
 	{
-		this(x, y, width, height);
+		this(x, y, radius);
 		this.collision_manager = collision_manager;
 	}
 	
@@ -68,8 +67,7 @@ public class ExampleBox extends Renderable
 		double locYSave = this.locY;
 		this.locX += vectX * seconds;
 		this.locY += vectY * seconds;
-		collide.setX(locX);
-		collide.setY(locY);
+		collide.setCenter(locX, locY);
 		
 		if(!collision_manager.isBounded(collide)
 				|| collision_manager.isColliding(collide))
@@ -87,51 +85,61 @@ public class ExampleBox extends Renderable
 	public void render(Graphics2D g) 
 	{
 		g.setColor(color);
-		g.fillRect((int)locX, (int)locY, (int)width, (int)height);
+		double x = this.locX - (radius);
+		double y = this.locY - (radius);
+		g.fillOval((int)x, (int)y, (int)radius * 2, (int)radius * 2);
 	}
 
 	@Override
 	public String getRenderName() {
-		return "Box";
+		return "Circle";
 	}
 	
 	@Override
 	public void setX(double x)
 	{
 		super.setX(x);
-		collide.setX(x);
+		collide.setCenter(x, locY);
 	}
 	
 	@Override
 	public void setY(double y)
 	{
 		super.setY(y);
-		collide.setY(y);
+		collide.setCenter(locX, y);
 	}
 	
 	@Override
 	public void setWidth(double width)
 	{
 		super.setWidth(width);
-		collide.setWidth(width);
 	}
 	
 	@Override
 	public void setHeight(double height)
 	{
 		super.setHeight(height);
-		collide.setHeight(height);
+	}
+	
+	@Override
+	public void setCenter(double x, double y)
+	{
+		locX = x;
+		locY = y;
+		collide.setCenter(x, y);
 	}
 	
 	@Override
 	public String toString() 
 	{
-		return "Example Box (" + locX + ", " + locY + ", "
+		return "Example Circle (" + locX + ", " + locY + ", "
 				+ (width + locX) + ", " + (locY + height) + ")";
 	}
 
 	private Color color;
-	private CollideBox collide;
+	private CollideCircle collide;
 	private double vectX;
 	private double vectY;
+	
+	private double radius;
 }

@@ -22,9 +22,9 @@ public class HumanPlayer extends Player implements MouseMotionListener
 	{
 		int x = (int)arg0.getX();
 		int y = (int)arg0.getY();
-		System.out.println("X: " + x + " Y: " + y);
 		
-		paddle.setCenter(x, y);
+		paddle.setX(x);
+		paddle.setY(y);
 		call.updatePaddle(x, y);
 	}
 	

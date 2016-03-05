@@ -50,13 +50,13 @@ public class NetworkGame extends Game
 			puck.generate_properties();
 			puck.setCenter(board.getWidth() / 2, board.getHeight() / 2);
 			nplayer1.getRPCCaller().setPuckProperties(
-					puck.getX(), puck.getY(), 
-					puck.getDirection(), puck.getVelocity(), 
-					puck.getSpin());
+					(float)puck.getX(), (float)puck.getY(), 
+					(float)puck.getDirection(), (float)puck.getVelocity(), 
+					(float)puck.getSpin());
 			nplayer2.getRPCCaller().setPuckProperties(
-					puck.getX(), puck.getY(), 
-					puck.getDirection(), puck.getVelocity(),
-					puck.getSpin());
+					(float)puck.getX(), (float)puck.getY(), 
+					(float)puck.getDirection(), (float)puck.getVelocity(),
+					(float)puck.getSpin());
 		}
 	}
 	

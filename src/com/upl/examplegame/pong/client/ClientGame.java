@@ -25,7 +25,9 @@ public class ClientGame extends Game
 
 		puck.hide();
 		panel.addRenderable(puck);
+		panel.addCollidable(puck);
 		panel.addBPRenderable(board);
+		panel.addBounds(board);
 
 		/* Put a prompt on the screen */
 		currentPrompt = new TextView("Waiting for another player to join...");
@@ -140,7 +142,9 @@ public class ClientGame extends Game
 		{
 			/* Add the paddles to the board */
 			panel.addRenderable(player1.getPaddle());
+			panel.addCollidable(player1.getPaddle());
 			panel.addRenderable(player2.getPaddle());
+			panel.addCollidable(player2.getPaddle());
 		}
 
 		/* Set the name of the player */

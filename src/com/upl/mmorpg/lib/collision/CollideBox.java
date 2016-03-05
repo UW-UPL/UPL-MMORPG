@@ -91,11 +91,11 @@ public class CollideBox extends CollideShape
 		if(rightX > x + width) return false;
 		if(topY < y) return false;
 		if(leftX < x) return false;
-		if(bottomY < y + height)return false;
+		if(bottomY > y + height)return false;
 		
 		return true;
 	}
-
+	
 	public double getX() {return x;}
 	public void setX(double x) {this.x = x;}
 	public double getY() {return y;}
@@ -104,6 +104,12 @@ public class CollideBox extends CollideShape
 	public void setWidth(double width) {this.width = width;}
 	public double getHeight() {return height;}
 	public void setHeight(double height) {this.height = height;}
+	
+	public String toString()
+	{
+		return "Collision Box (" + x + ", " + y + ", "
+				+ (width + x) + ", " + (y + height) + ")";
+	}
 	
 	private double x;
 	private double y;

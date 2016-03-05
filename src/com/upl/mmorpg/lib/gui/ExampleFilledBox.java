@@ -3,10 +3,11 @@ package com.upl.mmorpg.lib.gui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-public class ExampleFilledBox extends Renderable
+public class ExampleFilledBox extends ExampleBox
 {
 	public ExampleFilledBox(int x, int y, int width, int height)
 	{
+		super(x, y, width, height);
 		this.locX = x;
 		this.locY = y;
 		this.width = width;
@@ -21,8 +22,14 @@ public class ExampleFilledBox extends Renderable
 	}
 
 	@Override
-	public String getRenderName() {
+	public String getRenderName() 
+	{
 		return "FilledBox";
 	}
 
+	@Override
+	public String toString() 
+	{
+		return "ExampleFilledBox";
+	}
 }

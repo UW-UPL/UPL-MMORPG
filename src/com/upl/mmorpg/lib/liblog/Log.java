@@ -3,7 +3,7 @@ package com.upl.mmorpg.lib.liblog;
 public class Log 
 {
 	/* Whether or not to display any output */
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	/* Whether or not to display error messages */
 	public static final boolean ERROR =        true && DEBUG;
 	/* Whether or not to display basic output */
@@ -12,11 +12,13 @@ public class Log
 	public static final boolean VERY_VERBOSE = true && DEBUG && VERBOSE;
 	
 	/* Whether or not to display very verbose messages */
-	public static final boolean NETWORK =      true && DEBUG && VERBOSE;
+	public static final boolean NETWORK =      false && DEBUG && VERBOSE;
 	/* Whether or not to display very verbose messages */
-	public static final boolean TICKET =       true && DEBUG && VERY_VERBOSE;
+	public static final boolean TICKET =       false && DEBUG && VERY_VERBOSE;
 	/* Whether or not to display rendering debug messages */
 	public static final boolean RENDER =       false && DEBUG && VERBOSE;
+	/* Whether or not to display collision debug messages */
+	public static final boolean COLLISION =       false && DEBUG && VERBOSE;
 	
 	
 	public static void v(String s)
@@ -147,6 +149,28 @@ public class Log
 	public static void vrndfail()
 	{
 		if(RENDER)
+			System.out.println("[FAIL]");
+	}
+	
+	/* Collision debugging */
+	public static void coll(String s)
+	{
+		if(COLLISION)
+			System.out.print("   CLL: " + s);
+	}
+	public static void collln(String s)
+	{
+		if(COLLISION)
+			System.out.println("   CLL: " + s);
+	}
+	public static void collok()
+	{
+		if(COLLISION)
+			System.out.println("[ OK ]");
+	}
+	public static void collfail()
+	{
+		if(COLLISION)
 			System.out.println("[FAIL]");
 	}
 }

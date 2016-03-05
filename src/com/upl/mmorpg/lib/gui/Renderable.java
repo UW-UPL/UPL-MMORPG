@@ -14,12 +14,6 @@ import com.upl.mmorpg.lib.collision.CollisionManager;
 
 public abstract class Renderable implements Runnable, Collidable
 {
-	public Renderable(CollisionManager c)
-	{
-		this();
-		this.collision_manager = c;
-	}
-	
 	public Renderable()
 	{
 		collision_shapes = new LinkedList<CollideShape>();
@@ -35,7 +29,13 @@ public abstract class Renderable implements Runnable, Collidable
 
 		animation_wait = RenderMath.calculateVSYNC(ANIMATION_SPEED);
 	}
+	
+	public void setCollisionManager(CollisionManager collision)
+	{
+		collision_manager = collision;
+	}
 
+	@Override
 	public boolean isColliding(CollideShape shape)
 	{
 		/* Do we have a collision shape? */
@@ -62,7 +62,8 @@ public abstract class Renderable implements Runnable, Collidable
 		/* Unsupported shape or no collision */
 		return false;
 	}
-
+	
+	@Override
 	public boolean isBounding(CollideShape shape)
 	{
 		/* Do we have a collision shape? */
@@ -73,21 +74,27 @@ public abstract class Renderable implements Runnable, Collidable
 			CollideShape s = it.next();
 			if(shape instanceof CollideBox)
 			{
-				if(s.boundsBox((CollideBox)shape))
+				if(!s.boundsBox((CollideBox)shape))
 				{
-					return true;
+					return false;
 				}
 			} else if(shape instanceof CollideCircle)
 			{
-				if(s.boundsCircle((CollideCircle)shape))
+				if(!s.boundsCircle((CollideCircle)shape))
 				{
-					return true;
+					return false;
 				}
 			} else throw new RuntimeException("Unsupported Shape!");
 		}
 
-		/* Unsupported shape or no collision */
-		return false;
+		/* Unsupported shape or is bounding */
+		return true;
+	}
+	
+	@Override
+	public boolean containsShape(CollideShape shape)
+	{
+		return collision_shapes.contains(shape);
 	}
 
 	/**
@@ -113,7 +120,7 @@ public abstract class Renderable implements Runnable, Collidable
 	public double getY(){return locY;}
 	public void setWidth(double n){this.width = n;}
 	public double getWidth(){return width;}
-	public void setHight(double n){this.height = n;}
+	public void setHeight(double n){this.height = n;}
 	public double getHeight(){return height;}
 	public void setRotation(double degrees){this.rotation = degrees;}
 	public double getRotation(){return rotation;}
@@ -135,7 +142,7 @@ public abstract class Renderable implements Runnable, Collidable
 		return p;
 	}
 
-	public void setCenter(float x, float y)
+	public void setCenter(double x, double y)
 	{
 		locX = x - (width / 2);
 		locY = y - (height / 2);
@@ -173,7 +180,7 @@ public abstract class Renderable implements Runnable, Collidable
 
 		animationThread = null;
 	}
-
+	
 	protected CollisionManager collision_manager;
 	protected LinkedList<CollideShape> collision_shapes;
 	protected double locX;

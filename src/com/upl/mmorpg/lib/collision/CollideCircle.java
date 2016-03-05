@@ -4,6 +4,13 @@ import com.upl.mmorpg.lib.gui.RenderMath;
 
 public class CollideCircle extends CollideShape
 {
+	public CollideCircle(double x, double y, double radius)
+	{
+		this.centerX = x;
+		this.centerY = y;
+		this.radius = radius;
+	}
+	
 	@Override
 	public boolean inside(double x, double y)
 	{
@@ -27,7 +34,7 @@ public class CollideCircle extends CollideShape
 		
 		double d = RenderMath.pointDistance(centerX, centerY, ox, oy);
 				
-		if(oradius + radius > d)
+		if(d < oradius + radius)
 			return true;
 		return false;
 	}
@@ -45,7 +52,7 @@ public class CollideCircle extends CollideShape
 		if(!inside(x2, y1)) return false;
 		return inside(x2, y2);
 	}
-
+	
 	@Override
 	public boolean boundsCircle(CollideCircle shape) 
 	{

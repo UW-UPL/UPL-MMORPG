@@ -21,7 +21,14 @@ public class ExampleLine extends Renderable
 	}
 
 	@Override
-	public String getRenderName() {
+	public String getRenderName() 
+	{
 		return "Box";
+	}
+
+	@Override
+	public String toString() 
+	{
+		return "ExampleLine";
 	}
 }

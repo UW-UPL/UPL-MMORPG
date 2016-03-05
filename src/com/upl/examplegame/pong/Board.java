@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import com.upl.mmorpg.lib.collision.CollideBox;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
 
@@ -17,6 +18,8 @@ public class Board extends Renderable
 		this.width = width;
 		this.height = height;
 		this.assets = assets;
+		collision = new CollideBox(0, 0, width, height);
+		collision_shapes.add(collision);
 	}
 	
 	@Override
@@ -40,4 +43,5 @@ public class Board extends Renderable
 	
 	private int board_image;
 	private AssetManager assets;
+	private CollideBox collision;
 }

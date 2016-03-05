@@ -105,11 +105,17 @@ public class TextView extends Renderable
 		
 		g.setFont(font);
 		g.setColor(color);
-		g.drawString(text, locX, locY + height - descent);
+		g.drawString(text, (float)locX, (float)(locY + height - descent));
 	}
 
 	@Override
 	public String getRenderName() 
+	{
+		return "TextView: " + text;
+	}
+	
+	@Override
+	public String toString() 
 	{
 		return "TextView: " + text;
 	}

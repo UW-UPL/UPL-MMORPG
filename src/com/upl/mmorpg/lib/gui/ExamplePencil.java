@@ -36,11 +36,18 @@ public class ExamplePencil extends Renderable
 	}
 
 	@Override
-	public String getRenderName() {
+	public String getRenderName() 
+	{
 		return "Box";
 	}
 	
+	@Override
+	public String toString() 
+	{
+		return "ExamplePencil";
+	}
+	
 	private LinkedList<Point> points;
-	private float lastx;
-	private float lasty;
+	private double lastx;
+	private double lasty;
 }
