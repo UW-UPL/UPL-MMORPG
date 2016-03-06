@@ -35,6 +35,7 @@ public class Puck extends Renderable
 	public void render(Graphics2D g) 
 	{
 		if(!showing) return;
+		if(puck_image == null) return;
 
 		/* Save the state */
 		AffineTransform state = g.getTransform();
@@ -45,8 +46,7 @@ public class Puck extends Renderable
         new_state.translate(center.getX(), center.getY());
         new_state.rotate(rotation);
 		g.setTransform(new_state);
-		BufferedImage img = assets.getImage(puck_image);
-		g.drawImage(img, -(int)(width / 2), -(int)(height / 2), 
+		g.drawImage(puck_image, -(int)(width / 2), -(int)(height / 2), 
 				(int)width, (int)height, null);
 		//g.fillOval(-(int)width / 2, -(int)height / 2, (int)width, (int)height);
 		
@@ -134,7 +134,7 @@ public class Puck extends Renderable
 	public double getSpin(){return spin;}
 	
 	private AssetManager assets;
-	private int puck_image;
+	private BufferedImage puck_image;
 	
 	private double direction; /* direction in Radians */
 	private double velocity; /* Velocity in pixles/second */

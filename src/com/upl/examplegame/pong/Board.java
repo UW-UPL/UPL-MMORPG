@@ -25,8 +25,7 @@ public class Board extends Renderable
 	@Override
 	public void render(Graphics2D g) 
 	{
-		BufferedImage img = assets.getImage(board_image);
-		g.drawImage(img, (int)locX, (int)locY, (int)width, (int)height, null);
+		g.drawImage(board_image, (int)locX, (int)locY, (int)width, (int)height, null);
 	}
 	
 	@Override
@@ -41,7 +40,7 @@ public class Board extends Renderable
 		return "Game Board";
 	}
 	
-	private int board_image;
+	private BufferedImage board_image;
 	private AssetManager assets;
 	private CollideBox collision;
 }

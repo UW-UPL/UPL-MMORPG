@@ -18,7 +18,7 @@ public class Paddle extends Renderable
 		this.board = board;
 		this.player = player;
 		this.player_num = player_num;
-		this.paddle_image = -1;
+		this.paddle_image = null;
 
 		collision = new CollideCircle(0, 0, 0);
 		collision_shapes.add(collision);
@@ -95,11 +95,10 @@ public class Paddle extends Renderable
 	@Override
 	public void render(Graphics2D g) 
 	{
-		if(paddle_image >= 0)
+		if(paddle_image != null)
 		{
 			double r = this.width / 2;
-			BufferedImage img = assets.getImage(paddle_image);
-			g.drawImage(img, (int)(locX - r), (int)(locY - r), 
+			g.drawImage(paddle_image, (int)(locX - r), (int)(locY - r), 
 					(int)(r * 2), (int)(r * 2), null);
 		}
 	}
@@ -109,9 +108,8 @@ public class Paddle extends Renderable
 	{
 		paddle_image = assets.loadImage("assets/images/paddle.png");
 
-		BufferedImage img = assets.getImage(paddle_image);
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+		this.width = paddle_image.getWidth();
+		this.height = paddle_image.getHeight();
 		collision.setRadius(this.width / 2);
 	}
 
@@ -126,7 +124,7 @@ public class Paddle extends Renderable
 	private Board board;
 
 	private AssetManager assets;
-	private int paddle_image;
+	private BufferedImage paddle_image;
 
 	private CollideCircle collision;
 }

@@ -17,18 +17,17 @@ public class AssetManager
 		images = new ArrayList<BufferedImage>();
 	}
 	
-	public int loadImage(String path) throws IOException
+	public BufferedImage loadImage(String path) throws IOException
 	{
 		File file = null;
-		int result = -1;
+		BufferedImage result = null;
 		try
 		{
 			file = new File(path);
-			BufferedImage img = ImageIO.read(file);
+			result = ImageIO.read(file);
 			
 			files.add(file);
-			images.add(img);
-			result = images.size() - 1;
+			images.add(result);
 		}catch(IOException e)
 		{
 			Log.wtf("Image Not Found!", e);
@@ -39,11 +38,12 @@ public class AssetManager
 		return result;
 	}
 	
-	public void releaseImage(int num)
+	public void releaseImage(BufferedImage img)
 	{
-		if(num < 0 || num >= files.size())
-		files.set(num, null);
-		images.set(num, null);
+		if(!images.contains(img))
+			return;
+		files.remove(images.indexOf(img));
+		images.remove(img);
 	}
 	
 	public void releaseAll()

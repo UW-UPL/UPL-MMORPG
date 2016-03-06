@@ -218,8 +218,9 @@ public class RenderPanel extends JPanel implements Runnable
 		int vx = (int)-getViewX();
 		int vy = (int)-getViewY();
 		
-		renderPane(backPane, (Graphics2D)g.create(vx, vy, PANEL_WIDTH, PANEL_HEIGHT), seconds);
-		renderPane(midPane, (Graphics2D)g.create(vx, vy, PANEL_WIDTH, PANEL_HEIGHT), seconds);
+		g.translate(vx, vy);
+		renderPane(backPane, (Graphics2D)g.create(), seconds);
+		renderPane(midPane, (Graphics2D)g.create(), seconds);
 		renderPane(glassPane, g, seconds);
 	}
 	
@@ -227,6 +228,12 @@ public class RenderPanel extends JPanel implements Runnable
 	{
 		this.viewX = viewX;
 		this.viewY = viewY;
+	}
+	
+	public synchronized void moveView(double diffX, double diffY)
+	{
+		this.viewX += diffX;
+		this.viewY += diffY;
 	}
 	
 	public synchronized double getViewX() {return viewX;}
@@ -343,7 +350,7 @@ public class RenderPanel extends JPanel implements Runnable
 
 	private static final int FRAMES_PER_SECOND = 100;
 
-	private static final boolean CENTER_LINES = true;
+	private static final boolean CENTER_LINES = false;
 
 	private static final long serialVersionUID = -3812924750709550502L;
 

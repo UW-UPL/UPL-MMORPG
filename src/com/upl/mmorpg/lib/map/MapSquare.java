@@ -7,29 +7,29 @@ import java.io.IOException;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
 
-public class IsoMapSquare extends Renderable
+public class MapSquare extends Renderable
 {
-	public IsoMapSquare(double x, double y, double width, double height,
+	public MapSquare(double x, double y, double size,
 			AssetManager assets, String image_name)
 	{
 		this.locX = x;
 		this.locY = y;
-		this.width = width;
-		this.height = height;
+		this.width = size;
+		this.height = size;
 		this.assets = assets;
 		this.image_name = image_name;
 	}
-	
+
 	@Override
 	public void loadImages() throws IOException
 	{
-		int fd = assets.loadImage(image_name);
-		image = assets.getImage(fd);
+		image = assets.loadImage(image_name);
 	}
-	
+
 	@Override
 	public void render(Graphics2D g) 
 	{
+		if(image == null) return;
 		g.drawImage(image, (int)locX, (int)locY, 
 				(int)width, (int)height, null);
 	}
@@ -39,7 +39,7 @@ public class IsoMapSquare extends Renderable
 	{
 		return "Map Square: " + image_name;
 	}
-	
+
 	private AssetManager assets;
 	private String image_name;
 	private BufferedImage image;
