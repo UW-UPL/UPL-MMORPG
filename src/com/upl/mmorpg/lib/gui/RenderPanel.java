@@ -26,6 +26,8 @@ public class RenderPanel extends JPanel implements Runnable
 			this.vsync = 0;
 		}
 
+		viewX = 0;
+		viewY = 0;
 		in_render = false;
 		/* Initilize panels */
 		backPane = new LinkedList<Renderable>();
@@ -212,10 +214,23 @@ public class RenderPanel extends JPanel implements Runnable
 
 	private synchronized void renderAll(Graphics2D g, double seconds)
 	{
-		renderPane(backPane, g, seconds);
-		renderPane(midPane, g, seconds);
+		/* Move to the proper spot on the canvas */
+		int vx = (int)-getViewX();
+		int vy = (int)-getViewY();
+		
+		renderPane(backPane, (Graphics2D)g.create(vx, vy, PANEL_WIDTH, PANEL_HEIGHT), seconds);
+		renderPane(midPane, (Graphics2D)g.create(vx, vy, PANEL_WIDTH, PANEL_HEIGHT), seconds);
 		renderPane(glassPane, g, seconds);
 	}
+	
+	public synchronized void setView(double viewX, double viewY)
+	{
+		this.viewX = viewX;
+		this.viewY = viewY;
+	}
+	
+	public synchronized double getViewX() {return viewX;}
+	public synchronized double getViewY() {return viewY;}
 
 	public void paintComponent(Graphics g)
 	{
@@ -319,6 +334,9 @@ public class RenderPanel extends JPanel implements Runnable
 	private CollisionManager collision_manager;
 	private boolean in_render;
 	private int skipped_frames;
+	
+	private double viewX;
+	private double viewY;
 
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 600;

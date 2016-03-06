@@ -26,6 +26,7 @@ public class HumanPlayer extends Player implements MouseMotionListener
 		paddle.setX(x);
 		paddle.setY(y);
 		call.updatePaddle(x, y);
+		((ClientGame)game).getPanel().setView(x, y);
 	}
 	
 	private PongRPCCaller call;

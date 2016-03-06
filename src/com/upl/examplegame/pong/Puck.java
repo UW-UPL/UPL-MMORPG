@@ -40,8 +40,8 @@ public class Puck extends Renderable
 		AffineTransform state = g.getTransform();
 		
 		Point center = this.getCenter();
-		
-		AffineTransform new_state = new AffineTransform();
+
+		AffineTransform new_state = g.getTransform();
         new_state.translate(center.getX(), center.getY());
         new_state.rotate(rotation);
 		g.setTransform(new_state);
