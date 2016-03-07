@@ -20,6 +20,11 @@ public class MapSquare extends Renderable
 		overlay = null;
 		passThrough = true;
 		passThroughWhenDestroyed = true;
+		
+		isMapLink = false;
+		linked_map = null;
+		link_row = -1;
+		link_col = -1;
 	}
 	
 	public MapSquare(double x, double y, double size,
@@ -41,6 +46,11 @@ public class MapSquare extends Renderable
 		overlay = null;
 		passThrough = true;
 		passThroughWhenDestroyed = true;
+		
+		isMapLink = false;
+		linked_map = null;
+		link_row = -1;
+		link_col = -1;
 	}
 
 	@Override
@@ -91,11 +101,18 @@ public class MapSquare extends Renderable
 		return destroyed;
 	}
 	
+	public boolean isLinkLanding()
+	{
+		return isLinkLanding;
+	}
+	
 	public String export_square()
 	{
 		/* Export all init properties to a string */
 		return image_name + "," + overlay_name + "," + destroyed_overlay_name 
-				+ "," + destructible + "," + passThrough + "," + passThroughWhenDestroyed;
+				+ "," + destructible + "," + passThrough + "," + passThroughWhenDestroyed 
+				+ "," + isLinkLanding + "," + isMapLink + "," + linked_map 
+				+ "," + link_row + "," + link_col;
 	}
 	
 	public static MapSquare import_square(String line, AssetManager assets, 
@@ -109,6 +126,11 @@ public class MapSquare extends Renderable
 		out.destructible = parts[3].equalsIgnoreCase("true");
 		out.passThrough = parts[4].equalsIgnoreCase("true");
 		out.passThroughWhenDestroyed = parts[5].equalsIgnoreCase("true");
+		out.isLinkLanding = parts[6].equalsIgnoreCase("true");
+		out.isMapLink = parts[7].equalsIgnoreCase("true");
+		out.linked_map = parts[8];
+		out.link_row = Integer.parseInt(parts[9]);
+		out.link_col = Integer.parseInt(parts[10]);
 		
 		if(out.image_name.equalsIgnoreCase("null"))
 			out.image_name = null;
@@ -116,6 +138,8 @@ public class MapSquare extends Renderable
 			out.overlay_name = null;
 		if(out.destroyed_overlay_name.equalsIgnoreCase("null"))
 			out.destroyed_overlay_name = null;
+		if(out.linked_map.equalsIgnoreCase("null"))
+			out.linked_map = null;
 		
 		out.locX = x;
 		out.locY = y;
@@ -136,4 +160,9 @@ public class MapSquare extends Renderable
 	protected boolean destructible;
 	protected boolean passThrough;
 	protected boolean passThroughWhenDestroyed;
+	protected boolean isLinkLanding;
+	protected boolean isMapLink;
+	protected String linked_map;
+	protected int link_row;
+	protected int link_col;
 }

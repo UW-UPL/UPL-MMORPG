@@ -64,8 +64,10 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 					return;
 				}
 				
+				render.removeAllBPRenderable();
 				map.unload();
 				map.createNewMap(sz, sz);
+				render.setView(0, 0);
 			}
 		});
 		
@@ -88,6 +90,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 						if(!path.endsWith(".mmomap"))
 							path = path + ".mmomap";
 						map.load(path, assets, TILE_SIZE);
+						map.addToPanel();
 					} catch (IOException e1) {
 						JOptionPane.showMessageDialog(window, "File does not exist or is currupted!");
 						map.unload();
@@ -142,6 +145,8 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		addLabel("    Tile Tools    ");
 		
 		new TileTool("assets/images/tiles/grass1.png");
+		new TileTool("assets/images/tiles/desert1.png");
+		new TileTool("assets/images/tiles/snow1.png");
 		
 		addLabel("    Overlay Tools    ");
 		new OverlayTool("assets/images/tiles/overlays/fence_l.png");
@@ -154,12 +159,40 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		new OverlayTool("assets/images/tiles/overlays/fence_rud.png");
 		new OverlayTool("assets/images/tiles/overlays/fence_rl.png");
 		
+		//new OverlayTool("assets/images/tiles/overlays/tree_left.png");
+		//new OverlayTool("assets/images/tiles/overlays/tree_mid.png");
+		//new OverlayTool("assets/images/tiles/overlays/tree_right.png");
+		
+		new ExpandingOverlayTool("assets/images/tiles/overlays/tree_left.png",
+				new String[][]{
+				{"assets/images/tiles/overlays/tree_left_ul.png", 
+					"assets/images/tiles/overlays/tree_left_ur.png"}, 
+				{"assets/images/tiles/overlays/tree_left_dl.png", 
+						"assets/images/tiles/overlays/tree_left_dr.png"}
+				});
+		new ExpandingOverlayTool("assets/images/tiles/overlays/tree_mid.png",
+				new String[][]{
+				{"assets/images/tiles/overlays/tree_mid_ul.png", 
+					"assets/images/tiles/overlays/tree_mid_ur.png"}, 
+				{"assets/images/tiles/overlays/tree_mid_dl.png", 
+						"assets/images/tiles/overlays/tree_mid_dr.png"}
+				});
+		new ExpandingOverlayTool("assets/images/tiles/overlays/tree_right.png",
+				new String[][]{
+				{"assets/images/tiles/overlays/tree_right_ul.png", 
+					"assets/images/tiles/overlays/tree_right_ur.png"}, 
+				{"assets/images/tiles/overlays/tree_right_dl.png", 
+						"assets/images/tiles/overlays/tree_right_dr.png"}
+				});
+		
 		addLabel("    Tile Properties    ");
 		
 		new PassThroughTool("assets/images/editor/passThroughTool.png", true);
 		new PassThroughTool("assets/images/editor/impassibleTool.png", false);
 		new DestructibleTool("assets/images/editor/destructibleTool.png", true);
 		new DestructibleTool("assets/images/editor/indestructibleTool.png", false);
+		new LandingTool("assets/images/editor/landingTool.png");
+		new LinkTool("assets/images/editor/linkTool.png");
 		
 		addLabel("Brush Size: ");
 		sz_field = new JTextField(2);
@@ -263,10 +296,13 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 				break;
 			case TILE:
 				if(dragging && currTileTool != null)
-					for(int x = 0;x < brush;x++)
-						for(int y = 0;y < brush;y++)
-							currTileTool.mouseDragged(row + x - brush_sub,
-									col + y - brush_sub);
+					if(currTileTool.isBrushable())
+					{
+						for(int x = 0;x < brush;x++)
+							for(int y = 0;y < brush;y++)
+								currTileTool.mouseDragged(row + x - brush_sub,
+										col + y - brush_sub);
+					} else currTileTool.mouseDragged(row, col);
 				break;
 			case ERASE:
 				for(int x = 0;x < brush;x++)
@@ -299,10 +335,13 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		switch(currTool)
 		{
 			case TILE:
-				for(int x = 0;x < brush;x++)
-					for(int y = 0;y < brush;y++)
-						currTileTool.mouseDragged(row + x - brush_sub,
-								col + y - brush_sub);
+				if(currTileTool.isBrushable())
+				{
+					for(int x = 0;x < brush;x++)
+						for(int y = 0;y < brush;y++)
+							currTileTool.mouseDragged(row + x - brush_sub,
+									col + y - brush_sub);
+				} else currTileTool.mouseDragged(row, col);
 				break;
 			case ERASE:
 				for(int x = 0;x < brush;x++)
@@ -450,6 +489,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		{
 			button = addTool(texture_file);
 			tileTools.add(this);
+			brushable = true;
 			this.texture_file = texture_file;
 		}
 		
@@ -486,8 +526,14 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			return button;
 		}
 		
+		public boolean isBrushable()
+		{
+			return brushable;
+		}
+		
 		protected JToggleButton button;
 		protected String texture_file;
+		protected boolean brushable;
 	}
 	
 	private class OverlayTool extends TileTool
@@ -524,6 +570,56 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			
 			if(set) map.setSquare(row, col, square);
 		}
+	}
+	
+	private class ExpandingOverlayTool extends OverlayTool
+	{
+		public ExpandingOverlayTool(String complete, 
+				String texture_files[][]) throws IOException 
+		{
+			super(complete);
+			brushable = false;
+			this.texture_files = texture_files;
+		}
+		
+		public void mouseDragged(int row_input, int col_input)
+		{
+			if(row_input < 0 || col_input < 0) return;
+
+			for(int r = 0;r < texture_files.length;r++)
+			{
+				for(int c = 0;c < texture_files[0].length;c++)
+				{
+					EditableMapSquare square = null;
+					boolean set = false;
+					
+					int row = row_input + r;
+					int col = col_input + c;
+					
+					if((square = map.getSquare(row, col)) == null)
+					{
+						square = new EditableMapSquare(
+								col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE,
+								assets, null, null, null);
+						set = true;
+					}
+					
+					square.setOverlay(texture_files[r][c]);
+					
+					try 
+					{
+						/* reload images */
+						square.loadImages();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					if(set) map.setSquare(row, col, square);
+				}
+			}
+		}
+		
+		private String texture_files[][];
 	}
 	
 	private class PassThroughTool extends TileTool
@@ -576,6 +672,87 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		}
 
 		private boolean destructible;
+	}
+	
+	private class LinkTool extends TileTool
+	{
+		public LinkTool(String texture_file) 
+				throws IOException 
+		{
+			super(texture_file);
+			brushable = false;
+		}
+		
+		public void mouseDragged(int row, int col)
+		{
+			if(row < 0 || col < 0) return;
+			
+			EditableMapSquare square = null;
+			
+			if((square = map.getSquare(row, col)) == null)
+			{
+				return;
+			} else {
+				try
+				{
+					JFileChooser chooser = new JFileChooser();
+					int option = chooser.showOpenDialog(window);
+					if(option == JFileChooser.APPROVE_OPTION)
+					{
+						String path = chooser.getSelectedFile().getAbsolutePath();
+						
+						int landings[][] = EditableGrid2DMap.getAllLandings(path, assets);
+						String options[] = new String[landings.length];
+						for(int x = 0;x < landings.length;x++)
+							options[x] = "Row: " + landings[x][0] + "  Col: " + landings[x][1];
+						
+						String result = (String)JOptionPane.showInputDialog(window, 
+								"Which landing do you want to use?",
+								"Landing selection", JOptionPane.PLAIN_MESSAGE, null,
+								options, options[0]);
+						
+						System.out.println("Chose: " + result);
+						boolean found = false;
+						int x;
+						for(x = 0;x < options.length;x++)
+						{
+							if(options[x].equalsIgnoreCase(result))
+							{
+								found = true;
+								break;
+							}
+						}
+						
+						if(found)
+							square.setMapLink(path, landings[x][0], landings[x][1]);
+						else throw new Exception();
+					}
+				} catch(Exception e){JOptionPane.showMessageDialog(window, "An Error occurred.");}
+			}
+		}
+	}
+	
+	private class LandingTool extends TileTool
+	{
+		public LandingTool(String texture_file) throws IOException 
+		{
+			super(texture_file);
+			brushable = false;
+		}
+		
+		public void mouseDragged(int row, int col)
+		{
+			if(row < 0 || col < 0) return;
+			
+			EditableMapSquare square = null;
+			
+			if((square = map.getSquare(row, col)) == null)
+			{
+				return;
+			} else {
+				square.setLanding(true);
+			}
+		}
 	}
 	
 	public static void main(String args[])
