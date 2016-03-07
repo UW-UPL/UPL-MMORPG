@@ -1,5 +1,6 @@
 package com.upl.mmorpg.lib.map.edit;
 
+import java.awt.Graphics2D;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -10,14 +11,42 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class EditableGrid2DMap extends Grid2DMap
 {
-	public EditableGrid2DMap(RenderPanel panel) 
+	public EditableGrid2DMap(RenderPanel panel, double tileSize) 
 	{
-		super(panel);
+		super(panel, tileSize);
 	}
 
 	public EditableGrid2DMap()
 	{
-		super(null);
+		super();
+	}
+	
+	@Override
+	public void render(Graphics2D g) 
+	{
+		if(!loaded || map == null) return;
+		double startX = panel.getViewX();
+		double startY = panel.getViewY();
+		
+		int displayCols = (int)(panel.getWidth() / tileSize) + 2;
+		int displayRows = (int)(panel.getHeight() / tileSize) + 3;
+		
+		int startRow = (int)(startY / tileSize);
+		int startCol = (int)(startX / tileSize);
+		
+		for(int rows = 0;rows < displayRows;rows++)
+		{
+			for(int cols = 0;cols < displayCols;cols++)
+			{
+				int row = rows + startRow;
+				int col = cols + startCol;
+				
+				if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
+					continue;
+				
+				map[row][col].render(g);
+			}
+		}
 	}
 	
 	public void createNewMap(int rows, int cols)
@@ -37,25 +66,7 @@ public class EditableGrid2DMap extends Grid2DMap
 		if(!loaded) return;
 		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 			return;
-		if(panel != null)
-		{
-			if(map[row][col] != null)
-				panel.removeBPRenderable(map[row][col]);
-		}
 		map[row][col] = null;
-	}
-
-	public void addToPanel()
-	{
-		if(panel == null) return;
-		for(int r = 0;r < rowCount;r++)
-		{
-			for(int c = 0;c < colCount;c++)
-			{	
-				if(map[r][c] != null)
-					panel.addBPRenderable(map[r][c]);
-			}
-		}
 	}
 
 	public void setSquare(int row, int col, EditableMapSquare square)
@@ -63,13 +74,6 @@ public class EditableGrid2DMap extends Grid2DMap
 		if(!loaded) return;
 		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 			return;
-
-		if(panel != null)
-		{
-			if(map[row][col] != null)
-				panel.removeBPRenderable(map[row][col]);
-			panel.addBPRenderable(square);
-		}
 
 		map[row][col] = square;
 	}
@@ -131,10 +135,8 @@ public class EditableGrid2DMap extends Grid2DMap
 			double x = col * tile_size;
 			double y = row * tile_size;
 
-			System.out.println("ADDING " + row + " " + col);
 			StringBuilder squareIn = new StringBuilder(line);
 			String s = squareIn.substring(parts[0].length() + parts[1].length() + 2);
-			System.out.println("setup: " + s);
 			EditableMapSquare square = EditableMapSquare.import_square(s, assets, x, y, tile_size);
 			square.loadImages();
 			setSquare(row, col, square);
@@ -145,12 +147,18 @@ public class EditableGrid2DMap extends Grid2DMap
 
 		return true;
 	}
+	
+	public void unload()
+	{
+		loaded = false;
+		map = null;
+	}
 
 	public EditableMapSquare getSquare(int row, int col)
 	{
 		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 			return null;
-		return map[row][col];
+		return (EditableMapSquare)map[row][col];
 	}
 
 	public static int[][] getAllLandings(String file, AssetManager assets) 
@@ -186,6 +194,4 @@ public class EditableGrid2DMap extends Grid2DMap
 		
 		return result;
 	}
-
-	private EditableMapSquare[][] map;
 }

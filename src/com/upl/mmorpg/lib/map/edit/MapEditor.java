@@ -64,7 +64,6 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 					return;
 				}
 				
-				render.removeAllBPRenderable();
 				map.unload();
 				map.createNewMap(sz, sz);
 				render.setView(0, 0);
@@ -83,14 +82,13 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 				if(option == JFileChooser.APPROVE_OPTION)
 				{
 					map.unload();
-					render.removeAllBPRenderable();
 					try 
 					{
 						String path = chooser.getSelectedFile().getAbsolutePath();
 						if(!path.endsWith(".mmomap"))
 							path = path + ".mmomap";
 						map.load(path, assets, TILE_SIZE);
-						map.addToPanel();
+						map.loadAllImages();
 					} catch (IOException e1) {
 						JOptionPane.showMessageDialog(window, "File does not exist or is currupted!");
 						map.unload();
@@ -98,6 +96,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 				}
 			}
 		});
+		
 		save = new JMenuItem("Save");
 		file_menu.add(save);
 		save.addActionListener(new ActionListener()
@@ -126,8 +125,9 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		window = new JFrame("UPL-MMORPG Map Editor");
 		window.setJMenuBar(bar);
 		window.addWindowListener(this);
-		render = new RenderPanel(true, true);
-		map = new EditableGrid2DMap(render);
+		render = new RenderPanel(true, true, false);
+		map = new EditableGrid2DMap(render, TILE_SIZE);
+		render.addBPRenderable(map);
 		
 		parentPanel = new JPanel();
 
@@ -138,12 +138,10 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		toolPanel.setPreferredSize(new Dimension(200, 600));
 
 		addLabel("Control Tools");
-		
 		moveTool = addTool("assets/images/editor/move_tool.png");
 		eraseTool = addTool("assets/images/editor/erase_tool.png");
 
 		addLabel("    Tile Tools    ");
-		
 		new TileTool("assets/images/tiles/grass1.png");
 		new TileTool("assets/images/tiles/desert1.png");
 		new TileTool("assets/images/tiles/snow1.png");
@@ -158,10 +156,6 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		new OverlayTool("assets/images/tiles/overlays/fence_ru.png");
 		new OverlayTool("assets/images/tiles/overlays/fence_rud.png");
 		new OverlayTool("assets/images/tiles/overlays/fence_rl.png");
-		
-		//new OverlayTool("assets/images/tiles/overlays/tree_left.png");
-		//new OverlayTool("assets/images/tiles/overlays/tree_mid.png");
-		//new OverlayTool("assets/images/tiles/overlays/tree_right.png");
 		
 		new ExpandingOverlayTool("assets/images/tiles/overlays/tree_left.png",
 				new String[][]{
@@ -186,7 +180,6 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 				});
 		
 		addLabel("    Tile Properties    ");
-		
 		new PassThroughTool("assets/images/editor/passThroughTool.png", true);
 		new PassThroughTool("assets/images/editor/impassibleTool.png", false);
 		new DestructibleTool("assets/images/editor/destructibleTool.png", true);
@@ -199,6 +192,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		sz_field.setFont(SMALL_FONT);
 		sz_field.setText("1");
 		setBrushSize(1);
+		
 		FocusListener sz_field_listen = new FocusListener()
 		{
 			@Override
@@ -272,7 +266,6 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		}
 		
 		if(!b.isSelected()) b.setSelected(true);
-		
 	}
 
 	@Override
@@ -414,8 +407,6 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		}
 	}
 
-
-	
 	private synchronized void stopDragging()
 	{
 		lastDragX = 0.0d;

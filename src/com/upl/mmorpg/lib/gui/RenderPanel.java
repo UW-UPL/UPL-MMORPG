@@ -16,8 +16,9 @@ import com.upl.mmorpg.lib.liblog.Log;
 
 public class RenderPanel extends JPanel implements Runnable
 {
-	public RenderPanel(boolean vsync, boolean showfps)
+	public RenderPanel(boolean vsync, boolean showfps, boolean headless)
 	{
+		this.headless = headless;
 		/* Setup vsync */
 		if(vsync)
 		{
@@ -28,7 +29,6 @@ public class RenderPanel extends JPanel implements Runnable
 
 		viewX = 0;
 		viewY = 0;
-		in_render = false;
 		/* Initilize panels */
 		backPane = new LinkedList<Renderable>();
 		midPane = new LinkedList<Renderable>();
@@ -37,22 +37,13 @@ public class RenderPanel extends JPanel implements Runnable
 		/* Initilize collision manager */
 		collision_manager = new CollisionManager();
 
-		if(showfps)
+		if(showfps && !headless)
 		{
 			fps = new FPSMeasure(this);
 			fps.startMeasuring();
 			glassPane.add(fps);
 		} else {
 			fps = null;
-		}
-
-		if(CENTER_LINES)
-		{
-			ExampleLine line1 = new ExampleLine(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-			ExampleLine line2 = new ExampleLine(0, PANEL_HEIGHT, PANEL_WIDTH, 0);
-
-			glassPane.add(line1);
-			glassPane.add(line2);
 		}
 
 		/* Set the size of the frame in the parent */
@@ -62,6 +53,15 @@ public class RenderPanel extends JPanel implements Runnable
 
 		/* Make this panel visible */
 		this.setVisible(true);
+	}
+	
+	public void addGuideLines()
+	{
+		ExampleLine line1 = new ExampleLine(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
+		ExampleLine line2 = new ExampleLine(0, PANEL_HEIGHT, PANEL_WIDTH, 0);
+
+		glassPane.add(line1);
+		glassPane.add(line2);
 	}
 
 	/**
@@ -204,14 +204,25 @@ public class RenderPanel extends JPanel implements Runnable
 		while(it.hasNext())
 		{
 			Renderable render = it.next();
-			if(Log.RENDER)
-				Log.vrndln("Rendering component: " + render.getRenderName());
+			Log.vrndln("Rendering component: " + render.getRenderName());
 			if(render.hasAnimation)
 				render.animation(seconds);
 			render.render(g);
 		}
 	}
-
+	
+	private void renderPaneHeadless(LinkedList<Renderable> pane, double seconds)
+	{
+		Iterator<Renderable> it = pane.iterator();
+		while(it.hasNext())
+		{
+			Renderable render = it.next();
+			Log.vrndln("Rendering component: " + render.getRenderName());
+			if(render.hasAnimation)
+				render.animation(seconds);
+		}
+	}
+	
 	private synchronized void renderAll(Graphics2D g, double seconds)
 	{
 		/* Move to the proper spot on the canvas */
@@ -223,6 +234,13 @@ public class RenderPanel extends JPanel implements Runnable
 		renderPane(backPane, (Graphics2D)g.create(), seconds);
 		renderPane(midPane, (Graphics2D)g.create(), seconds);
 		renderPane(glassPane, notransform, seconds);
+	}
+	
+	private synchronized void renderAllHeadless(double seconds)
+	{
+		renderPaneHeadless(backPane, seconds);
+		renderPaneHeadless(midPane, seconds);
+		renderPaneHeadless(glassPane, seconds);
 	}
 	
 	public synchronized void setView(double viewX, double viewY)
@@ -242,15 +260,6 @@ public class RenderPanel extends JPanel implements Runnable
 
 	public void paintComponent(Graphics g)
 	{
-		if(in_render)
-		{
-			increment_skipped_frames();
-			return;
-		}
-		
-		synchronized(this)
-		{
-			in_render = true;
 			/* Call JPanel's paint component. */
 			super.paintComponent(g);
 
@@ -267,8 +276,21 @@ public class RenderPanel extends JPanel implements Runnable
 
 			increment_fps();
 			lastRender = System.nanoTime();
-			in_render = false;
-		}
+	}
+	
+	public void headlessRender()
+	{
+		if(lastRender == 0)
+			lastRender = System.nanoTime();
+
+		long nano_change = System.nanoTime() - lastRender;
+		double seconds_change = (double)nano_change / (double)1000000000.0d;
+
+		/* Do our own rendering */
+		renderAllHeadless(seconds_change);
+
+		increment_fps();
+		lastRender = System.nanoTime();
 	}
 
 	/* Draw loop */
@@ -285,8 +307,13 @@ public class RenderPanel extends JPanel implements Runnable
 				/* Are we still rendering after that sleep? */
 				if(!rendering) break;
 
-				/* Render another frame */
-				this.repaint();
+				if(headless)
+				{
+					headlessRender();
+				} else {
+					/* Render another frame */
+					this.repaint();
+				}
 			}catch(Exception e)
 			{
 				Log.wtf("Rendering failed!", e);
@@ -306,26 +333,18 @@ public class RenderPanel extends JPanel implements Runnable
 
 	private synchronized int reset_fps()
 	{
-		int tmp = frames_per_second;
-		frames_per_second = 0;
-		return tmp;
-	}
-	
-	private synchronized int reset_skipped_frames()
-	{
-		int tmp = skipped_frames;
-		skipped_frames = 0;
+		int tmp;
+		synchronized(this)
+		{
+			tmp = frames_per_second;
+			frames_per_second = 0;
+		}
 		return tmp;
 	}
 	
 	private synchronized void increment_fps()
 	{
 		frames_per_second++;
-	}
-	
-	private synchronized void increment_skipped_frames()
-	{
-		skipped_frames++;
 	}
 	
 	/* Some statistics stuff */
@@ -335,13 +354,12 @@ public class RenderPanel extends JPanel implements Runnable
 	private int vsync; /* The amount to sleep for vsync */
 	private Thread renderThread;
 	private boolean rendering;
+	private boolean headless;
 	private long lastRender;
 	private LinkedList<Renderable> glassPane;
 	private LinkedList<Renderable> midPane;
 	private LinkedList<Renderable> backPane;
 	private CollisionManager collision_manager;
-	private boolean in_render;
-	private int skipped_frames;
 	
 	private double viewX;
 	private double viewY;
@@ -382,7 +400,7 @@ public class RenderPanel extends JPanel implements Runnable
 				{
 					/* Sleep for one second */
 					Thread.sleep(1000);
-					setFPS(panel.reset_fps(), panel.reset_skipped_frames());
+					setFPS(panel.reset_fps());
 				}catch(Exception e)
 				{
 					break;
@@ -415,9 +433,9 @@ public class RenderPanel extends JPanel implements Runnable
 			framesThread.start();
 		}
 
-		private synchronized void setFPS(int fps, int skipped_frames)
+		private synchronized void setFPS(int fps)
 		{
-			this.setText("FPS: " + fps + " SKIPPED FRAMES: " + skipped_frames);
+			this.setText("FPS: " + fps);
 			this.setX(0);
 			this.setY(this.getHeight());
 		}

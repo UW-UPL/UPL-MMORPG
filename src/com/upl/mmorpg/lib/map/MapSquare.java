@@ -129,8 +129,8 @@ public class MapSquare extends Renderable
 		out.isLinkLanding = parts[6].equalsIgnoreCase("true");
 		out.isMapLink = parts[7].equalsIgnoreCase("true");
 		out.linked_map = parts[8];
-		out.link_row = Integer.parseInt(parts[9]);
-		out.link_col = Integer.parseInt(parts[10]);
+		out.link_row = Integer.parseInt(parts[9].trim());
+		out.link_col = Integer.parseInt(parts[10].trim());
 		
 		if(out.image_name.equalsIgnoreCase("null"))
 			out.image_name = null;

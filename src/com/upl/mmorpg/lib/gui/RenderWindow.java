@@ -9,7 +9,7 @@ public class RenderWindow
 	public RenderWindow()
 	{
 		frame = new JFrame("UPL-MMORPG");
-		panel = new RenderPanel(true, true);
+		panel = new RenderPanel(true, true, false);
 		
 		frame.getContentPane().add(panel);
 		
