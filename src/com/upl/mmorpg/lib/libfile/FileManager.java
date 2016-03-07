@@ -11,7 +11,7 @@ public class FileManager
 {
 	private void open(String path, boolean create, 
 			boolean read_perm, boolean write_perm) throws IOException
-			{
+	{
 		this.path = path;
 		this.read_perm = read_perm;
 		this.write_perm = write_perm;
@@ -52,7 +52,7 @@ public class FileManager
 		}
 
 		Log.vvln("Opening file " + path + " success.");
-			}
+	}
 
 	public FileManager(String path, boolean read, boolean write)
 	{
@@ -64,9 +64,9 @@ public class FileManager
 
 	public FileManager(String path, boolean create,
 			boolean read, boolean write) throws IOException
-			{
+	{
 		open(path, create, read, write);
-			}
+	}
 
 	/**
 	 * Write bytes to a file.

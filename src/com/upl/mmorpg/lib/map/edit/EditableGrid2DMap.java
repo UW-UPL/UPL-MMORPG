@@ -1,24 +1,40 @@
-package com.upl.mmorpg.lib.map;
+package com.upl.mmorpg.lib.map.edit;
 
 import java.io.IOException;
 
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.libfile.FileManager;
+import com.upl.mmorpg.lib.map.Grid2DMap;
+import com.upl.mmorpg.lib.map.MapSquare;
 
-public class Grid2DMap
+public class EditableGrid2DMap extends Grid2DMap
 {
-	public Grid2DMap(RenderPanel panel)
+	public EditableGrid2DMap(RenderPanel panel) 
 	{
-		this.panel = panel;
-		loaded = false;
-		map = null;
+		super(panel);
+	}
+
+	public void createNewMap(int rows, int cols)
+	{
+		map = new EditableMapSquare[rows][cols];
+		for(int r = 0;r < rows;r++)
+			for(int c = 0;c < cols;c++)
+				map[r][c] = null;
+		
+		this.rowCount = rows;
+		this.colCount = cols;
+		loaded = true;
 	}
 	
-	public void unload()
+	public void deleteSquare(int row, int col)
 	{
-		map = null;
-		loaded = false;
+		if(!loaded) return;
+		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
+			return;
+		if(map[row][col] != null)
+			panel.removeBPRenderable(map[row][col]);
+		map[row][col] = null;
 	}
 	
 	public void addToPanel()
@@ -33,7 +49,7 @@ public class Grid2DMap
 		}
 	}
 	
-	public void setSquare(int row, int col, MapSquare square)
+	public void setSquare(int row, int col, EditableMapSquare square)
 	{
 		if(!loaded) return;
 		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
@@ -45,6 +61,29 @@ public class Grid2DMap
 		map[row][col] = square;
 	}
 	
+	public void export(String file_path, AssetManager assets) throws IOException
+	{
+		FileManager file = assets.getFile(file_path, true, true);
+		/* First export the map size */
+		file.println(rowCount + "," + colCount);
+		
+		/* Export all of the squares */
+		for(int row = 0;row < rowCount;row++)
+		{
+			for(int col = 0;col < colCount;col++)
+			{
+				if(map[row][col] == null) continue;
+				StringBuilder out = new StringBuilder();
+				out.append(row + "," + col + ",");
+				out.append(map[row][col].export_square());
+				file.println(out.toString());
+			}
+		}
+		
+		file.close();
+	}
+	
+	@Override
 	public boolean load(String file_name, AssetManager assets, double tile_size) throws IOException
 	{
 		if(loaded) return false;
@@ -61,7 +100,7 @@ public class Grid2DMap
 			return false;
 		
 		/* Create the map */
-		map = new MapSquare[rowCount][colCount];
+		map = new EditableMapSquare[rowCount][colCount];
 		for(int r = 0;r < rowCount;r++)
 			for(int c = 0;c < colCount;c++)
 				map[r][c] = null;
@@ -83,7 +122,7 @@ public class Grid2DMap
 			StringBuilder squareIn = new StringBuilder(line);
 			String s = squareIn.substring(parts[0].length() + parts[1].length() + 2);
 			System.out.println("setup: " + s);
-			MapSquare square = MapSquare.import_square(s, assets, x, y, tile_size);
+			EditableMapSquare square = EditableMapSquare.import_square(s, assets, x, y, tile_size);
 			square.loadImages();
 			setSquare(row, col, square);
 			map[row][col] = square;
@@ -93,19 +132,12 @@ public class Grid2DMap
 		return true;
 	}
 	
-	public MapSquare getSquare(int row, int col)
+	public EditableMapSquare getSquare(int row, int col)
 	{
-		if(!loaded) return null;
 		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 			return null;
 		return map[row][col];
 	}
 	
-	protected int rowCount;
-	protected int colCount;
-	
-	protected boolean loaded;
-	private MapSquare[][] map;
-	
-	protected RenderPanel panel;
+	private EditableMapSquare[][] map;
 }

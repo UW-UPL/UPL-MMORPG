@@ -218,10 +218,11 @@ public class RenderPanel extends JPanel implements Runnable
 		int vx = (int)-getViewX();
 		int vy = (int)-getViewY();
 		
+		Graphics2D notransform = (Graphics2D)g.create();
 		g.translate(vx, vy);
 		renderPane(backPane, (Graphics2D)g.create(), seconds);
 		renderPane(midPane, (Graphics2D)g.create(), seconds);
-		renderPane(glassPane, g, seconds);
+		renderPane(glassPane, notransform, seconds);
 	}
 	
 	public synchronized void setView(double viewX, double viewY)
