@@ -37,7 +37,7 @@ public class Grid2DMap extends Renderable
 		double startY = panel.getViewY() - tileSize;
 		
 		int displayCols = (int)(panel.getWidth() / tileSize) + 2;
-		int displayRows = (int)(panel.getHeight() / tileSize) + 2;
+		int displayRows = (int)(panel.getHeight() / tileSize) + 3;
 		
 		int startRow = (int)(startY / tileSize);
 		int startCol = (int)(startX / tileSize);
@@ -117,6 +117,8 @@ public class Grid2DMap extends Renderable
 			setSquare(row, col, square);
 			map[row][col] = square;
 		}
+		
+		loaded = true;
 		
 		return true;
 	}

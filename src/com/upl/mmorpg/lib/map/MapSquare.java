@@ -106,6 +106,11 @@ public class MapSquare extends Renderable
 		return isLinkLanding;
 	}
 	
+	public boolean isPassable()
+	{
+		return passThrough;
+	}
+	
 	public String export_square()
 	{
 		/* Export all init properties to a string */

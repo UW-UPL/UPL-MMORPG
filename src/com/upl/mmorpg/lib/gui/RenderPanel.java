@@ -260,22 +260,21 @@ public class RenderPanel extends JPanel implements Runnable
 
 	public void paintComponent(Graphics g)
 	{
-			/* Call JPanel's paint component. */
-			super.paintComponent(g);
-
-			if(lastRender == 0)
-				lastRender = System.nanoTime();
-
-			long nano_change = System.nanoTime() - lastRender;
-			double seconds_change = (double)nano_change / (double)1000000000.0d;
-
-			/* Do our own rendering */
-			Graphics2D g2 = (Graphics2D)g;
-			renderAll(g2, seconds_change);
-			g.dispose();
-
-			increment_fps();
+		/* Call JPanel's paint component. */
+		super.paintComponent(g);
+		if(lastRender == 0)
 			lastRender = System.nanoTime();
+
+		long nano_change = System.nanoTime() - lastRender;
+		double seconds_change = (double)nano_change / (double)1000000000.0d;
+
+		/* Do our own rendering */
+		Graphics2D g2 = (Graphics2D)g;
+		renderAll(g2, seconds_change);
+		g.dispose();
+
+		increment_fps();
+		lastRender = System.nanoTime();
 	}
 	
 	public void headlessRender()
@@ -368,8 +367,6 @@ public class RenderPanel extends JPanel implements Runnable
 	private static final int PANEL_HEIGHT = 600;
 
 	private static final int FRAMES_PER_SECOND = 100;
-
-	private static final boolean CENTER_LINES = false;
 
 	private static final long serialVersionUID = -3812924750709550502L;
 

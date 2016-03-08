@@ -8,31 +8,27 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class Game 
 {
-	public Game(String map_path, AssetManager assets) throws IOException
+	public Game(String map_path, AssetManager assets, 
+			boolean headless, boolean fps, boolean vsync) 
 	{
 		this.assets = assets;
-		render = new RenderPanel(true, false, true);
-		map = new Grid2DMap();
+		this.map_path = map_path;
+		this.headless = headless;
+		render = new RenderPanel(vsync, fps, headless);
+	}
+	
+	public void loadMap() throws IOException
+	{
+		if(map == null) return;
 		map.load(map_path, assets, TILE_SIZE);
 		map.loadAllImages();
-		render.addBPRenderable(map);
-		render.startRender();
 	}
 	
-	private RenderPanel render;
-	private AssetManager assets;
-	private Grid2DMap map;
+	protected RenderPanel render;
+	protected AssetManager assets;
+	protected Grid2DMap map;
+	protected String map_path;
+	protected boolean headless;
 	
-	private static final int TILE_SIZE = 32;
-	
-	public static void main(String args[])
-	{
-		try 
-		{
-			new Game("assets/maps/example-map1.mmomap", new AssetManager());
-		} catch (IOException e) 
-		{
-			e.printStackTrace();
-		}
-	}
+	protected static final double TILE_SIZE = 32;
 }
