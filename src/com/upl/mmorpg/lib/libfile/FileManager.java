@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import com.upl.mmorpg.lib.liblog.Log;
 
@@ -66,6 +68,70 @@ public class FileManager
 			boolean read, boolean write) throws IOException
 	{
 		open(path, create, read, write);
+	}
+	
+	public static String[] getFiles(String dir)
+	{
+		String[] result = null;
+		
+		File f = null;
+		
+		try
+		{
+			f = new File(dir);
+			File[] files = f.listFiles();
+			result = new String[files.length];
+			for(int x = 0;x < files.length;x++)
+			{
+				result[x] = files[x].getName();
+				files[x] = null;
+			}
+			files = null;
+		}catch(Exception e)
+		{
+			result = null;
+		}
+		
+		f = null;
+		
+		return result;
+	}
+	
+	public static String[] getDirectories(String dir)
+	{
+		String[] result = null;
+		LinkedList<String> list = new LinkedList<String>();
+		
+		File f = null;
+		
+		try
+		{
+			f = new File(dir);
+			File[] files = f.listFiles();
+			for(int x = 0;x < files.length;x++)
+			{
+				if(files[x].isDirectory())
+					list.add(files[x].getName());
+				files[x] = null;
+			}
+			files = null;
+		}catch(Exception e)
+		{
+			result = null;
+		}
+		
+		f = null;
+		
+		result = new String[list.size()];
+		int x = 0;
+		Iterator<String> it = list.iterator();
+		while(it.hasNext())
+		{
+			result[x] = it.next();
+			x++;
+		}
+		
+		return result;
 	}
 
 	/**
