@@ -141,7 +141,10 @@ public abstract class Renderable implements Runnable, Collidable
 		p.setLocation(locX + (width / 2), locY + (height / 2));
 		return p;
 	}
-
+	
+	public double getCenterX() { return locX + (width / 2); }
+	public double getCenterY() { return locY + (height / 2); }
+	
 	public void setCenter(double x, double y)
 	{
 		locX = x - (width / 2);

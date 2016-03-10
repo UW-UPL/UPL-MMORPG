@@ -12,7 +12,7 @@ import com.upl.mmorpg.lib.gui.RenderWindow;
 
 public class CollisionTest 
 {
-	public CollisionTest()
+	public CollisionTest(boolean mass_test)
 	{
 		window = new RenderWindow();
 		panel = window.getPanel();
@@ -20,19 +20,20 @@ public class CollisionTest
 		ExampleBox bounding = new ExampleBox(0, 0, panel.getWidth(), panel.getHeight());
 		bounding.setColor(Color.BLUE);
 		Random r = new Random(System.nanoTime());
-		//		for(int x = 0;x < 5000;x++)
-		//			if(r.nextInt(2) == 0)
-		//				addBox();
-		//			else addCircle();
-		for(int row = 0;row < 9;row++)
+		
+		if(mass_test)
 		{
-			for(int col = 0;col < 12;col++)
+			for(int x = 0;x < 10000;x++)
+				addBox(panel.getWidth() / 2, panel.getHeight() / 2);
+		} else {
+			for(int row = 0;row < 9;row++)
 			{
-				if(r.nextInt(2) == 0)
-					addBox((col * 65) + 30, (row * 65) + 30);
-				else addCircle((col * 65) + 30, (row * 65) + 30);
-
-				//addBox((col * 65) + 30, (row * 65) + 30);
+				for(int col = 0;col < 12;col++)
+				{
+					if(r.nextInt(2) == 0)
+						addBox((col * 65) + 30, (row * 65) + 30);
+					else addCircle((col * 65) + 30, (row * 65) + 30);
+				}
 			}
 		}
 
@@ -82,6 +83,6 @@ public class CollisionTest
 
 	public static void main(String[] args) 
 	{
-		new CollisionTest();
+		new CollisionTest(true);
 	}
 }

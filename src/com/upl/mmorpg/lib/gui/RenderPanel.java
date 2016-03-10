@@ -19,13 +19,8 @@ public class RenderPanel extends JPanel implements Runnable
 	public RenderPanel(boolean vsync, boolean showfps, boolean headless)
 	{
 		this.headless = headless;
-		/* Setup vsync */
-		if(vsync)
-		{
-			this.vsync = RenderMath.calculateVSYNC(FRAMES_PER_SECOND);
-		} else {
-			this.vsync = 0;
-		}
+		
+		timer = new DynamicRenderTimer(FRAMES_PER_SECOND, this);
 
 		viewX = 0;
 		viewY = 0;
@@ -70,20 +65,9 @@ public class RenderPanel extends JPanel implements Runnable
 	public void stopRender()
 	{
 		rendering = false;
-		try
-		{
-			renderThread.interrupt();
-		}catch(Exception e){}
-
-		try
-		{
-			renderThread.join(1000);
-		}catch(Exception e){}
-
-		renderThread = null;
-
 		if(fps != null)
 			fps.stopMeasuring();
+		timer.stopTimer();
 	}
 
 	/**
@@ -94,11 +78,9 @@ public class RenderPanel extends JPanel implements Runnable
 		if(rendering) return;
 		/* Setup rendering thread */
 		rendering = true;
-		renderThread = new Thread(this);
-		renderThread.start();
-
 		if(fps != null)
 			fps.startMeasuring();
+		timer.startTimer();
 	}
 
 	public void addCollidable(Collidable collidable)
@@ -266,6 +248,7 @@ public class RenderPanel extends JPanel implements Runnable
 			lastRender = System.nanoTime();
 
 		long nano_change = System.nanoTime() - lastRender;
+		lastRender = System.nanoTime();
 		double seconds_change = (double)nano_change / (double)1000000000.0d;
 
 		/* Do our own rendering */
@@ -274,7 +257,7 @@ public class RenderPanel extends JPanel implements Runnable
 		g.dispose();
 
 		increment_fps();
-		lastRender = System.nanoTime();
+		
 	}
 	
 	public void headlessRender()
@@ -284,39 +267,28 @@ public class RenderPanel extends JPanel implements Runnable
 
 		long nano_change = System.nanoTime() - lastRender;
 		double seconds_change = (double)nano_change / (double)1000000000.0d;
+		lastRender = System.nanoTime();
 
 		/* Do our own rendering */
 		renderAllHeadless(seconds_change);
 
 		increment_fps();
-		lastRender = System.nanoTime();
+		
 	}
 
 	/* Draw loop */
 	@Override
 	public void run()
 	{
-		while(rendering)
+		/* Are we still rendering after that sleep? */
+		if(!rendering) return;
+
+		if(headless)
 		{
-			try
-			{
-				if(vsync > 0)
-					Thread.sleep(vsync);
-
-				/* Are we still rendering after that sleep? */
-				if(!rendering) break;
-
-				if(headless)
-				{
-					headlessRender();
-				} else {
-					/* Render another frame */
-					this.repaint();
-				}
-			}catch(Exception e)
-			{
-				Log.wtf("Rendering failed!", e);
-			}
+			headlessRender();
+		} else {
+			/* Render another frame */
+			this.repaint();
 		}
 	}
 
@@ -350,8 +322,7 @@ public class RenderPanel extends JPanel implements Runnable
 	private int frames_per_second; /* fps counter */
 	private FPSMeasure fps;
 
-	private int vsync; /* The amount to sleep for vsync */
-	private Thread renderThread;
+	private DynamicRenderTimer timer;
 	private boolean rendering;
 	private boolean headless;
 	private long lastRender;
@@ -366,7 +337,7 @@ public class RenderPanel extends JPanel implements Runnable
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 600;
 
-	private static final int FRAMES_PER_SECOND = 100;
+	private static final int FRAMES_PER_SECOND = 60;
 
 	private static final long serialVersionUID = -3812924750709550502L;
 

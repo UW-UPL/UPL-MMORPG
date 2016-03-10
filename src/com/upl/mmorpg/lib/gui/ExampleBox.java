@@ -72,7 +72,7 @@ public class ExampleBox extends Renderable
 		collide.setY(locY);
 		
 		if(!collision_manager.isBounded(collide)
-				|| collision_manager.isColliding(collide))
+				)//|| collision_manager.isColliding(collide))
 		{
 			/* Undo the change */
 			this.locX = locXSave;

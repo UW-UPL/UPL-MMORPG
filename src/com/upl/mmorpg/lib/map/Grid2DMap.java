@@ -69,6 +69,11 @@ public class Grid2DMap extends Renderable
 		loaded = false;
 	}
 	
+	public double getTileSize()
+	{
+		return this.tileSize;
+	}
+	
 	public void setSquare(int row, int col, MapSquare square)
 	{
 		if(!loaded) return;

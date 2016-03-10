@@ -45,6 +45,16 @@ public class Path
 		return length;
 	}
 	
+	public int getNextRow()
+	{
+		return path.getFirst().getRow();
+	}
+	
+	public int getNextCol()
+	{
+		return path.getFirst().getCol();
+	}
+	
 	public Path copy()
 	{
 		Path path = new Path();
@@ -74,6 +84,11 @@ public class Path
 			System.out.println(x + ": " + point.getRow() + "," + point.getCol());
 			x++;
 		}
+	}
+	
+	public void moveForward()
+	{
+		path.removeFirst();
 	}
 	
 	private LinkedList<GridPoint> path;

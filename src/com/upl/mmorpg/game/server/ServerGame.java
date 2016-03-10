@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
-import com.upl.mmorpg.game.MapControl;
+import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
@@ -32,6 +32,11 @@ public class ServerGame extends Game
 		render.startRender();
 	}
 	
+	public void addGoblin(int row, int col)
+	{
+		this.addCharacter(new Goblin(row, col, map, assets));
+	}
+	
 	@Override
 	public void loadMap() throws IOException
 	{
@@ -46,8 +51,10 @@ public class ServerGame extends Game
 	public static void main(String[] args) 
 	{
 		try {
-			new ServerGame("assets/maps/example-map1.mmomap", 
-					new AssetManager(), false).loadMap();
+			ServerGame g = new ServerGame("assets/maps/example-map1.mmomap", 
+					new AssetManager(), false);
+			g.loadMap();
+			g.addGoblin(11, 11);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
