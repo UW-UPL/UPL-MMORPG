@@ -36,6 +36,7 @@ public class AnimationManager
 		this.reelPos = 0;
 		this.animation_total = 0;
 		this.animation_loop = loop;
+		this.maxReelPos = reel[this.reelDirection].length;
 		
 		this.currentFrame = reel[this.reelDirection][0];
 		
@@ -133,7 +134,6 @@ public class AnimationManager
 			}
 			
 			int reelCount = example_reels.length;
-			Log.vln(reelNames[i] + " has " + reelCount + " images.");
 			if(reelCount > 1000)
 			{
 				Log.vln("Reel " + reelNames[i] + " could not be imported: too many reels! (MAX 1000)");
@@ -141,6 +141,8 @@ public class AnimationManager
 			}
 			
 			BufferedImage[][] reels = new BufferedImage[8][reelCount];
+			
+			Log.vvln("Reel: " + reelNames[i] + " : " + example_reels.length + " frames.");
 			
 			for(x = 0;x < 8;x++)
 			{
@@ -164,8 +166,11 @@ public class AnimationManager
 				BufferedImage[] direction_reel = new BufferedImage[reelCount];
 				
 				/* Load all of the images */
-				for(int y = 0;y < reels.length;y++)
+				for(int y = 0;y < reels[0].length;y++)
+				{
 					direction_reel[y] = assets.loadImage(dir + reel[y]);
+					if(x == 0) Log.vln("\t" + reel[y]);
+				}
 				
 				/* Set the reel for this direction */
 				reels[x] = direction_reel;
@@ -182,7 +187,6 @@ public class AnimationManager
 	
 	public void animation(double seconds)
 	{
-		//if(true) return;
 		animation_total += seconds;
 		if(animation_total >= animation_speed)
 		{
@@ -200,6 +204,8 @@ public class AnimationManager
 					if(currentAnimation != null)
 						currentAnimation.animationReelFinished();
 				}
+			} else {
+				currentFrame = currentReel[reelDirection][reelPos];
 			}
 			
 			animation_total = 0;

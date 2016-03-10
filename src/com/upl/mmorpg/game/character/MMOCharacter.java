@@ -5,7 +5,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import com.upl.mmorpg.lib.algo.GridGraph;
+import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.animation.AnimationManager;
+import com.upl.mmorpg.lib.animation.IdleAnimation;
+import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -31,9 +34,14 @@ public abstract class MMOCharacter extends Renderable
 		this.map = map;
 		this.assets = assets;
 		
+		/* default values for character properties */
+		walkingSpeed = 1.0d;
+		
 		hasAnimation = true;
 		
 		animation = new AnimationManager(assets);
+		
+		walking = new WalkingAnimation(animation, this, map.getTileSize());
 	}
 	
 	@Override
@@ -64,7 +72,16 @@ public abstract class MMOCharacter extends Renderable
 		
 		GridGraph graph = new GridGraph(startRow, startCol, 
 				MAX_PATH, map);
-		graph.shortestPathTo(row, col);
+		Path p = graph.shortestPathTo(row, col);
+		
+		walking.setPath(p);
+		animation.setAnimation(walking);
+	}
+	
+	public void idle()
+	{
+		animation.setAnimation(idle);
+		animation.setAnimationSpeed(10);
 	}
 	
 	@Override public abstract String getRenderName();
@@ -72,6 +89,9 @@ public abstract class MMOCharacter extends Renderable
 	protected AssetManager assets;
 	protected Grid2DMap map;
 	protected AnimationManager animation;
+	
+	private IdleAnimation idle;
+	private WalkingAnimation walking;
 
 	public double getWalkingSpeed() { return walkingSpeed; }
 	public void setWalkingSpeed(double speed) { this.walkingSpeed = speed; }

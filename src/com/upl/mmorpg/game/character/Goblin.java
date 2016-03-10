@@ -21,10 +21,6 @@ public class Goblin extends MMOCharacter
 		{
 			Log.e("Couldn't find character reels: Goblin");
 		}
-		
-		idle = new IdleAnimation(animation, this, map.getTileSize());
-		animation.setAnimation(idle);
-		animation.setAnimationSpeed(10);
 	}
 
 	@Override
@@ -32,6 +28,4 @@ public class Goblin extends MMOCharacter
 	{
 		return "Goblin";
 	}
-	
-	private IdleAnimation idle;
 }

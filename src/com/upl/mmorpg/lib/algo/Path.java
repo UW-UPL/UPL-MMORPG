@@ -22,6 +22,11 @@ public class Path
 		return path.getLast();
 	}
 	
+	public boolean isEmpty()
+	{
+		return path.isEmpty();
+	}
+	
 	public double calculatePathLength()
 	{
 		if(path.size() <= 1) return 0;

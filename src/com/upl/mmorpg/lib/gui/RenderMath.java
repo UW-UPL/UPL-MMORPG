@@ -9,7 +9,7 @@ public final class RenderMath
 	
 	public static final double calculateAnimation(int fps)
 	{
-		return ((double)1000 / (double)fps) + 1.0d;
+		return (1.0d / (double)fps);
 	}
 	
 	public static final double pointDistance(double x1, double y1,

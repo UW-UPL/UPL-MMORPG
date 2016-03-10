@@ -9,16 +9,24 @@ public class WalkingAnimation extends Animation
 			MMOCharacter character, double tile_size)
 	{
 		super(animation, character, tile_size);
-		this.animation = animation;
 		this.vector_x = 0;
 		this.vector_y = 0;
+		arrived = false;
 	}
 	
-	public void walkPath(Path path)
+	public void setPath(Path path)
 	{
-		this.walkingPath = path.copy();
+		this.walkingPath = path;
+		
 		/* If we're at the first point, remove it */
-		path.moveForward();
+		int myRow = (int)(character.getCenterY() / tile_size);
+		int myCol = (int)(character.getCenterX() / tile_size);
+		while(this.walkingPath.getNextCol() == myCol 
+				&& this.walkingPath.getNextRow() == myRow)
+			this.walkingPath.moveForward();
+		
+		System.out.println("MR: " + myRow + " MC: " + myCol +"  nr: " 
+		+ walkingPath.getNextRow() + " nc: " + walkingPath.getNextCol());
 	}
 	
 	@Override
@@ -31,21 +39,36 @@ public class WalkingAnimation extends Animation
 	@Override
 	public void animationStarted() 
 	{
-		animation.setReel("walk_start", false);
+		arrived = false;
+		if(!manager.setReel("walk_start", false))
+			throw new RuntimeException("WALK ANIMATION NOT SUPPORTED");
+		manager.setAnimationSpeed(20);
+		
+		System.out.println("  nr: " + walkingPath.getNextRow() + " nc: " + walkingPath.getNextCol());
+		int dir = this.lookTowards(walkingPath.getNextRow(), walkingPath.getNextCol());
+		manager.setReelDirection(dir);
+		this.generateVectors(dir);
 	}
 	
 	@Override
 	public void animationReelFinished() 
 	{
-		animation.setReel("walk", false);
+		if(!arrived)
+		{
+			if(!manager.setReel("walk", false))
+				throw new RuntimeException("WALK ANIMATION NOT SUPPORTED");
+			manager.setAnimationSpeed(15);
+		}
 	}
 
 	@Override
 	public void animation(double seconds) 
 	{
+		if(walkingPath == null) return;
+		
 		double speed = character.getWalkingSpeed();
-		double charX = character.getX() + (speed * vector_x);
-		double charY = character.getY() + (speed * vector_y);
+		double charX = character.getX() + (speed * vector_x * seconds * tile_size);
+		double charY = character.getY() + (speed * vector_y * seconds * tile_size);
 		
 		double destX = walkingPath.getNextCol() * tile_size;
 		double destY = walkingPath.getNextRow() * tile_size;
@@ -60,12 +83,32 @@ public class WalkingAnimation extends Animation
 		else if(diffY == 0) diffY = 0;
 		else diffY = -1;
 		
+		System.out.println("DIFFX: " + diffX + " DIFFY: " + diffY + "   vectX: " + vector_x + " vectY: " + vector_y);
+		System.out.println("charX: " + charX + "  charY: " + charY + " destX; " + destX + " destY: " + destY);
+		
 		if(diffX != vector_x || diffY != vector_y)
 		{
+			System.out.println("Got to " + walkingPath.getNextRow() + "  " + walkingPath.getNextCol());
 			/* We passed our destination */
 			character.setX(destX);
 			character.setY(destY);
 			walkingPath.moveForward();
+			
+			if(walkingPath.isEmpty())
+			{
+				walkingPath = null;
+				arrived = true;
+				manager.setAnimationSpeed(30);
+				manager.setReel("walk_end", false);
+			} else {
+				/* Change direction properties */
+				int dir = this.lookTowards(walkingPath.getNextRow(), walkingPath.getNextCol());
+				manager.setReelDirection(dir);
+				this.generateVectors(dir);
+			}
+		} else {
+			character.setX(charX);
+			character.setY(charY);
 		}
 	}
 	
@@ -76,8 +119,8 @@ public class WalkingAnimation extends Animation
 	}
 	
 	private AnimationState state;
-	private AnimationManager animation;
 	private Path walkingPath;
+	private boolean arrived;
 	
 	private enum AnimationState
 	{

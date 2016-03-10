@@ -34,7 +34,10 @@ public class ServerGame extends Game
 	
 	public void addGoblin(int row, int col)
 	{
-		this.addCharacter(new Goblin(row, col, map, assets));
+		Goblin g = new Goblin(row, col, map, assets);
+		this.addCharacter(g);
+		
+		g.walkTo(25, 11);
 	}
 	
 	@Override

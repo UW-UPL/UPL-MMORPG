@@ -17,7 +17,7 @@ public class IdleAnimation extends Animation
 	{
 		if(!manager.setReel("idle", true))
 			throw new RuntimeException("IDLE ANIMATION NOT SUPPORTED");
-		manager.setAnimationSpeed(10);
+		manager.setAnimationSpeed(5);
 	}
 
 	@Override
