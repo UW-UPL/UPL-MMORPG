@@ -3,6 +3,7 @@ package com.upl.mmorpg.game;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
@@ -18,6 +19,12 @@ public class Game
 		this.headless = headless;
 		render = new RenderPanel(vsync, fps, headless);
 		characters = new LinkedList<MMOCharacter>();
+	}
+	
+	public void loadAssets() throws IOException
+	{
+		/* Supported Characters */
+		Goblin.prefetchAssets(assets, TILE_SIZE);
 	}
 	
 	public void loadMap() throws IOException
@@ -39,6 +46,13 @@ public class Game
 		render.removeRenderable(c);
 	}
 	
+	public Goblin createGoblin(int row, int col)
+	{
+		Goblin g = new Goblin(row, col, map, assets);
+		this.addCharacter(g);
+		return g;
+	}
+	
 	protected RenderPanel render;
 	protected AssetManager assets;
 	protected Grid2DMap map;
@@ -46,5 +60,5 @@ public class Game
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
 	
-	protected static final double TILE_SIZE = 64;
+	protected static final double TILE_SIZE = 32;
 }

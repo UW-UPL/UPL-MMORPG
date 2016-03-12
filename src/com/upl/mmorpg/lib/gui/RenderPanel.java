@@ -334,7 +334,7 @@ public class RenderPanel extends JPanel implements Runnable
 	private double viewX;
 	private double viewY;
 
-	private static final int PANEL_SCALE = 2;
+	private static final int PANEL_SCALE = 1;
 	private static final int PANEL_WIDTH = 800 * PANEL_SCALE;
 	private static final int PANEL_HEIGHT = 600 * PANEL_SCALE;
 

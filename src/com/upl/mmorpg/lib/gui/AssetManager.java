@@ -3,7 +3,7 @@ package com.upl.mmorpg.lib.gui;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -14,8 +14,7 @@ public class AssetManager
 {
 	public AssetManager()
 	{
-		image_files = new ArrayList<File>();
-		images = new ArrayList<BufferedImage>();
+		images = new HashMap<String, BufferedImage>();
 	}
 	
 	public FileManager getFile(String path, boolean r, boolean w) throws IOException
@@ -28,15 +27,19 @@ public class AssetManager
 	
 	public BufferedImage loadImage(String path) throws IOException
 	{
+		if(images.containsKey(path))
+			return images.get(path);
+		
 		File file = null;
 		BufferedImage result = null;
+		
 		try
 		{
 			file = new File(path);
 			result = ImageIO.read(file);
 			
-			image_files.add(file);
-			images.add(result);
+			if(result != null)
+				images.put(path, result);
 		}catch(IOException e)
 		{
 			Log.wtf("Image Not Found!", e);
@@ -44,29 +47,15 @@ public class AssetManager
 			throw e;
 		}
 		
+		file = null;
+		
 		return result;
-	}
-	
-	public void releaseImage(BufferedImage img)
-	{
-		if(!images.contains(img))
-			return;
-		image_files.remove(images.indexOf(img));
-		images.remove(img);
 	}
 	
 	public void releaseAll()
 	{
-		for(int x = 0;x < image_files.size();x++)
-		{
-			image_files.set(x, null);
-			images.set(x, null);
-		}
-		
-		image_files.clear();
 		images.clear();
 	}
 	
-	private ArrayList<File> image_files;
-	private ArrayList<BufferedImage> images;
+	private HashMap<String, BufferedImage> images;
 }

@@ -5,7 +5,7 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 public abstract class Animation
 {
 	public Animation(AnimationManager manager, MMOCharacter character, 
-			double tile_size)
+			double tile_size, AnimationListener listener)
 	{
 		this.manager = manager;
 		this.character = character;
@@ -13,9 +13,10 @@ public abstract class Animation
 		this.vector_x = 0;
 		this.vector_y = 0;
 		this.tile_size = tile_size;
+		this.listener = listener;
 	}
 	
-	public abstract void animationInterrupted();
+	public abstract void animationInterrupted(Animation source);
 	public abstract void animationStarted();
 	public abstract void animationReelFinished();
 	public abstract void animation(double seconds);
@@ -94,6 +95,7 @@ public abstract class Animation
 		return direction;
 	}
 	
+	protected AnimationListener listener;
 	protected AnimationManager manager;
 	protected MMOCharacter character;
 	

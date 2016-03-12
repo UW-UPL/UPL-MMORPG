@@ -3,10 +3,13 @@ package com.upl.mmorpg.game.character;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.animation.AnimationManager;
+import com.upl.mmorpg.lib.animation.FollowAnimation;
 import com.upl.mmorpg.lib.animation.IdleAnimation;
 import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.gui.AssetManager;
@@ -40,8 +43,32 @@ public abstract class MMOCharacter extends Renderable
 		hasAnimation = true;
 		
 		animation = new AnimationManager(assets);
-		
-		walking = new WalkingAnimation(animation, this, map.getTileSize());
+		walking = new WalkingAnimation(animation, this, map.getTileSize(), null);
+		idle = new IdleAnimation(animation, this, map.getTileSize(), null);
+		follow = new FollowAnimation(animation, this, map, 
+				map.getTileSize(), null);
+		followers = new LinkedList<FollowListener>();
+	}
+	
+	public void follow(MMOCharacter character)
+	{
+		follow.setFollee(character);
+		animation.setAnimation(follow);
+	}
+	
+	public void addFollower(FollowListener follow)
+	{
+		followers.add(follow);
+	}
+	
+	public void removeFollower(FollowListener follow)
+	{
+		followers.remove(follow);
+	}
+	
+	public Iterator<FollowListener> getFollowers()
+	{
+		return followers.iterator();
 	}
 	
 	@Override
@@ -64,14 +91,34 @@ public abstract class MMOCharacter extends Renderable
 	{
 		animation.loadReels(path);
 	}
+	
+	public void background_walkTo(final int row, final int col)
+	{
+		Runnable run = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				int startRow = getRow();
+				int startCol = getCol();
+				
+				GridGraph graph = new GridGraph(startRow, startCol, map);
+				Path p = graph.shortestPathTo(row, col);
+				System.out.println("startRow: " + startRow + "  startCol: " + startCol);
+				
+				walking.setPath(p);
+				animation.setAnimation(walking);
+			}
+		};
+		new Thread(run).start();
+	}
 
 	public void walkTo(int row, int col)
 	{
 		int startRow = (int)(locY / map.getTileSize());
 		int startCol = (int)(locX / map.getTileSize());
 		
-		GridGraph graph = new GridGraph(startRow, startCol, 
-				MAX_PATH, map);
+		GridGraph graph = new GridGraph(startRow, startCol, map);
 		Path p = graph.shortestPathTo(row, col);
 		
 		walking.setPath(p);
@@ -90,14 +137,17 @@ public abstract class MMOCharacter extends Renderable
 	protected Grid2DMap map;
 	protected AnimationManager animation;
 	
-	private IdleAnimation idle;
-	private WalkingAnimation walking;
+	protected IdleAnimation idle;
+	protected WalkingAnimation walking;
+	protected FollowAnimation follow;
+	
+	protected LinkedList<FollowListener> followers;
 
 	public double getWalkingSpeed() { return walkingSpeed; }
 	public void setWalkingSpeed(double speed) { this.walkingSpeed = speed; }
+	public int getRow(){return (int)(locY / map.getTileSize());}
+	public int getCol(){return (int)(locX / map.getTileSize());}
 	
 	/** Character properties (time related) */
 	protected double walkingSpeed; /* Horizontal/Vertical tiles per second */
-	
-	private static final int MAX_PATH = 150;
 }

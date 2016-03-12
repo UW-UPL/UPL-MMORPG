@@ -1,6 +1,5 @@
 package com.upl.mmorpg.lib.map.edit;
 
-import java.awt.Graphics2D;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -16,37 +15,9 @@ public class EditableGrid2DMap extends Grid2DMap
 		super(panel, tileSize);
 	}
 
-	public EditableGrid2DMap()
+	public EditableGrid2DMap(double tile_size)
 	{
-		super();
-	}
-	
-	@Override
-	public void render(Graphics2D g) 
-	{
-		if(!loaded || map == null) return;
-		double startX = panel.getViewX();
-		double startY = panel.getViewY();
-		
-		int displayCols = (int)(panel.getWidth() / tileSize) + 2;
-		int displayRows = (int)(panel.getHeight() / tileSize) + 3;
-		
-		int startRow = (int)(startY / tileSize);
-		int startCol = (int)(startX / tileSize);
-		
-		for(int rows = 0;rows < displayRows;rows++)
-		{
-			for(int cols = 0;cols < displayCols;cols++)
-			{
-				int row = rows + startRow;
-				int col = cols + startCol;
-				
-				if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
-					continue;
-				
-				map[row][col].render(g);
-			}
-		}
+		super(tile_size);
 	}
 	
 	public void createNewMap(int rows, int cols)
@@ -164,7 +135,7 @@ public class EditableGrid2DMap extends Grid2DMap
 	public static int[][] getAllLandings(String file, AssetManager assets) 
 			throws IOException
 	{
-		EditableGrid2DMap map = new EditableGrid2DMap();
+		EditableGrid2DMap map = new EditableGrid2DMap(0.0d);
 		map.load(file, assets, 1);
 		
 		ArrayList<Integer> rows = new ArrayList<Integer>();

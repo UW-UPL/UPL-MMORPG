@@ -9,14 +9,13 @@ import com.upl.mmorpg.lib.map.MapSquare;
 
 public class GridGraph 
 {
-	public GridGraph(int start_row, int start_col, 
-			int max_dist, Grid2DMap map)
+	public GridGraph(int start_row, int start_col, Grid2DMap map)
 	{
 		this.original_start_row = start_row;
 		this.original_start_col = start_col;
+		this.max_dist = MAX_PATH;
 		this.start_row = start_row - max_dist;
 		this.start_col = start_col - max_dist;
-		this.max_dist = max_dist;
 		
 		this.max_row = (max_dist * 2) + 1;
 		this.max_col = (max_dist * 2) + 1;
@@ -50,6 +49,8 @@ public class GridGraph
 		/* Dijkstra's shortest path algorithm */
 		
 		GridNode centerNode = graph[max_dist][max_dist];
+		
+		if(centerNode == null) return null;
 		
 		/* Set our node to 0 */
 		centerNode.value = 0;
@@ -121,6 +122,8 @@ public class GridGraph
 	
 	public GridNode graph[][];
 	
+	private static final int MAX_PATH = 150;
+	
 	private class GridNode
 	{
 		public GridNode(double value, int row, int col, 
@@ -138,14 +141,24 @@ public class GridGraph
 		public LinkedList<GridNode> getNeighbors()
 		{
 			LinkedList<GridNode> nodes = new LinkedList<GridNode>();
-			if(getRight() != null)  nodes.add(getRight());
-			if(getLeft() != null)  nodes.add(getLeft());
-			if(getUp() != null)  nodes.add(getUp());
-			if(getDown() != null)  nodes.add(getDown());
-			if(getUpLeft() != null)  nodes.add(getUpLeft());
-			if(getUpRight() != null)  nodes.add(getUpRight());
-			if(getDownLeft() != null)  nodes.add(getDownLeft());
-			if(getDownRight() != null)  nodes.add(getDownRight());
+			GridNode right = getRight();
+			GridNode left = getLeft();
+			GridNode up = getUp();
+			GridNode down = getDown();
+			
+			if(right != null)  nodes.add(getRight());
+			if(left != null)  nodes.add(getLeft());
+			if(up != null)  nodes.add(getUp());
+			if(down != null)  nodes.add(getDown());
+			
+			if((up == null || up.passable) && (left == null || left.passable))
+				if(getUpLeft() != null)  nodes.add(getUpLeft());
+			if((up == null || up.passable) && (right == null || right.passable))
+				if(getUpRight() != null)  nodes.add(getUpRight());
+			if((down == null || down.passable) && (left == null || left.passable))
+				if(getDownLeft() != null)  nodes.add(getDownLeft());
+			if((down == null || down.passable) && (right == null || right.passable))
+				if(getDownRight() != null)  nodes.add(getDownRight());
 			
 			return nodes;
 		}

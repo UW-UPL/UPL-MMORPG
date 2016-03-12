@@ -32,14 +32,6 @@ public class ServerGame extends Game
 		render.startRender();
 	}
 	
-	public void addGoblin(int row, int col)
-	{
-		Goblin g = new Goblin(row, col, map, assets);
-		this.addCharacter(g);
-		
-		g.walkTo(25, 11);
-	}
-	
 	@Override
 	public void loadMap() throws IOException
 	{
@@ -53,11 +45,24 @@ public class ServerGame extends Game
 	
 	public static void main(String[] args) 
 	{
-		try {
+		try 
+		{
 			ServerGame g = new ServerGame("assets/maps/example-map1.mmomap", 
 					new AssetManager(), false);
+			g.loadAssets();
 			g.loadMap();
-			g.addGoblin(11, 11);
+//			for(int row = 7;row < 13;row++)
+//			{
+//				for(int col = 9;col < 15;col++)
+//				{
+//					Goblin gob1 = g.createGoblin(row, col);
+//					gob1.wander(5);
+//				}
+//			}
+			Goblin wanderer = g.createGoblin(11, 11);
+			Goblin follower = g.createGoblin(11, 12);
+			wanderer.wander(10);
+			follower.follow(wanderer);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

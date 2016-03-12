@@ -53,7 +53,7 @@ public class AnimationManager
 	public synchronized void setAnimation(Animation animation)
 	{
 		if(this.currentAnimation != null)
-			currentAnimation.animationInterrupted();
+			currentAnimation.animationInterrupted(animation);
 		this.currentAnimation = animation;
 		animation.animationStarted();
 		this.setAnimationFrame(0);
@@ -79,13 +79,13 @@ public class AnimationManager
 	
 	public synchronized void setReelDirection(int direction)
 	{
-		if(direction > 0 && direction < directions_str.length)
+		if(direction >= 0 && direction < directions_str.length)
 		{
 			this.reelDirection = direction;
 			currentFrame = currentReel[reelDirection][reelPos];
 		}
 	}
-
+	
 	public boolean loadReels(String path) throws IOException
 	{
 		if(!path.endsWith(File.separator))
@@ -187,8 +187,11 @@ public class AnimationManager
 	
 	public void animation(double seconds)
 	{
+		if(animation_speed <= 0)
+			return;
+		
 		animation_total += seconds;
-		if(animation_total >= animation_speed)
+		while(animation_total >= animation_speed)
 		{
 			/* increment reelPos */
 			reelPos++;
@@ -199,13 +202,14 @@ public class AnimationManager
 				if(animation_loop)
 				{
 					reelPos = 0;
-					currentFrame = currentReel[reelDirection][reelPos];
+					setAnimationFrame(reelPos);
 				} else {
 					if(currentAnimation != null)
 						currentAnimation.animationReelFinished();
 				}
 			} else {
 				currentFrame = currentReel[reelDirection][reelPos];
+				setAnimationFrame(reelPos);
 			}
 			
 			animation_total = 0;

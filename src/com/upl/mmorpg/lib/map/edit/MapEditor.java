@@ -27,8 +27,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.ScrollPaneConstants;
 
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
@@ -133,9 +135,15 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 
 		toolPanel = new JPanel();
 		toolPanel.setBackground(Color.gray);
-		toolPanel.setMaximumSize(new Dimension(200, 600));
-		toolPanel.setMinimumSize(new Dimension(200, 600));
-		toolPanel.setPreferredSize(new Dimension(200, 600));
+		toolPanel.setMaximumSize(new Dimension(200, 800));
+		toolPanel.setMinimumSize(new Dimension(200, 800));
+		toolPanel.setPreferredSize(new Dimension(200, 800));
+		JScrollPane scroll = new JScrollPane(toolPanel);
+		scroll.setMaximumSize(new Dimension(200, 600));
+		scroll.setMinimumSize(new Dimension(200, 600));
+		scroll.setPreferredSize(new Dimension(200, 600));
+		scroll.setHorizontalScrollBarPolicy(
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
 		addLabel("Control Tools");
 		moveTool = addTool("assets/images/editor/move_tool.png");
@@ -219,8 +227,9 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		toolPanel.add(sz_field);
 		
 		parentPanel.add(render);
-		parentPanel.add(toolPanel);
-
+		//parentPanel.add(toolPanel);
+		parentPanel.add(scroll);
+		
 		window.getContentPane().add(parentPanel);
 
 		window.pack();

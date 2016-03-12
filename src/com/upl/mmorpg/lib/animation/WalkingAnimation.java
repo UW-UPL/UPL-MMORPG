@@ -1,22 +1,29 @@
 package com.upl.mmorpg.lib.animation;
 
+import java.util.Iterator;
+
+import com.upl.mmorpg.game.character.FollowListener;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.algo.Path;
 
 public class WalkingAnimation extends Animation
 {
 	public WalkingAnimation(AnimationManager animation, 
-			MMOCharacter character, double tile_size)
+			MMOCharacter character, double tile_size, 
+			AnimationListener listener)
 	{
-		super(animation, character, tile_size);
+		super(animation, character, tile_size, listener);
 		this.vector_x = 0;
 		this.vector_y = 0;
 		arrived = false;
+		interrupted =  false;
 	}
 	
 	public void setPath(Path path)
 	{
+		if(path == null) return;
 		this.walkingPath = path;
+		interrupted = false;
 		
 		/* If we're at the first point, remove it */
 		int myRow = (int)(character.getCenterY() / tile_size);
@@ -24,13 +31,10 @@ public class WalkingAnimation extends Animation
 		while(this.walkingPath.getNextCol() == myCol 
 				&& this.walkingPath.getNextRow() == myRow)
 			this.walkingPath.moveForward();
-		
-		System.out.println("MR: " + myRow + " MC: " + myCol +"  nr: " 
-		+ walkingPath.getNextRow() + " nc: " + walkingPath.getNextCol());
 	}
 	
 	@Override
-	public void animationInterrupted() 
+	public void animationInterrupted(Animation source) 
 	{
 		vector_x = 0;
 		vector_y = 0;
@@ -39,26 +43,44 @@ public class WalkingAnimation extends Animation
 	@Override
 	public void animationStarted() 
 	{
+		if(walkingPath == null) return;
 		arrived = false;
+		interrupted = false;
 		if(!manager.setReel("walk_start", false))
 			throw new RuntimeException("WALK ANIMATION NOT SUPPORTED");
-		manager.setAnimationSpeed(20);
+		manager.setAnimationSpeed(100);
 		
-		System.out.println("  nr: " + walkingPath.getNextRow() + " nc: " + walkingPath.getNextCol());
 		int dir = this.lookTowards(walkingPath.getNextRow(), walkingPath.getNextCol());
 		manager.setReelDirection(dir);
 		this.generateVectors(dir);
+		
+		Iterator<FollowListener> it = character.getFollowers();
+		while(it.hasNext())
+		{
+			it.next().characterMoving(character, 
+					character.getRow(), 
+					character.getCol());
+		}
 	}
 	
 	@Override
 	public void animationReelFinished() 
 	{
+		interrupted = false;
 		if(!arrived)
 		{
 			if(!manager.setReel("walk", false))
 				throw new RuntimeException("WALK ANIMATION NOT SUPPORTED");
 			manager.setAnimationSpeed(15);
+		} else {
+			if(listener != null)
+				listener.animationFinished();
 		}
+	}
+	
+	public synchronized void interruptPath()
+	{
+		interrupted = true;
 	}
 
 	@Override
@@ -83,28 +105,38 @@ public class WalkingAnimation extends Animation
 		else if(diffY == 0) diffY = 0;
 		else diffY = -1;
 		
-		System.out.println("DIFFX: " + diffX + " DIFFY: " + diffY + "   vectX: " + vector_x + " vectY: " + vector_y);
-		System.out.println("charX: " + charX + "  charY: " + charY + " destX; " + destX + " destY: " + destY);
-		
 		if(diffX != vector_x || diffY != vector_y)
 		{
-			System.out.println("Got to " + walkingPath.getNextRow() + "  " + walkingPath.getNextCol());
+			
 			/* We passed our destination */
 			character.setX(destX);
 			character.setY(destY);
 			walkingPath.moveForward();
 			
-			if(walkingPath.isEmpty())
+			if(walkingPath.isEmpty() || interrupted)
 			{
 				walkingPath = null;
 				arrived = true;
-				manager.setAnimationSpeed(30);
-				manager.setReel("walk_end", false);
+				
+				if(!interrupted)
+				{
+					manager.setAnimationSpeed(30);
+					manager.setReel("walk_end", false);
+				} else this.animationReelFinished();
 			} else {
 				/* Change direction properties */
-				int dir = this.lookTowards(walkingPath.getNextRow(), walkingPath.getNextCol());
+				int dir = this.lookTowards(walkingPath.getNextRow(), 
+						walkingPath.getNextCol());
 				manager.setReelDirection(dir);
 				this.generateVectors(dir);
+				
+				Iterator<FollowListener> it = character.getFollowers();
+				while(it.hasNext())
+				{
+					it.next().characterMoving(character, 
+							character.getRow(), 
+							character.getCol());
+				}
 			}
 		} else {
 			character.setX(charX);
@@ -118,12 +150,7 @@ public class WalkingAnimation extends Animation
 		generateVectors(direction);
 	}
 	
-	private AnimationState state;
 	private Path walkingPath;
 	private boolean arrived;
-	
-	private enum AnimationState
-	{
-		NONE, STARTING, WALKING, ENDING
-	}
+	private boolean interrupted;
 }

@@ -5,12 +5,12 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 public class IdleAnimation extends Animation
 {
 	public IdleAnimation(AnimationManager manager, MMOCharacter character,
-			double tile_size) {
-		super(manager, character, tile_size);
+			double tile_size, AnimationListener listener) {
+		super(manager, character, tile_size, listener);
 	}
 
 	@Override
-	public void animationInterrupted() {}
+	public void animationInterrupted(Animation source) {}
 
 	@Override
 	public void animationStarted() 

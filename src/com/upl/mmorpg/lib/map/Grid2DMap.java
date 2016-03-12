@@ -10,12 +10,12 @@ import com.upl.mmorpg.lib.libfile.FileManager;
 
 public class Grid2DMap extends Renderable
 {
-	public Grid2DMap()
+	public Grid2DMap(double tileSize)
 	{
 		map = null;
 		loaded = false;
 		renderable = false;
-		tileSize = 0.0d;
+		this.tileSize = tileSize;
 	}
 	
 	public Grid2DMap(RenderPanel panel, double tileSize)
@@ -30,7 +30,7 @@ public class Grid2DMap extends Renderable
 	@Override
 	public void render(Graphics2D g) 
 	{
-		if(!renderable) return;
+		if(!renderable || !loaded || map == null) return;
 		
 		/* Only draw the tiles that are on the screen */
 		double startX = panel.getViewX() - tileSize;
@@ -51,8 +51,8 @@ public class Grid2DMap extends Renderable
 				
 				if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 					continue;
-				
-				map[row][col].render(g);
+				if(map[row][col] != null)
+					map[row][col].render(g);
 			}
 		}
 	}

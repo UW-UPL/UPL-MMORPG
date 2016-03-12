@@ -91,6 +91,11 @@ public class Path
 		}
 	}
 	
+	public int size()
+	{
+		return path.size();
+	}
+	
 	public void moveForward()
 	{
 		path.removeFirst();
