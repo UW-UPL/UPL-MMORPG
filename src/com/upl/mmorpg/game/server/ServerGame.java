@@ -59,10 +59,11 @@ public class ServerGame extends Game
 //					gob1.wander(5);
 //				}
 //			}
+			
 			Goblin wanderer = g.createGoblin(11, 11);
 			Goblin follower = g.createGoblin(11, 12);
-			wanderer.wander(10);
 			follower.follow(wanderer);
+			wanderer.wander(5);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
