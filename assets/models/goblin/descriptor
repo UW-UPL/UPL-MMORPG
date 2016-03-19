@@ -1,0 +1,6 @@
+idle,1,20
+walk_start,40,65
+walk,66,105
+walk_end,106,120
+punch,130,160
+death,180,210

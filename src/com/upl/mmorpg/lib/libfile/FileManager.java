@@ -70,6 +70,68 @@ public class FileManager
 		open(path, create, read, write);
 	}
 	
+	public static boolean mkdirp(String dir)
+	{
+		boolean result = false;
+		File f = null;
+		
+		try
+		{
+			f = new File(dir);
+			result = f.mkdirs();
+		} catch(Exception e)
+		{
+			result = false;
+		}
+		
+		f = null;
+		return result;
+	}
+	
+	public static boolean mkdir(String dir)
+	{
+		boolean result = false;
+		File f = null;
+		
+		try
+		{
+			f = new File(dir);
+			result = f.mkdir();
+		} catch(Exception e)
+		{
+			result = false;
+		}
+		
+		f = null;
+		return result;
+	}
+	
+	public static boolean cp(String path, String copy) throws IOException
+	{
+		FileManager input = new FileManager(path, false, true, false);
+		FileManager output = new FileManager(copy, true, true, true);
+		
+		if(!input.opened() || !output.opened())
+		{
+			input.close();
+			output.close();
+			return false;
+		}
+		
+		while(true)
+		{
+			byte[] buffer = input.readBytes(8192);
+			output.writeBytes(buffer);
+			if(buffer.length < 8192)
+				break;
+		}
+		
+		input.close();
+		output.close();
+		
+		return true;
+	}
+	
 	public static String[] getFiles(String dir)
 	{
 		String[] result = null;

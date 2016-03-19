@@ -3,7 +3,7 @@ package com.upl.mmorpg.lib.liblog;
 public class Log 
 {
 	/* Whether or not to display any output */
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	/* Whether or not to display error messages */
 	public static final boolean ERROR =        true && DEBUG;
 	/* Whether or not to display basic output */
