@@ -57,7 +57,7 @@ public class WanderAnimation extends Animation implements AnimationListener
 		int attempts = 0;
 		while(animating && !isWalking)
 		{
-			if(attempts == 50) break;
+			if(attempts == 100) break;
 			attempts++;
 			/* Generate a new row and col to walk to */
 			int row = this.startRow + random.nextInt((radius * 2) + 1) - radius;

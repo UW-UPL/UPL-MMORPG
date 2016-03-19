@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.upl.mmorpg.lib.algo.GridGraph;
+import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.animation.AnimationManager;
 import com.upl.mmorpg.lib.animation.FollowAnimation;
@@ -129,6 +130,48 @@ public abstract class MMOCharacter extends Renderable
 	{
 		animation.setAnimation(idle);
 		animation.setAnimationSpeed(10);
+	}
+	
+	public GridPoint getBehindPoint()
+	{
+		int row = getRow();
+		int col = getCol();
+		GridPoint point = null;
+		
+		switch(animation.getReelDirection())
+		{
+			case AnimationManager.FRONT:
+				point = new GridPoint(row - 1, col);
+				break;
+			case AnimationManager.BACK:
+				point = new GridPoint(row + 1, col);
+				break;
+			case AnimationManager.RIGHT:
+				point = new GridPoint(row, col - 1);
+				break;
+			case AnimationManager.LEFT:
+				point = new GridPoint(row, col + 1);
+				break;
+			case AnimationManager.FRONT_LEFT:
+				point = new GridPoint(row - 1, col + 1);
+				break;
+			case AnimationManager.FRONT_RIGHT:
+				point = new GridPoint(row - 1, col - 1);
+				break;
+			case AnimationManager.BACK_RIGHT:
+				point = new GridPoint(row + 1, col - 1);
+				break;
+			case AnimationManager.BACK_LEFT:
+				point = new GridPoint(row + 1, col + 1);
+				break;
+		}
+		
+		return point;
+	}
+	
+	public Path getPath()
+	{
+		return walking.getPath();
 	}
 	
 	@Override public abstract String getRenderName();

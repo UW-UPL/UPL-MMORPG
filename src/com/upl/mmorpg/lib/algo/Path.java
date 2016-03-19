@@ -17,6 +17,23 @@ public class Path
 		path.add(new GridPoint(row, col));
 	}
 	
+	private void addPoint(GridPoint point)
+	{
+		path.add(new GridPoint(point.getRow(), point.getCol()));
+	}
+	
+	public void catPath(Path path)
+	{
+		Iterator<GridPoint> it = path.iterator();
+		while(it.hasNext())
+			addPoint(it.next());
+	}
+	
+	public Iterator<GridPoint> iterator()
+	{
+		return path.iterator();
+	}
+	
 	public GridPoint getLast()
 	{
 		return path.getLast();
@@ -88,6 +105,23 @@ public class Path
 			GridPoint point = it.next();
 			System.out.println(x + ": " + point.getRow() + "," + point.getCol());
 			x++;
+		}
+	}
+	
+	public void optimize()
+	{
+		Iterator<GridPoint> it = path.iterator();
+		GridPoint last = null;
+		while(it.hasNext())
+		{
+			if(last == null)
+				last = it.next();
+			else {
+				GridPoint curr = it.next();
+				if(last.equals(curr))
+					it.remove();
+				else last = curr;
+			}
 		}
 	}
 	

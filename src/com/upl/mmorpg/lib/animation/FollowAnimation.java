@@ -3,6 +3,7 @@ package com.upl.mmorpg.lib.animation;
 import com.upl.mmorpg.game.character.FollowListener;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.algo.GridGraph;
+import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
@@ -16,9 +17,10 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 		this.map = map;
 		walking = new WalkingAnimation(manager, character, tile_size, this);
 		idle = new IdleAnimation(manager, character, tile_size, null);
-		isFollowing = false;
+		isMoving = false;
 		animating = false;
 		this.following = null;
+		this.followingIsMoving = false;
 	}
 	
 	public void setFollee(MMOCharacter following)
@@ -31,11 +33,10 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 	{
 		if(source == walking || source == idle) return;
 		
-		System.out.println("Follow animation stopped");
 		/* This was an external interrupt */
 		walking.animationInterrupted(source);
 		idle.animationInterrupted(source);
-		isFollowing = false;
+		isMoving = false;
 		animating = false;
 		following.removeFollower(this);
 	}
@@ -43,30 +44,30 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 	@Override
 	public void animationStarted() 
 	{
-		System.out.println("Following animation started");
-		isFollowing = false;
+		isMoving = false;
 		animating = true;
 		following.addFollower(this);
+		
+		GridPoint behind = following.getBehindPoint();
+		walkTo(behind.getRow(), behind.getCol());
+		this.nextRow = behind.getRow();
+		this.nextCol = behind.getCol();
+		walking.animationStarted();
 	}
 	
 	private void walkTo(int row, int col)
 	{
-		if(animating && !isFollowing)
-		{
-			System.out.println("Walking to: " + row + " " + col);
-			isFollowing = true;
-			GridGraph graph = new GridGraph(character.getRow(), 
-					character.getCol(), map);
-			Path p = graph.shortestPathTo(row, col);
-			walking.setPath(p);
-			manager.setAnimation(walking);
-		}
+		isMoving = true;
+		GridGraph graph = new GridGraph(character.getRow(), 
+				character.getCol(), map);
+		Path p = graph.shortestPathTo(row, col);
+		walking.setPath(p);
 	}
 
 	@Override
 	public void animationReelFinished() 
 	{
-		if(isFollowing)
+		if(isMoving)
 			walking.animationReelFinished();
 		else idle.animationReelFinished();
 	}
@@ -74,7 +75,7 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 	@Override
 	public void animation(double seconds) 
 	{
-		if(isFollowing)
+		if(isMoving)
 			walking.animation(seconds);
 		else idle.animation(seconds);
 	}
@@ -82,7 +83,7 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 	@Override
 	public void directionChanged(int direction) 
 	{
-		if(isFollowing)
+		if(isMoving)
 			walking.directionChanged(direction);
 		else idle.directionChanged(direction);
 	}
@@ -91,17 +92,24 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 	public void characterMoving(MMOCharacter c, int dstRow, int dstCol) 
 	{
 		if(!animating) return;
-		System.out.println("Character moved!");
+		
+		followingIsMoving = true;
+		isMoving = true;
+		
+		/* Make sure not to play the end walk animation */
+		walking.setSmooth(true);
 		
 		nextRow = dstRow;
 		nextCol = dstCol;
 		
-		if(isFollowing)
-		{
-			walking.interruptPath();
-		} else {
-			walkTo(dstRow, dstCol);
-		}
+		walking.appendWaypoint(dstRow, dstCol, map);
+	}
+	
+	@Override
+	public void characterArrived(MMOCharacter c) 
+	{
+		followingIsMoving = false;
+		walking.setSmooth(false);
 	}
 	
 	@Override
@@ -109,12 +117,16 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 	{
 		if(animating)
 		{
+			if(!followingIsMoving)
+			{
+				walking.setSmooth(false);
+				walking.arrive();
+				return;
+			}
+			
 			if(character.getRow() == nextRow 
 					&& character.getCol() == nextCol)
 				return;
-				
-			isFollowing = false;
-			walkTo(nextRow, nextCol);
 		}
 	}
 
@@ -125,6 +137,7 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 	private int nextCol;
 
 	private boolean animating;
-	private boolean isFollowing;
+	private boolean isMoving;
+	private boolean followingIsMoving;
 	private MMOCharacter following;
 }

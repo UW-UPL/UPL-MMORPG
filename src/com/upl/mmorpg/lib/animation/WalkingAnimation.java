@@ -4,7 +4,9 @@ import java.util.Iterator;
 
 import com.upl.mmorpg.game.character.FollowListener;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.Path;
+import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class WalkingAnimation extends Animation
 {
@@ -31,6 +33,13 @@ public class WalkingAnimation extends Animation
 		while(this.walkingPath.getNextCol() == myCol 
 				&& this.walkingPath.getNextRow() == myRow)
 			this.walkingPath.moveForward();
+	}
+	
+	public Path getPath()
+	{
+		if(walkingPath != null) 
+			return walkingPath.copy();
+		else return null;
 	}
 	
 	@Override
@@ -69,18 +78,59 @@ public class WalkingAnimation extends Animation
 		interrupted = false;
 		if(!arrived)
 		{
-			if(!manager.setReel("walk", false))
+			/* We need to start the walk animation*/
+			if(!manager.setReel("walk", true))
 				throw new RuntimeException("WALK ANIMATION NOT SUPPORTED");
 			manager.setAnimationSpeed(15);
-		} else {
-			if(listener != null)
-				listener.animationFinished();
 		}
 	}
 	
-	public synchronized void interruptPath()
+	public void interruptPath()
 	{
 		interrupted = true;
+	}
+	
+	public void setSmooth(boolean smooth)
+	{
+		this.smooth = smooth;
+	}
+	
+	public void arrive()
+	{
+		manager.setReel("walk_end", false);
+		manager.setAnimationSpeed(30);
+	}
+	
+	public void appendWaypoint(int row, int col, Grid2DMap map)
+	{
+		GridGraph graph;
+		
+		if(walkingPath != null)
+			graph = new GridGraph(walkingPath.getLast().getRow(), 
+				walkingPath.getLast().getCol(), map);
+		else graph = new GridGraph(character.getRow(), character.getCol(), map);
+		Path newPath = graph.shortestPathTo(row, col);
+		
+		if(newPath != null)
+		{
+			if(walkingPath == null)
+				walkingPath = newPath;
+			else {
+				walkingPath.catPath(newPath);
+				walkingPath.optimize();
+			}
+			interrupted = false;
+			
+			/* Were we already walking? */
+			if(arrived)
+			{
+				if(!manager.setReel("walk", true))
+					throw new RuntimeException("WALK ANIMATION NOT SUPPORTED");
+				manager.setAnimationSpeed(15);
+			}
+			
+			arrived = false;
+		}
 	}
 
 	@Override
@@ -107,22 +157,34 @@ public class WalkingAnimation extends Animation
 		
 		if(diffX != vector_x || diffY != vector_y)
 		{
-			
 			/* We passed our destination */
 			character.setX(destX);
 			character.setY(destY);
+			
+			/* Remove all points that are at this point */
 			walkingPath.moveForward();
 			
+			/* Did we reach the destination? */
 			if(walkingPath.isEmpty() || interrupted)
 			{
+				/* nullify the path */
 				walkingPath = null;
-				arrived = true;
 				
-				if(!interrupted)
+				/* Should we end the animation? */
+				if(!smooth)
 				{
-					manager.setAnimationSpeed(30);
-					manager.setReel("walk_end", false);
-				} else this.animationReelFinished();
+					/* Do the end walk animation */
+					arrive();
+					arrived = true;
+
+					Iterator<FollowListener> it = character.getFollowers();
+					while(it.hasNext())
+						it.next().characterArrived(character); 
+				}
+				
+				/* Let the listener know we got to the dest */
+				if(listener != null)
+					listener.animationFinished();
 			} else {
 				/* Change direction properties */
 				int dir = this.lookTowards(walkingPath.getNextRow(), 
@@ -153,4 +215,5 @@ public class WalkingAnimation extends Animation
 	private Path walkingPath;
 	private boolean arrived;
 	private boolean interrupted;
+	private boolean smooth;
 }

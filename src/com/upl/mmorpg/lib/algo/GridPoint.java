@@ -8,6 +8,19 @@ public final class GridPoint
 		this.col = col;
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof GridPoint)
+		{
+			GridPoint p = (GridPoint)obj;
+			if(p.row == this.row && p.col == this.col)
+				return true;
+		}
+		
+		return false;
+	}
+	
 	public int getRow() { return row; }
 	public void setRow(int row) { this.row = row; }
 	public int getCol() { return col; }

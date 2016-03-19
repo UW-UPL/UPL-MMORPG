@@ -23,6 +23,7 @@ public class AnimationManager
 		currentFrame = null;
 		animation_total = 0;
 		animation_speed = 0;
+		endReelNotified = false;
 		
 		map = new HashMap<String, BufferedImage[][]>();
 	}
@@ -30,13 +31,15 @@ public class AnimationManager
 	public boolean setReel(String reelName, boolean loop)
 	{
 		BufferedImage[][] reel = map.get(reelName);
-		if(reel == null) return false;;
+		if(reel == null) return false;
 		
+		if(this.currentReel == reel) return true;
 		this.currentReel = reel;
 		this.reelPos = 0;
 		this.animation_total = 0;
 		this.animation_loop = loop;
 		this.maxReelPos = reel[this.reelDirection].length;
+		this.endReelNotified = false;
 		
 		this.currentFrame = reel[this.reelDirection][0];
 		
@@ -55,6 +58,7 @@ public class AnimationManager
 		if(this.currentAnimation != null)
 			currentAnimation.animationInterrupted(animation);
 		this.currentAnimation = animation;
+		this.endReelNotified = false;
 		animation.animationStarted();
 		this.setAnimationFrame(0);
 	}
@@ -79,11 +83,17 @@ public class AnimationManager
 	
 	public synchronized void setReelDirection(int direction)
 	{
-		if(direction >= 0 && direction < directions_str.length)
+		if(direction >= 0 && direction < directions_str.length
+				&& direction != this.reelDirection)
 		{
 			this.reelDirection = direction;
 			currentFrame = currentReel[reelDirection][reelPos];
 		}
+	}
+	
+	public int getReelDirection()
+	{
+		return this.reelDirection;
 	}
 	
 	public boolean loadReels(String path) throws IOException
@@ -204,8 +214,9 @@ public class AnimationManager
 					reelPos = 0;
 					setAnimationFrame(reelPos);
 				} else {
-					if(currentAnimation != null)
+					if(!endReelNotified && currentAnimation != null)
 						currentAnimation.animationReelFinished();
+					endReelNotified = true;
 				}
 			} else {
 				currentFrame = currentReel[reelDirection][reelPos];
@@ -227,6 +238,7 @@ public class AnimationManager
 	protected int reelDirection;
 	protected int reelPos;
 	protected int maxReelPos;
+	protected boolean endReelNotified;
 
 	protected boolean animation_loop;
 	protected double animation_speed;
