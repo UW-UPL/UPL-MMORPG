@@ -51,14 +51,14 @@ public class ServerGame extends Game
 					new AssetManager(), false);
 			g.loadAssets();
 			g.loadMap();
-//			for(int row = 7;row < 13;row++)
-//			{
-//				for(int col = 9;col < 15;col++)
-//				{
-//					Goblin gob1 = g.createGoblin(row, col);
-//					gob1.wander(5);
-//				}
-//			}
+			for(int row = 7;row < 13;row++)
+			{
+				for(int col = 9;col < 15;col++)
+				{
+					Goblin gob1 = g.createGoblin(row, col);
+					gob1.wander(5);
+				}
+			}
 			
 //			final Goblin wanderer = g.createGoblin(11, 11);
 //			final Goblin follower = g.createGoblin(11, 20);
@@ -79,16 +79,16 @@ public class ServerGame extends Game
 //			Goblin attacker = g.createGoblin(11, 11);
 //			attacker.attack(defender);
 			
-			final Goblin die = g.createGoblin(11, 11);
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					try { Thread.sleep(2000); } catch(Exception e){}
-					die.die();
-				}
-			};
-			new Thread(run).start();
+//			final Goblin die = g.createGoblin(11, 11);
+//			Runnable run = new Runnable()
+//			{
+//				public void run()
+//				{
+//					try { Thread.sleep(2000); } catch(Exception e){}
+//					die.die();
+//				}
+//			};
+//			new Thread(run).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

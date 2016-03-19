@@ -19,6 +19,7 @@ import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
 import com.upl.mmorpg.lib.map.Grid2DMap;
+import com.upl.mmorpg.lib.quest.Quest;
 
 public abstract class MMOCharacter extends Renderable
 {
@@ -43,6 +44,8 @@ public abstract class MMOCharacter extends Renderable
 		this.health = 0;
 		this.attackSpeed = 0.0d;
 		this.game = game;
+		this.currentQuest = null;
+		this.quests = new LinkedList<Quest>();
 		
 		/* default values for character properties */
 		walkingSpeed = 1.0d;
@@ -50,15 +53,16 @@ public abstract class MMOCharacter extends Renderable
 		hasAnimation = true;
 		
 		animation = new AnimationManager(assets);
-		walking = new WalkingAnimation(animation, this, map.getTileSize(), null);
-		idle = new IdleAnimation(animation, this, map.getTileSize(), null);
-		attack = new PunchAnimation(animation, this, map.getTileSize(), null);
-		death = new DeathAnimation(animation, this, map.getTileSize(), null, game);
-		follow = new FollowAnimation(animation, this, map, 
+		walking = new WalkingAnimation(game, animation, this, map.getTileSize(), null);
+		idle = new IdleAnimation(game, animation, this, map.getTileSize(), null);
+		attack = new PunchAnimation(game, animation, this, map.getTileSize(), null);
+		death = new DeathAnimation(game, animation, this, map.getTileSize(), null);
+		follow = new FollowAnimation(game, animation, this, map, 
 				map.getTileSize(), null);
 		followers = new LinkedList<FollowListener>();
 	}
 	
+	/** Animation methods */
 	public void follow(MMOCharacter character)
 	{
 		follow.setFollee(character);
@@ -87,11 +91,22 @@ public abstract class MMOCharacter extends Renderable
 				(int)locX, (int)locY, (int)width, (int)height, null);
 	}
 	
+	/**
+	 * Set the animation reels for the given character.
+	 * @param path The path to the animation reels directory.
+	 * @throws IOException The reels couldn't be loaded
+	 */
 	protected void setAnimationReels(String path) throws IOException
 	{
 		animation.loadReels(path);
 	}
 	
+	/**
+	 * Walk to the given row and column. Safe to call from a rendering or
+	 * the main thread.
+	 * @param row The row to go to.
+	 * @param col The column to go to.
+	 */
 	public void background_walkTo(final int row, final int col)
 	{
 		Runnable run = new Runnable()
@@ -113,6 +128,13 @@ public abstract class MMOCharacter extends Renderable
 		new Thread(run).start();
 	}
 
+	/**
+	 * Walk to the given row and column. DO NOT call this from a rendering
+	 * thread. Instead call background_walkTo, which uses a seperate thread
+	 * to do the shortest path computation.
+	 * @param row The row to go to.
+	 * @param col The column to go to.
+	 */
 	public void walkTo(int row, int col)
 	{
 		int startRow = (int)(locY / map.getTileSize());
@@ -125,6 +147,10 @@ public abstract class MMOCharacter extends Renderable
 		animation.setAnimation(walking);
 	}
 	
+	/**
+	 * Get the grid point behind the character.
+	 * @return The grid point that is directly behind the character.
+	 */
 	public GridPoint getBehindPoint()
 	{
 		int row = getRow();
@@ -167,6 +193,29 @@ public abstract class MMOCharacter extends Renderable
 		return walking.getPath();
 	}
 	
+	/** Quest methods */
+	
+	/**
+	 * Set the current quest for this character. Return true if the character
+	 * is on this quest, false otherwise.
+	 * @param quest The quest to assign.
+	 * @return Whether or not the character can make this quest active.
+	 */
+	public boolean setCurrentQuest(Quest quest)
+	{
+		if(quests.contains(quest))
+		{
+			currentQuest = quest;
+			return true;
+		}
+		return false;
+	}
+	public Quest getCurrentQuest() { return currentQuest; }
+	public void startQuest(Quest quest) { this.quests.add(quest); }
+	public void questComplete(Quest quest) { this.quests.remove(quest); }
+	public Iterator<Quest> getQuestIterator() { return quests.iterator(); }
+	
+	
 	public int getRow(){return (int)(locY / map.getTileSize());}
 	public int getCol(){return (int)(locX / map.getTileSize());}
 	@Override public abstract String getRenderName();
@@ -175,6 +224,8 @@ public abstract class MMOCharacter extends Renderable
 	protected Grid2DMap map;
 	protected AnimationManager animation;
 	protected Game game;
+	protected Quest currentQuest;
+	protected LinkedList<Quest> quests;
 	
 	/* Generic animations */
 	protected IdleAnimation idle;
@@ -187,6 +238,7 @@ public abstract class MMOCharacter extends Renderable
 	protected LinkedList<FollowListener> followers;
 
 	/** Character properties (time related) */
+	protected String name; /* The character's name */
 	protected double walkingSpeed; /* Horizontal/Vertical tiles per second */
 	
 	protected int maxHealth; /* How much health the player can hold */
@@ -194,6 +246,8 @@ public abstract class MMOCharacter extends Renderable
 	protected double attackSpeed; /* How many attacks/second can this character do? */
 	
 	/** Getters/setters for properties */
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
 	public double getWalkingSpeed() { return walkingSpeed; }
 	public void setWalkingSpeed(double speed) { this.walkingSpeed = speed; }
 	public int getMaxHealth() { return maxHealth; }

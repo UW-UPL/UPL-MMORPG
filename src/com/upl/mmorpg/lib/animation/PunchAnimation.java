@@ -1,17 +1,18 @@
 package com.upl.mmorpg.lib.animation;
 
+import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
 
 public class PunchAnimation extends Animation
 {
-	public PunchAnimation(AnimationManager manager, MMOCharacter character,
+	public PunchAnimation(Game game, AnimationManager manager, MMOCharacter character,
 			double tile_size, AnimationListener listener) 
 	{
-		super(manager, character, tile_size, listener);
+		super(game, manager, character, tile_size, listener);
 		animating = false;
 		lastPunch = 0.0d;
 		
-		idle = new IdleAnimation(manager, character, tile_size, listener);
+		idle = new IdleAnimation(game, manager, character, tile_size, listener);
 	}
 
 	public void setAttacking(MMOCharacter attacking)

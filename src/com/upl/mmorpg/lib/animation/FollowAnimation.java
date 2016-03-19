@@ -1,5 +1,6 @@
 package com.upl.mmorpg.lib.animation;
 
+import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.FollowListener;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.algo.GridGraph;
@@ -9,14 +10,14 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class FollowAnimation extends Animation implements FollowListener, AnimationListener
 {
-	public FollowAnimation(AnimationManager manager, MMOCharacter character,
+	public FollowAnimation(Game game, AnimationManager manager, MMOCharacter character,
 			Grid2DMap map, double tile_size, AnimationListener listener)
 	{
-		super(manager, character, tile_size, listener);
+		super(game, manager, character, tile_size, listener);
 
 		this.map = map;
-		walking = new WalkingAnimation(manager, character, tile_size, this);
-		idle = new IdleAnimation(manager, character, tile_size, null);
+		walking = new WalkingAnimation(game, manager, character, tile_size, this);
+		idle = new IdleAnimation(game, manager, character, tile_size, null);
 		isMoving = false;
 		animating = false;
 		this.following = null;

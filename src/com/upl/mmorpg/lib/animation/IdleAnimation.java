@@ -1,12 +1,13 @@
 package com.upl.mmorpg.lib.animation;
 
+import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
 
 public class IdleAnimation extends Animation
 {
-	public IdleAnimation(AnimationManager manager, MMOCharacter character,
+	public IdleAnimation(Game game, AnimationManager manager, MMOCharacter character,
 			double tile_size, AnimationListener listener) {
-		super(manager, character, tile_size, listener);
+		super(game, manager, character, tile_size, listener);
 	}
 
 	@Override

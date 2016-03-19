@@ -5,10 +5,10 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 
 public class DeathAnimation extends Animation
 {
-	public DeathAnimation(AnimationManager manager, MMOCharacter character,
-			double tile_size, AnimationListener listener, Game game) 
+	public DeathAnimation(Game game, AnimationManager manager, MMOCharacter character,
+			double tile_size, AnimationListener listener) 
 	{
-		super(manager, character, tile_size, listener);
+		super(game, manager, character, tile_size, listener);
 		this.game = game;
 		disappearTimer = 2.0d;
 		disappearSeconds = 0.0d;
@@ -42,6 +42,9 @@ public class DeathAnimation extends Animation
 			{
 				died = false;
 				game.removeCharacter(character);
+				
+				/* Let the quest engine know that this character died */
+				game.getQuestEngine().died(character);
 			}
 		}
 	}

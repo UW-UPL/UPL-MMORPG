@@ -23,6 +23,7 @@ public class Goblin extends NonPlayerCharacter
 		
 		this.idle();
 		
+		this.name = "Goblin";
 		this.walkingSpeed = 1.0d;
 		this.maxHealth = 10;
 		this.health = 10;

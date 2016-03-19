@@ -11,7 +11,7 @@ public abstract class NonPlayerCharacter extends MMOCharacter
 			Grid2DMap map, AssetManager assets, Game game) 
 	{
 		super(x, y, width, height, map, assets, game);
-		wander = new WanderAnimation(animation, this, map, 
+		wander = new WanderAnimation(game, animation, this, map, 
 				map.getTileSize(), null);
 	}
 
@@ -19,7 +19,7 @@ public abstract class NonPlayerCharacter extends MMOCharacter
 			AssetManager assets, Game game) 
 	{
 		super(row, col, map, assets, game);
-		wander = new WanderAnimation(animation, this, map, 
+		wander = new WanderAnimation(game, animation, this, map, 
 				map.getTileSize(), null);
 	}
 

@@ -2,6 +2,7 @@ package com.upl.mmorpg.lib.animation;
 
 import java.util.Iterator;
 
+import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.FollowListener;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.algo.GridGraph;
@@ -10,11 +11,10 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class WalkingAnimation extends Animation
 {
-	public WalkingAnimation(AnimationManager animation, 
-			MMOCharacter character, double tile_size, 
-			AnimationListener listener)
+	public WalkingAnimation(Game game, AnimationManager animation, MMOCharacter character, 
+			double tile_size, AnimationListener listener)
 	{
-		super(animation, character, tile_size, listener);
+		super(game, animation, character, tile_size, listener);
 		this.vector_x = 0;
 		this.vector_y = 0;
 		arrived = false;
@@ -160,6 +160,10 @@ public class WalkingAnimation extends Animation
 			/* We passed our destination */
 			character.setX(destX);
 			character.setY(destY);
+			
+			/* Let the quest engine know we changed our location */
+			game.getQuestEngine().movedTo(character, 
+					walkingPath.getNextRow(), walkingPath.getNextCol());
 			
 			/* Remove all points that are at this point */
 			walkingPath.moveForward();

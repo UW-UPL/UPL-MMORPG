@@ -2,6 +2,7 @@ package com.upl.mmorpg.lib.animation;
 
 import java.util.Random;
 
+import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.Path;
@@ -10,14 +11,14 @@ import com.upl.mmorpg.lib.map.MapSquare;
 
 public class WanderAnimation extends Animation implements AnimationListener
 {
-	public WanderAnimation(AnimationManager manager, MMOCharacter character,
+	public WanderAnimation(Game game, AnimationManager manager, MMOCharacter character,
 			Grid2DMap map, double tile_size, AnimationListener listener)
 	{
-		super(manager, character, tile_size, listener);
+		super(game, manager, character, tile_size, listener);
 
 		this.map = map;
-		walking = new WalkingAnimation(manager, character, tile_size, this);
-		idle = new IdleAnimation(manager, character, tile_size, this);
+		walking = new WalkingAnimation(game, manager, character, tile_size, this);
+		idle = new IdleAnimation(game, manager, character, tile_size, this);
 		isWalking = false;
 		animating = false;
 		this.startRow = character.getRow();

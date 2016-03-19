@@ -1,12 +1,14 @@
 package com.upl.mmorpg.lib.animation;
 
+import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
 
 public abstract class Animation
 {
-	public Animation(AnimationManager manager, MMOCharacter character, 
+	public Animation(Game game, AnimationManager manager, MMOCharacter character, 
 			double tile_size, AnimationListener listener)
 	{
+		this.game = game;
 		this.manager = manager;
 		this.character = character;
 		
@@ -95,6 +97,7 @@ public abstract class Animation
 		return direction;
 	}
 	
+	protected Game game;
 	protected AnimationListener listener;
 	protected AnimationManager manager;
 	protected MMOCharacter character;
