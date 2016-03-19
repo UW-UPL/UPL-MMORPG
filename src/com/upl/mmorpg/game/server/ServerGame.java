@@ -60,17 +60,32 @@ public class ServerGame extends Game
 //				}
 //			}
 			
-			final Goblin wanderer = g.createGoblin(11, 11);
-			final Goblin follower = g.createGoblin(11, 20);
-			follower.follow(wanderer);
-			//wanderer.wander(5);
+//			final Goblin wanderer = g.createGoblin(11, 11);
+//			final Goblin follower = g.createGoblin(11, 20);
+//			follower.follow(wanderer);
+//			wanderer.wander(5);
+//			
+//			Runnable run = new Runnable()
+//			{
+//				public void run()
+//				{
+//					try { Thread.sleep(10000); } catch(Exception e){}
+//					wanderer.wander(10);
+//				}
+//			};
+//			new Thread(run).start();
 			
+//			Goblin defender = g.createGoblin(11, 10);
+//			Goblin attacker = g.createGoblin(11, 11);
+//			attacker.attack(defender);
+			
+			final Goblin die = g.createGoblin(11, 11);
 			Runnable run = new Runnable()
 			{
 				public void run()
 				{
-					try { Thread.sleep(10000); } catch(Exception e){}
-					wanderer.wander(10);
+					try { Thread.sleep(2000); } catch(Exception e){}
+					die.die();
 				}
 			};
 			new Thread(run).start();

@@ -24,7 +24,7 @@ public class Game
 	public void loadAssets() throws IOException
 	{
 		/* Supported Characters */
-		Goblin.prefetchAssets(assets, TILE_SIZE);
+		Goblin.prefetchAssets(assets, TILE_SIZE, this);
 	}
 	
 	public void loadMap() throws IOException
@@ -48,7 +48,7 @@ public class Game
 	
 	public Goblin createGoblin(int row, int col)
 	{
-		Goblin g = new Goblin(row, col, map, assets);
+		Goblin g = new Goblin(row, col, map, assets, this);
 		this.addCharacter(g);
 		return g;
 	}
