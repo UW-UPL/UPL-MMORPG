@@ -75,5 +75,5 @@ public class Game
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
 	
-	protected static final double TILE_SIZE = 32;
+	protected static final double TILE_SIZE = 40;
 }

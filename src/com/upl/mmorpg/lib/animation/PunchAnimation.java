@@ -2,59 +2,19 @@ package com.upl.mmorpg.lib.animation;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.lib.map.Grid2DMap;
 
-public class PunchAnimation extends Animation
+public class PunchAnimation extends AttackAnimation
 {
-	public PunchAnimation(Game game, AnimationManager manager, MMOCharacter character,
+	public PunchAnimation(Game game, AnimationManager manager, 
+			MMOCharacter character, Grid2DMap map,
 			double tile_size, AnimationListener listener) 
 	{
-		super(game, manager, character, tile_size, listener);
-		animating = false;
-		lastPunch = 0.0d;
-		
-		idle = new IdleAnimation(game, manager, character, tile_size, listener);
-	}
-
-	public void setAttacking(MMOCharacter attacking)
-	{
-		this.attacking = attacking;
-	}
-	
-	@Override
-	public void animationInterrupted(Animation source) 
-	{
-		animating = false;
+		super(game, manager, character, map, tile_size, listener);
 	}
 
 	@Override
-	public void animationStarted() 
-	{
-		animating = true;
-		lastPunch = 0.0d;
-		idle.animationStarted();
-	}
-
-	@Override
-	public void animationReelFinished() 
-	{
-		idle.animationStarted();
-	}
-
-	@Override
-	public void animation(double seconds) 
-	{
-		if(!animating) return;
-		
-		lastPunch += seconds;
-		if(lastPunch >= character.getAttackSpeed())
-		{
-			/* Punch again */
-			lastPunch = 0;
-			punch();
-		}
-	}
-	
-	private void punch()
+	protected void attack_animation()
 	{
 		if(!manager.setReel("punch", false))
 			throw new RuntimeException("PUNCH ANIMATION NOT SUPPORTED");
@@ -63,10 +23,4 @@ public class PunchAnimation extends Animation
 	
 	@Override
 	public void directionChanged(int direction) {}
-	
-	private boolean animating;
-	private double lastPunch;
-	private MMOCharacter attacking;
-	
-	private IdleAnimation idle;
 }

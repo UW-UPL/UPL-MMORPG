@@ -10,7 +10,7 @@ public class Log
 	public static final boolean VERBOSE =      true && DEBUG;
 	/* Whether or not to display very verbose messages */
 	public static final boolean VERY_VERBOSE = true && DEBUG && VERBOSE;
-	
+
 	/* Whether or not to display very verbose messages */
 	public static final boolean NETWORK =      false && DEBUG && VERBOSE;
 	/* Whether or not to display very verbose messages */
@@ -19,73 +19,70 @@ public class Log
 	public static final boolean RENDER =       false && DEBUG && VERBOSE;
 	/* Whether or not to display collision debug messages */
 	public static final boolean COLLISION =       false && DEBUG && VERBOSE;
-	
-	
+
+
 	public static void v(String s)
 	{
 		if(VERBOSE)
 			System.out.print("   VER: " + s);
 	}
-	
+
 	public static void vln(String s)
 	{
 		if(VERBOSE)
 			System.out.println("   VER: " + s);
 	}
-	
+
 	public static void vok()
 	{
 		if(VERBOSE)
 			System.out.println("[ OK ]");
 	}
-	
+
 	public static void vfail()
 	{
 		if(VERBOSE)
 			System.out.println("[FAIL]");
 	}
-	
+
 	public static void vv(String s)
 	{
 		if(VERY_VERBOSE)
 			System.out.print("   VVR: " + s);
 	}
-	
+
 	public static void vvln(String s)
 	{
 		if(VERY_VERBOSE)
 			System.out.println("   VVR: " + s);
 	}
-	
+
 	public static void vvok()
 	{
 		if(VERY_VERBOSE)
 			System.out.println("[ OK ]");
 	}
-	
+
 	public static void vvfail()
 	{
 		if(VERY_VERBOSE)
 			System.out.println("[FAIL]");
 	}
-	
+
 	public static void e(String s)
 	{
 		if(ERROR)
 			System.out.println(">> ERR: " + s);
 	}
-	
+
 	public static void wtf(String s, Exception e)
 	{
-		if(DEBUG)
-		{
-			System.out.println(">> WTF: " + s);
-			e.printStackTrace();
-		}
+		System.out.println(">> WTF: " + s);
+		e.printStackTrace();
 	}
-	
+
 	/* Specific application logging*/
-	
+
 	/* Network layer debugging */
 	public static void vnet(String s)
 	{
@@ -107,7 +104,7 @@ public class Log
 		if(NETWORK)
 			System.out.println("[FAIL]");
 	}
-	
+
 	/* Ticket manager debugging */
 	public static void vtick(String s)
 	{
@@ -129,7 +126,7 @@ public class Log
 		if(TICKET)
 			System.out.println("[FAIL]");
 	}
-	
+
 	/* Render debugging */
 	public static void vrnd(String s)
 	{
@@ -151,7 +148,7 @@ public class Log
 		if(RENDER)
 			System.out.println("[FAIL]");
 	}
-	
+
 	/* Collision debugging */
 	public static void coll(String s)
 	{

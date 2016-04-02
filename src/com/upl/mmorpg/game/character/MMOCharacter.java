@@ -11,13 +11,17 @@ import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.animation.AnimationManager;
+import com.upl.mmorpg.lib.animation.AttackAnimation;
 import com.upl.mmorpg.lib.animation.DeathAnimation;
 import com.upl.mmorpg.lib.animation.FollowAnimation;
 import com.upl.mmorpg.lib.animation.IdleAnimation;
 import com.upl.mmorpg.lib.animation.PunchAnimation;
 import com.upl.mmorpg.lib.animation.WalkingAnimation;
+import com.upl.mmorpg.lib.animation.effect.CharacterEffect;
+import com.upl.mmorpg.lib.animation.effect.DamageEffect;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
+import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.quest.Quest;
 
@@ -53,13 +57,14 @@ public abstract class MMOCharacter extends Renderable
 		hasAnimation = true;
 		
 		animation = new AnimationManager(assets);
+		attack = null;
 		walking = new WalkingAnimation(game, animation, this, map.getTileSize(), null);
 		idle = new IdleAnimation(game, animation, this, map.getTileSize(), null);
-		attack = new PunchAnimation(game, animation, this, map.getTileSize(), null);
 		death = new DeathAnimation(game, animation, this, map.getTileSize(), null);
 		follow = new FollowAnimation(game, animation, this, map, 
 				map.getTileSize(), null);
 		followers = new LinkedList<FollowListener>();
+		effects = new LinkedList<CharacterEffect>();
 	}
 	
 	/** Animation methods */
@@ -73,12 +78,28 @@ public abstract class MMOCharacter extends Renderable
 	public Iterator<FollowListener> getFollowers() { return followers.iterator(); }
 	public void idle() { animation.setAnimation(idle); }
 	public void die() { animation.setAnimation(death); }
-	public void attack(MMOCharacter character) { animation.setAnimation(attack); }
+	public void attack(MMOCharacter character) 
+	{
+		attack = new PunchAnimation(game, animation, this, map,
+				map.getTileSize(), null);
+		attack.setAttacking(character);
+		animation.setAnimation(attack); 
+	}
+	public void interruptAttack()
+	{
+		attack.interruptAttack();
+	}
 	
 	@Override
 	public void animation(double seconds)
 	{
 		animation.animation(seconds);
+		
+		/* Animate any particles or other effects */
+		Iterator<CharacterEffect> it = effects.iterator();
+		while(it.hasNext())
+			if(it.next().animation(seconds))
+				it.remove();
 	}
 	
 	@Override
@@ -89,6 +110,15 @@ public abstract class MMOCharacter extends Renderable
 		
 		g.drawImage(animation.getFrame(), 
 				(int)locX, (int)locY, (int)width, (int)height, null);
+	}
+	
+	@Override
+	public void renderEffects(Graphics2D g)
+	{
+		/* Draw any particles or other effects */
+		Iterator<CharacterEffect> it = effects.iterator();
+		while(it.hasNext())
+			it.next().render(g);
 	}
 	
 	/**
@@ -188,6 +218,11 @@ public abstract class MMOCharacter extends Renderable
 		return point;
 	}
 	
+	/**
+	 * Get the current path if this character is currently
+	 * walking to a destination.
+	 * @return The path of this character.
+	 */
 	public Path getPath()
 	{
 		return walking.getPath();
@@ -214,11 +249,65 @@ public abstract class MMOCharacter extends Renderable
 	public void startQuest(Quest quest) { this.quests.add(quest); }
 	public void questComplete(Quest quest) { this.quests.remove(quest); }
 	public Iterator<Quest> getQuestIterator() { return quests.iterator(); }
-	
-	
 	public int getRow(){return (int)(locY / map.getTileSize());}
 	public int getCol(){return (int)(locX / map.getTileSize());}
 	@Override public abstract String getRenderName();
+	
+	/** Getters/setters for properties */
+	public void addEffect(CharacterEffect effect) { effects.add(effect); }
+	public void removeEffect(CharacterEffect effect) { effects.remove(effect); }
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
+	public double getWalkingSpeed() { return walkingSpeed; }
+	public void setWalkingSpeed(double speed) { this.walkingSpeed = speed; }
+	public int getMaxHealth() { return maxHealth; }
+	public void setMaxHealth(int health) { this.maxHealth = health; }
+	public int getHealth() { return health; }
+	public void setHealth(int health) { this.health = health; }
+	public double getAttackSpeed() { return attackSpeed; }
+	public void setAttackSpeed(double attackSpeed) { this.attackSpeed = attackSpeed; }
+	
+	/**
+	 * Give the character some damage. This may kill the character
+	 * if their health is not enough to sustain the damage. If the
+	 * character doesn't have enough health to take the damage, the
+	 * maximum amount of damage is returned.
+	 * 
+	 * @param amount The amount of damage to deal.
+	 * @return The actual amount of damage taken
+	 */
+	public int takeDamage(int amount, MMOCharacter attacker)
+	{
+		/* Add a splat to our character */
+		DamageEffect effect = new DamageEffect(this, assets, 
+				map.getTileSize());
+		if(amount > health)
+			amount = health;
+		health -= amount;
+		
+		/* Set the displayed amount on the effect */
+		effect.setAmount(amount);
+		
+		try 
+		{
+			/* Load all of the assets for this effect */
+			effect.loadAssets();
+			/* Add the effect to this character*/
+			this.addEffect(effect);
+		} catch (IOException e) 
+		{
+			Log.wtf("Couldn't load damage effect image!", e);
+			return -1;
+		}
+		
+		if(health <= 0)
+		{
+			this.die();
+			attacker.interruptAttack();
+		}
+		
+		return amount;
+	}
 	
 	protected AssetManager assets;
 	protected Grid2DMap map;
@@ -226,12 +315,13 @@ public abstract class MMOCharacter extends Renderable
 	protected Game game;
 	protected Quest currentQuest;
 	protected LinkedList<Quest> quests;
+	protected LinkedList<CharacterEffect> effects;
 	
 	/* Generic animations */
 	protected IdleAnimation idle;
 	protected WalkingAnimation walking;
 	protected FollowAnimation follow;
-	protected PunchAnimation attack;
+	protected AttackAnimation attack;
 	protected DeathAnimation death;
 	
 	/* Characters that are following this character */
@@ -244,16 +334,4 @@ public abstract class MMOCharacter extends Renderable
 	protected int maxHealth; /* How much health the player can hold */
 	protected int health; /* How much health the player has */
 	protected double attackSpeed; /* How many attacks/second can this character do? */
-	
-	/** Getters/setters for properties */
-	public String getName() { return name; }
-	public void setName(String name) { this.name = name; }
-	public double getWalkingSpeed() { return walkingSpeed; }
-	public void setWalkingSpeed(double speed) { this.walkingSpeed = speed; }
-	public int getMaxHealth() { return maxHealth; }
-	public void setMaxHealth(int health) { this.maxHealth = health; }
-	public int getHealth() { return health; }
-	public void setHealth(int health) { this.health = health; }
-	public double getAttackSpeed() { return attackSpeed; }
-	public void setAttackSpeed(double attackSpeed) { this.attackSpeed = attackSpeed; }
 }

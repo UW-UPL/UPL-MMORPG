@@ -180,6 +180,17 @@ public class RenderPanel extends JPanel implements Runnable
 			it.next().loadImages();
 	}
 
+	private void renderEffects(LinkedList<Renderable> pane, Graphics2D g, double seconds)
+	{
+		Iterator<Renderable> it = pane.iterator();
+		while(it.hasNext())
+		{
+			Renderable render = it.next();
+			Log.vrndln("\tRendering effects for: " + render.getRenderName());
+			render.renderEffects(g);
+		}
+	}
+	
 	private void renderPane(LinkedList<Renderable> pane, Graphics2D g, double seconds)
 	{
 		Iterator<Renderable> it = pane.iterator();
@@ -215,6 +226,7 @@ public class RenderPanel extends JPanel implements Runnable
 		g.translate(vx, vy);
 		renderPane(backPane, (Graphics2D)g.create(), seconds);
 		renderPane(midPane, (Graphics2D)g.create(), seconds);
+		renderEffects(midPane, (Graphics2D)g.create(), seconds);
 		renderPane(glassPane, notransform, seconds);
 	}
 	

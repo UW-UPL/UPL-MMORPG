@@ -102,6 +102,13 @@ public abstract class Renderable implements Runnable, Collidable
 	 * @param g the object to render
 	 */
 	public abstract void render(Graphics2D g);
+	
+	/**
+	 * Render any additional effects that should be above
+	 * characters/objects in the same frame.
+	 * @param g The graphics to draw effects.
+	 */
+	public void renderEffects(Graphics2D g) {}
 
 	/**
 	 * Get the name of the render object (Debugging)

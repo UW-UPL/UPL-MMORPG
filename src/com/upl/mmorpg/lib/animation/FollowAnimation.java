@@ -8,7 +8,8 @@ import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
-public class FollowAnimation extends Animation implements FollowListener, AnimationListener
+public class FollowAnimation extends Animation 
+		implements FollowListener, AnimationListener
 {
 	public FollowAnimation(Game game, AnimationManager manager, MMOCharacter character,
 			Grid2DMap map, double tile_size, AnimationListener listener)
@@ -41,7 +42,7 @@ public class FollowAnimation extends Animation implements FollowListener, Animat
 		animating = false;
 		following.removeFollower(this);
 	}
-
+	
 	@Override
 	public void animationStarted() 
 	{

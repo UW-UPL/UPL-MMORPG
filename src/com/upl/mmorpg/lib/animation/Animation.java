@@ -94,6 +94,9 @@ public abstract class Animation
 			else direction = AnimationManager.FRONT;
 		}
 		
+		/* Set the direction of the current reel */
+		manager.setReelDirection(direction);
+		
 		return direction;
 	}
 	
