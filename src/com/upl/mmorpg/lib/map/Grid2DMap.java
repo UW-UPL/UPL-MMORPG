@@ -148,6 +148,14 @@ public class Grid2DMap extends Renderable
 		return map[row][col];
 	}
 	
+	public double getWidth() {
+		return tileSize*colCount;
+	}
+	
+	public double getHeight() {
+		return tileSize*rowCount;
+	}
+	
 	protected double tileSize;
 	
 	protected int rowCount;
