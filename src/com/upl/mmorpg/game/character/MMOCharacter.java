@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.upl.mmorpg.game.Game;
+import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
@@ -328,10 +329,11 @@ public abstract class MMOCharacter extends Renderable
 	protected LinkedList<FollowListener> followers;
 
 	/** Character properties (time related) */
-	protected String name; /* The character's name */
-	protected double walkingSpeed; /* Horizontal/Vertical tiles per second */
+	protected String name; /**< The character's name */
+	protected double walkingSpeed; /**< Horizontal/Vertical tiles per second */
 	
-	protected int maxHealth; /* How much health the player can hold */
-	protected int health; /* How much health the player has */
-	protected double attackSpeed; /* How many attacks/second can this character do? */
+	protected int maxHealth; /**< How much health the player can hold */
+	protected int health; /**< How much health the player has */
+	protected double attackSpeed; /**< How many attacks/second can this character do? */
+	protected ItemList inventory; /**< The character's inventory */
 }
