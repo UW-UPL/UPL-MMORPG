@@ -10,6 +10,8 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class EditableGrid2DMap extends Grid2DMap
 {
+	
+
 	public EditableGrid2DMap(RenderPanel panel, double tileSize) 
 	{
 		super(panel, tileSize);
@@ -165,4 +167,6 @@ public class EditableGrid2DMap extends Grid2DMap
 		
 		return result;
 	}
+	
+	private static final long serialVersionUID = -2224304768005340283L;
 }

@@ -32,4 +32,9 @@ public final class ItemDef
 			new ItemStack(32, items[IRON_ORE]),
 			new ItemStack(1, items[HOUSE_KEY])
 	};
+	
+	/** */
+	public static final String ground_assets[] = {
+			null
+	};
 }

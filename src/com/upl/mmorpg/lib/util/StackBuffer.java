@@ -10,11 +10,13 @@ import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.upl.mmorpg.lib.libfile.FileManager;
+
 public class StackBuffer 
 {
 	public StackBuffer()
 	{
-		/* Using the stack buffer in read mode */
+		/* Using the stack buffer in write mode */
 		rbuff = null;
 		rbuff_pos = -1;
 		chunks = new LinkedList<byte[]>();
@@ -22,10 +24,18 @@ public class StackBuffer
 	
 	public StackBuffer(byte arr[])
 	{
-		/* Using the stack buffer in write mode */
+		/* Using the stack buffer in read mode */
 		rbuff = arr;
 		rbuff_pos =  0;
 		chunks = null;
+	}
+	
+	public StackBuffer(FileManager file)
+	{
+		/* Using the stack buffer in read mode */
+		chunks = null;
+		rbuff = file.readBytes((int)file.length());
+		rbuff_pos = 0;
 	}
 	
 	/** Methods for pushing stuff into the buffer */

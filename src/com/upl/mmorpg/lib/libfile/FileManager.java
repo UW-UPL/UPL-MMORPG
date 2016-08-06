@@ -17,6 +17,7 @@ public class FileManager
 		this.path = path;
 		this.read_perm = read_perm;
 		this.write_perm = write_perm;
+		this.references = 1;
 		Log.vvln("Opening file: " + path);
 		opened = false;
 		file = new File(path);
@@ -56,6 +57,12 @@ public class FileManager
 		Log.vvln("Opening file " + path + " success.");
 	}
 
+	/**
+	 * Open an existing file.
+	 * @param path The path of the file.
+	 * @param read Whether read permission is needed.
+	 * @param write Whether write permission is needed.
+	 */
 	public FileManager(String path, boolean read, boolean write)
 	{
 		try
@@ -64,17 +71,30 @@ public class FileManager
 		} catch(IOException e){}
 	}
 
+	/**
+	 * Open a new or existing file.
+	 * @param path The path of the file.
+	 * @param create Whether or not to create the file.
+	 * @param read Whether read permission is needed.
+	 * @param write Whether write permission is needed.
+	 * @throws IOException The IOException that has occurred.
+	 */
 	public FileManager(String path, boolean create,
 			boolean read, boolean write) throws IOException
 	{
 		open(path, create, read, write);
 	}
-	
+
+	/**
+	 * Make a directory and all of it's parent's.
+	 * @param dir The directory to create.
+	 * @return Whether or not the parents and the directory could be created.
+	 */
 	public static boolean mkdirp(String dir)
 	{
 		boolean result = false;
 		File f = null;
-		
+
 		try
 		{
 			f = new File(dir);
@@ -83,16 +103,21 @@ public class FileManager
 		{
 			result = false;
 		}
-		
+
 		f = null;
 		return result;
 	}
-	
+
+	/**
+	 * Make a directory.
+	 * @param dir The directory to create.
+	 * @return Whether or not the directory could be created.
+	 */
 	public static boolean mkdir(String dir)
 	{
 		boolean result = false;
 		File f = null;
-		
+
 		try
 		{
 			f = new File(dir);
@@ -101,23 +126,30 @@ public class FileManager
 		{
 			result = false;
 		}
-		
+
 		f = null;
 		return result;
 	}
-	
+
+	/**
+	 * Copy a file from one place to another.
+	 * @param path The original file path.
+	 * @param copy The place to copy to.
+	 * @return Whether or not the file could be copied.
+	 * @throws IOException If an IOException occurs.
+	 */
 	public static boolean cp(String path, String copy) throws IOException
 	{
 		FileManager input = new FileManager(path, false, true, false);
 		FileManager output = new FileManager(copy, true, true, true);
-		
+
 		if(!input.opened() || !output.opened())
 		{
 			input.close();
 			output.close();
 			return false;
 		}
-		
+
 		while(true)
 		{
 			byte[] buffer = input.readBytes(8192);
@@ -125,19 +157,24 @@ public class FileManager
 			if(buffer.length < 8192)
 				break;
 		}
-		
+
 		input.close();
 		output.close();
-		
+
 		return true;
 	}
-	
+
+	/**
+	 * Get a list of files in a directory.
+	 * @param dir The directory to search in.
+	 * @return The names of the files in the directory.
+	 */
 	public static String[] getFiles(String dir)
 	{
-		String[] result = null;
-		
+ 		String[] result = null;
+
 		File f = null;
-		
+
 		try
 		{
 			f = new File(dir);
@@ -153,19 +190,24 @@ public class FileManager
 		{
 			result = null;
 		}
-		
+
 		f = null;
-		
+
 		return result;
 	}
-	
+
+	/**
+	 * Get an array of all of the directory names in the directory.
+	 * @param dir The directory.
+	 * @return The names of the directory in the directory.
+	 */
 	public static String[] getDirectories(String dir)
 	{
 		String[] result = null;
 		LinkedList<String> list = new LinkedList<String>();
-		
+
 		File f = null;
-		
+
 		try
 		{
 			f = new File(dir);
@@ -181,9 +223,9 @@ public class FileManager
 		{
 			result = null;
 		}
-		
+
 		f = null;
-		
+
 		result = new String[list.size()];
 		int x = 0;
 		Iterator<String> it = list.iterator();
@@ -192,7 +234,7 @@ public class FileManager
 			result[x] = it.next();
 			x++;
 		}
-		
+
 		return result;
 	}
 
@@ -203,6 +245,8 @@ public class FileManager
 	 */
 	public boolean writeBytes(byte bytes[])
 	{
+		if(!write_perm) return false;
+		
 		Log.vvln("Writing " + bytes.length + " to file: " + path);
 		try 
 		{
@@ -223,6 +267,8 @@ public class FileManager
 	 */
 	public boolean print(String s)
 	{
+		if(!write_perm) return false;
+		
 		return writeBytes(s.getBytes());
 	}
 
@@ -233,6 +279,8 @@ public class FileManager
 	 */
 	public boolean println(String s)
 	{
+		if(!write_perm) return false;
+		
 		StringBuilder build = new StringBuilder();
 		build.append(s);
 		build.append("\n");
@@ -247,6 +295,8 @@ public class FileManager
 	 */
 	public byte[] readBytes(int len)
 	{
+		if(!read_perm) return null;
+		
 		byte arr[] = new byte[len];
 
 		try 
@@ -285,6 +335,8 @@ public class FileManager
 	 */
 	public String readLine()
 	{
+		if(!read_perm) return null;
+		
 		StringBuilder build = new StringBuilder();
 
 		byte buffer[] = new byte[1];
@@ -331,31 +383,46 @@ public class FileManager
 	{
 		return opened;
 	}
+	
+	/**
+	 * Add a reference to the file. This is called when this file is opened
+	 * multiple times.
+	 */
+	public void addReference()
+	{
+		references++;
+	}
 
 	/**
-	 * Close the file 
+	 * Close the file. If this isn't the last reference to the file,
+	 * the file will remain open.
 	 */
 	public void close()
 	{
-		Log.vvln("Closed file: " + path);
-
-		if(write_perm)
+		if(references < 1)
+			return;
+		else if(references == 1)
 		{
-			/* Flush anything in the output pipe */
-			try { fos.flush(); } catch(Exception e){}
-			try { fos.close(); } catch(Exception e){}
-		}
-
-		if(read_perm)
-		{
-			try { fis.close(); } catch(Exception e){}
-		}
-
-		fos = null;
-		fis = null;
-		file = null;
-		opened = false;
-		path = null;
+			Log.vvln("Closed file: " + path);
+	
+			if(write_perm)
+			{
+				/* Flush anything in the output pipe */
+				try { fos.flush(); } catch(Exception e){}
+				try { fos.close(); } catch(Exception e){}
+			}
+	
+			if(read_perm)
+			{
+				try { fis.close(); } catch(Exception e){}
+			}
+	
+			fos = null;
+			fis = null;
+			file = null;
+			opened = false;
+			path = null;
+		} else references--;
 	}
 
 	/**
@@ -367,6 +434,35 @@ public class FileManager
 		close();
 	}
 
+	/**
+	 * Returns the length of the file.
+	 * @return The length of the file.
+	 */
+	public long length()
+	{
+		return file.length();
+	}
+	
+	/**
+	 * Returns the path that was used to open the file.
+	 * @return The path that was used to open the file.
+	 */
+	public String getPath()
+	{
+		return path;
+	}
+	
+	/**
+	 * Returns the absolute path of the file.
+	 * @return The absolute path of the file.
+	 */
+	public String getAbsolutePath()
+	{
+		if(!opened)
+			return null;
+		else return file.getAbsolutePath();
+	}
+
 	private File file;
 	private FileInputStream fis;
 	private FileOutputStream fos;
@@ -374,4 +470,5 @@ public class FileManager
 	private boolean read_perm;
 	private boolean write_perm;
 	private String path;
+	private int references;
 }
