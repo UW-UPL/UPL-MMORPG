@@ -1,8 +1,8 @@
 package com.upl.examplegame.pong.server;
 
-import com.upl.mmorpg.lib.StackBuffer;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCCallee;
+import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class PongRPCCallee implements RPCCallee
 {

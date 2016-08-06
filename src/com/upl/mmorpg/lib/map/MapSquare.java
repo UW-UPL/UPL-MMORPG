@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
 
@@ -170,4 +171,5 @@ public class MapSquare extends Renderable
 	protected String linked_map;
 	protected int link_row;
 	protected int link_col;
+	protected ItemList stack;
 }

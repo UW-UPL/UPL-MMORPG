@@ -1,7 +1,7 @@
 package com.upl.examplegame.pong.server;
 
-import com.upl.mmorpg.lib.StackBuffer;
 import com.upl.mmorpg.lib.librpc.RPCManager;
+import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class PongRPCCaller 
 {

@@ -1,4 +1,4 @@
-package com.upl.mmorpg.lib;
+package com.upl.mmorpg.lib.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

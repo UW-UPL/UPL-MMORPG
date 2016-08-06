@@ -3,13 +3,17 @@ package com.upl.mmorpg.game.item;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.upl.mmorpg.lib.util.StackBuffer;
+import com.upl.mmorpg.lib.util.StackBufferable;
+
 /**
  * Base class for Inventory, Bank, ect.
+ * 
  * @author John Detter <jdetter@wisc.edu>
  *
  */
 
-public class ItemList 
+public class ItemList implements StackBufferable
 {
 	protected ItemList(int capacity)
 	{
@@ -135,6 +139,40 @@ public class ItemList
 	protected Iterator<Item> iterator()
 	{
 		return items.iterator();
+	}
+	
+	public StackBuffer pushToStackBuffer(StackBuffer buff)
+	{
+		buff.pushInt(capacity);
+		buff.pushInt(items.size());
+		Iterator<Item> it = items.iterator();
+		
+		while(it.hasNext()) 
+		{
+			Item item = it.next();
+			if(item instanceof ItemStack)
+				buff.pushBoolean(true);
+			else buff.pushBoolean(false);
+			
+			item.pushToStackBuffer(buff);
+		}
+		
+		return buff;
+	}
+	
+	public StackBuffer popFromStackBuffer(StackBuffer buff)
+	{
+		items = new ArrayList<Item>();
+		capacity = buff.popInt();
+		int items_count = buff.popInt();
+		for(int x = 0;x < items_count;x++)
+		{
+			if(buff.popBoolean())
+				items.add(new ItemStack(buff));
+			else items.add(new Item(buff));
+		}
+		
+		return buff;
 	}
 	
 	private ArrayList<Item> items; /**< The list of items in the item list. */

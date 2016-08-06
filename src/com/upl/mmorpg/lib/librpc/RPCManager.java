@@ -3,11 +3,11 @@ package com.upl.mmorpg.lib.librpc;
 import java.io.IOException;
 import java.net.Socket;
 
-import com.upl.mmorpg.lib.StackBuffer;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.libnet.NetworkManager;
 import com.upl.mmorpg.lib.libnet.NetworkListener;
 import com.upl.mmorpg.lib.libnet.TicketManager;
+import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class RPCManager implements NetworkListener
 {

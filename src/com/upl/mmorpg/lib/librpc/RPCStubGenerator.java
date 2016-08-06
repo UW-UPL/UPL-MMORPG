@@ -2,9 +2,9 @@ package com.upl.mmorpg.lib.librpc;
 
 import java.io.IOException;
 
-import com.upl.mmorpg.lib.StackBuffer;
 import com.upl.mmorpg.lib.libfile.FileManager;
 import com.upl.mmorpg.lib.liblog.Log;
+import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class RPCStubGenerator 
 {

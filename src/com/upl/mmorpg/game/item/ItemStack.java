@@ -1,5 +1,8 @@
 package com.upl.mmorpg.game.item;
 
+import com.upl.mmorpg.lib.util.StackBuffer;
+import com.upl.mmorpg.lib.util.StackBufferable;
+
 /**
  * Represents a stack of items on the ground or in an
  * inventory or bank. The capacity of the stack is the
@@ -9,12 +12,17 @@ package com.upl.mmorpg.game.item;
  *
  */
 
-public class ItemStack extends Item 
+public class ItemStack extends Item implements StackBufferable
 {
 	public ItemStack(int capacity, Item item)
 	{
 		super(item);
 		this.capacity = capacity;
+	}
+	
+	public ItemStack(StackBuffer buff)
+	{
+		this.popFromStackBuffer(buff);
 	}
 	
 	/**
@@ -55,7 +63,7 @@ public class ItemStack extends Item
 	/**
 	 * Remove the amount of items from this stack.
 	 * @param items The amount of items to subtract.
-	 * @return Wether or not that many items could be subtracted
+	 * @return Whether or not that many items could be subtracted
 	 */
 	public boolean sub(int items)
 	{
@@ -92,6 +100,24 @@ public class ItemStack extends Item
 	public int getCount()
 	{
 		return count;
+	}
+	
+	public StackBuffer pushToStackBuffer(StackBuffer buff)
+	{
+		buff.pushInt(capacity);
+		buff.pushInt(count);
+		super.pushToStackBuffer(buff);
+		
+		return buff;
+	}
+	
+	public StackBuffer popFromStackBuffer(StackBuffer buff)
+	{
+		capacity = buff.popInt();
+		count = buff.popInt();
+		super.popFromStackBuffer(buff);
+		
+		return buff;
 	}
 	
 	private int capacity; /**< How many items can be in this stack? */
