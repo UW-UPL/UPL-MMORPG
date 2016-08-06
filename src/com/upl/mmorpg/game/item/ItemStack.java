@@ -1,8 +1,5 @@
 package com.upl.mmorpg.game.item;
 
-import com.upl.mmorpg.lib.util.StackBuffer;
-import com.upl.mmorpg.lib.util.StackBufferable;
-
 /**
  * Represents a stack of items on the ground or in an
  * inventory or bank. The capacity of the stack is the
@@ -12,25 +9,11 @@ import com.upl.mmorpg.lib.util.StackBufferable;
  *
  */
 
-public class ItemStack extends Item implements StackBufferable
+public class ItemStack extends Item
 {
 	public ItemStack(int capacity, Item item)
 	{
 		super(item);
-		this.capacity = capacity;
-	}
-	
-	public ItemStack(StackBuffer buff)
-	{
-		this.popFromStackBuffer(buff);
-	}
-	
-	/**
-	 * Set the amount of items that can go into this stack.
-	 * @param capacity The amount of items that can go into this stack.
-	 */
-	public void setCapacity(int capacity)
-	{
 		this.capacity = capacity;
 	}
 	
@@ -102,24 +85,8 @@ public class ItemStack extends Item implements StackBufferable
 		return count;
 	}
 	
-	public StackBuffer pushToStackBuffer(StackBuffer buff)
-	{
-		buff.pushInt(capacity);
-		buff.pushInt(count);
-		super.pushToStackBuffer(buff);
-		
-		return buff;
-	}
-	
-	public StackBuffer popFromStackBuffer(StackBuffer buff)
-	{
-		capacity = buff.popInt();
-		count = buff.popInt();
-		super.popFromStackBuffer(buff);
-		
-		return buff;
-	}
-	
-	private int capacity; /**< How many items can be in this stack? */
+	private final int capacity; /**< How many items can be in this stack? */
 	private int count; /**< How many items are in this stack? */
+	
+	private static final long serialVersionUID = -7754169467210636245L;
 }

@@ -130,4 +130,6 @@ public class Inventory extends ItemList
 	}
 
 	private static final int MAX_CAPACITY = 20;
+	
+	private static final long serialVersionUID = -6923402125333683975L;
 }

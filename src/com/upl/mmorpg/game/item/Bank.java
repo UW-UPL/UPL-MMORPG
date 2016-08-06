@@ -16,4 +16,6 @@ public class Bank extends ItemList
 	}
 	
 	private static final int MAX_CAPACITY = 128;
+	
+	private static final long serialVersionUID = 1221585919761796106L;
 }

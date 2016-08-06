@@ -1,5 +1,10 @@
 package com.upl.mmorpg.lib.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
@@ -133,6 +138,30 @@ public class StackBuffer
 			pushDouble(arr[x]);
 	}
 	
+	public void pushObject(Serializable obj)
+	{
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
+		byte[] arr = null;
+		
+		try
+		{
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(obj);
+			arr = bos.toByteArray();
+		} catch(Exception e){}
+		
+		try {bos.close();} catch(Exception e){}
+		try {oos.close();} catch(Exception e){}
+		bos = null;
+		oos = null;
+		
+		if(arr != null)
+			chunks.add(arr);
+		else throw new RuntimeException("Couldn't serialize object: " + obj);
+	}
+	
 	/** Methods for popping stuff out of the buffer */
 	
 	public byte popByte()
@@ -256,6 +285,31 @@ public class StackBuffer
 		return arr;
 	}
 	
+	public Object popObject()
+	{
+		ByteArrayInputStream bin = null;
+		ObjectInputStream ois = null;
+		Object result = null;
+		
+		try
+		{
+			bin = new ByteArrayInputStream(rbuff);
+			bin.skip(rbuff_pos);
+			ois = new ObjectInputStream(bin);
+			result = ois.readObject();
+		} catch(Exception e){ result = null; }
+		
+		try {bin.close();} catch(Exception e){}
+		try {ois.close();} catch(Exception e){}
+		bin = null;
+		ois = null;
+		
+		if(result == null)
+			throw new RuntimeException("Failed to read object from stream.");
+		
+		return result;
+	}
+	
 	/**
 	 * Turn the stack into a single array.
 	 * @return The array representation of the stack.
@@ -325,6 +379,8 @@ public class StackBuffer
 			return "String";
 		if(type.compareToIgnoreCase("string[]") == 0)
 			return "String[]";
+		if(type.compareToIgnoreCase("object") == 0)
+			return "Object";
 		
 		return null;
 	}
@@ -361,6 +417,8 @@ public class StackBuffer
 			return "popString";
 		if(type.compareToIgnoreCase("string[]") == 0)
 			return "popStringArr";
+		if(type.compareToIgnoreCase("object") == 0)
+			return "popObject";
 		
 		return null;
 	}
@@ -397,6 +455,8 @@ public class StackBuffer
 			return "pushString";
 		if(type.compareToIgnoreCase("string[]") == 0)
 			return "pushStringArr";
+		if(type.compareToIgnoreCase("object") == 0)
+			return "pushObject";
 		
 		return null;
 	}
