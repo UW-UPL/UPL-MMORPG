@@ -7,6 +7,7 @@ import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.libfile.FileManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
+import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class EditableGrid2DMap extends Grid2DMap
 {
@@ -53,72 +54,23 @@ public class EditableGrid2DMap extends Grid2DMap
 
 	public void export(String file_path, AssetManager assets) throws IOException
 	{
-		FileManager file = assets.getFile(file_path, true, true);
-		/* First export the map size */
-		file.println(rowCount + "," + colCount);
-
-		/* Export all of the squares */
-		for(int row = 0;row < rowCount;row++)
-		{
-			for(int col = 0;col < colCount;col++)
-			{
-				if(map[row][col] == null) continue;
-				StringBuilder out = new StringBuilder();
-				out.append(row + "," + col + ",");
-				out.append(map[row][col].export_square());
-				file.println(out.toString());
-			}
-		}
-
-		file.close();
+		FileManager file = assets.getFile(file_path, true, true, true);
+		StackBuffer buff = new StackBuffer();
+		buff.pushObject(this);
+		file.writeBytes(buff.toArray());
+		assets.closeFile(file);
 	}
 
-	@Override
-	public boolean load(String file_name, AssetManager assets, double tile_size) throws IOException
+	public static EditableGrid2DMap load(String file_name, AssetManager assets, double tile_size) throws IOException
 	{
-		if(loaded) return false;
-
-		FileManager file = assets.getFile(file_name, true, false);
-
-		/* Get the rows and cols */
-		String line1[] = file.readLine().split(",");
-		this.rowCount = Integer.parseInt(line1[0].trim());
-		this.colCount = Integer.parseInt(line1[1].trim());
-
-		if(rowCount <= 0 || rowCount > 10000000
-				|| colCount <= 0 || colCount > 10000000)
-			return false;
-
-		/* Create the map */
-		map = new EditableMapSquare[rowCount][colCount];
-		for(int r = 0;r < rowCount;r++)
-			for(int c = 0;c < colCount;c++)
-				map[r][c] = null;
-
-		String line = null;
-		while((line = file.readLine()) != null)
-		{
-			if(line.trim().equalsIgnoreCase(""))
-				continue;
-
-			String parts[] = line.split(",");
-			int row = Integer.parseInt(parts[0]);
-			int col = Integer.parseInt(parts[1]);
-
-			double x = col * tile_size;
-			double y = row * tile_size;
-
-			StringBuilder squareIn = new StringBuilder(line);
-			String s = squareIn.substring(parts[0].length() + parts[1].length() + 2);
-			EditableMapSquare square = EditableMapSquare.import_square(s, assets, x, y, tile_size);
-			square.loadImages();
-			setSquare(row, col, square);
-			map[row][col] = square;
-		}
+		FileManager file = assets.getFile(file_name, false, true, false);
+		StackBuffer buff = new StackBuffer(file);
+		file.close();
 		
-		loaded = true;
-
-		return true;
+		Object load = buff.popObject();
+		if(load instanceof Grid2DMap)
+			return (EditableGrid2DMap)load;
+		else return null;
 	}
 	
 	public void unload()
