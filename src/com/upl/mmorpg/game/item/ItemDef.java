@@ -27,6 +27,7 @@ public final class ItemDef
 	
 	/** Item stack representation of all of the items */
 	public static final ItemStack[] stacks = {
+			null,
 			new ItemStack(1, items[WEAPON]),
 			new ItemStack(1, items[ARMOR]),
 			new ItemStack(32, items[IRON_ORE]),
@@ -35,6 +36,10 @@ public final class ItemDef
 	
 	/** */
 	public static final String ground_assets[] = {
-			null
+			null,
+			"item.png",
+			"item.png",
+			"item.png",
+			"item.png",
 	};
 }

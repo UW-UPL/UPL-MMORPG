@@ -11,8 +11,6 @@ import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class EditableGrid2DMap extends Grid2DMap
 {
-	
-
 	public EditableGrid2DMap(RenderPanel panel, double tileSize) 
 	{
 		super(panel, tileSize);
@@ -89,8 +87,8 @@ public class EditableGrid2DMap extends Grid2DMap
 	public static int[][] getAllLandings(String file, AssetManager assets) 
 			throws IOException
 	{
-		EditableGrid2DMap map = new EditableGrid2DMap(0.0d);
-		map.load(file, assets, 1);
+		EditableGrid2DMap map = EditableGrid2DMap.load(file, assets, 1);
+		
 		
 		ArrayList<Integer> rows = new ArrayList<Integer>();
 		ArrayList<Integer> cols = new ArrayList<Integer>();
