@@ -35,7 +35,7 @@ public class Game
 	{
 		if(map == null) return;
 		map.load(map_path, assets, TILE_SIZE);
-		map.loadAllImages();
+		map.loadAllImages(assets);
 	}
 	
 	public void addCharacter(MMOCharacter c)

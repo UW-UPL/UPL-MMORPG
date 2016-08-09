@@ -167,17 +167,17 @@ public class RenderPanel extends JPanel implements Runnable
 		backPane.add(transition);
 	}
 
-	public void loadAllImages() throws IOException
+	public void loadAllImages(AssetManager assets) throws IOException
 	{
 		Iterator<Renderable> it = glassPane.iterator();
 		while(it.hasNext())
-			it.next().loadImages();
+			it.next().loadImages(assets);
 		it = midPane.iterator();
 		while(it.hasNext())
-			it.next().loadImages();
+			it.next().loadImages(assets);
 		it = backPane.iterator();
 		while(it.hasNext())
-			it.next().loadImages();
+			it.next().loadImages(assets);
 	}
 
 	private void renderEffects(LinkedList<Renderable> pane, Graphics2D g, double seconds)

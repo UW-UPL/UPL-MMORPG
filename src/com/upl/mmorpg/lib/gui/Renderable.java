@@ -119,7 +119,7 @@ public abstract class Renderable implements Runnable, Collidable
 	/**
 	 * Load all images that this object will use.
 	 */
-	public void loadImages() throws IOException {}
+	public void loadImages(AssetManager assets) throws IOException {}
 
 	public void setX(double n){this.locX = n;}
 	public double getX(){return locX;}

@@ -38,6 +38,20 @@ public class Grid2DMap extends Renderable implements Serializable
 		map = null;
 	}
 	
+	/**
+	 * Initialize a map from the contents of a map file.
+	 * @param file_name The map file to initialize the Grid2DMap from.
+	 * @param assets The current asset manager.
+	 * @param tile_size The size of a single tile.
+	 * @throws IOException If the file doesn't exist.
+	 */
+	public Grid2DMap(String file_name, AssetManager assets, double tile_size) throws IOException
+	{
+		this(tile_size);
+		if(!load(file_name, assets, tile_size))
+			throw new IOException("Ilegal map format exception");
+	}
+	
 	@Override
 	public void render(Graphics2D g) 
 	{
@@ -106,38 +120,54 @@ public class Grid2DMap extends Renderable implements Serializable
 		map[row][col] = square;
 	}
 	
+
 	/**
-	 * Load a Grid2DMap from a file.
-	 * @param file_name The name of the file that contains the Grid2D map.
-	 * @param assets The asset manager that should be used as a cache.
-	 * @param tile_size The display size of a game tile.
-	 * @return A reference to a new Grid2DMap on success, null on failure.
-	 * @throws IOException The IOException that occurred opening the file.
+	 * Load a map from a file and overwrite the current map.
+	 * @param file_name The filename of the map
+	 * @param assets The current asset manager.
+	 * @param tile_size The size of a single tile.
+	 * @return Whether or not the map could be loaded.
+	 * @throws IOException If the file couldn't be found.
 	 */
-	public static Grid2DMap load(String file_name, AssetManager assets, double tile_size) throws IOException
+	public boolean load(String file_name, AssetManager assets, double tile_size) throws IOException
 	{
 		FileManager file = assets.getFile(file_name, false, true, false);
+		if(!file.opened())
+			return false;
 		StackBuffer buff = new StackBuffer(file);
 		file.close();
 		
 		Object load = buff.popObject();
 		if(load instanceof Grid2DMap)
-			return (Grid2DMap)load;
-		else return null;
+		{
+			Grid2DMap grid = (Grid2DMap)buff.popObject();
+			this.map = grid.map;
+			this.rowCount = grid.rowCount;
+			this.colCount = grid.colCount;
+			this.loaded = true;
+		} else {
+			this.map = null;
+			this.rowCount = -1;
+			this.colCount = -1;
+			this.loaded = false;
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
 	 * Load all of the assets used by the game tiles.
 	 * @throws IOException The IOException that occurred openeing image files.
 	 */
-	public void loadAllImages() throws IOException
+	public void loadAllImages(AssetManager assets) throws IOException
 	{
 		for(int row = 0;row < rowCount;row++)
 		{
 			for(int col = 0;col < colCount;col++)
 			{
 				if(map[row][col] != null)
-					map[row][col].loadImages();
+					map[row][col].loadImages(assets);
 			}
 		}
 	}
@@ -156,16 +186,33 @@ public class Grid2DMap extends Renderable implements Serializable
 		return map[row][col];
 	}
 	
-	protected double tileSize; /**< Display size of a map square. */
+	/**
+	 * Regenerates the properties of all of the map squares. This should be
+	 * called after the tile size is changed.
+	 */
+	public void generateSquareProperties()
+	{
+		for(int row = 0;row < rowCount;row++)
+			for(int col = 0;col < colCount;col++)
+				if(map[row][col] != null)
+				{
+					map[row][col].setX(col * tileSize);
+					map[row][col].setY(row * tileSize);
+					map[row][col].setWidth(tileSize);
+					map[row][col].setHeight(tileSize);
+					map[row][col].setRotation(0.0f);
+				}
+	}
+	
+	protected transient double tileSize; /**< Display size of a map square. */
+	protected transient boolean loaded; /**< Whether or not the assets have been loaded for this map. */
+	protected transient boolean renderable; /**< Whether or not this map is renderable (server/client) */
+	protected transient RenderPanel panel; /**< The panel that should be used for rendering game squares (client) */
 	
 	protected int rowCount; /**< How many rows are in this map */
 	protected int colCount; /**< How many columns are in this map. s*/
 	
-	protected boolean loaded; /**< Whether or not the assets have been loaded for this map. */
-	protected boolean renderable; /**< Whether or not this map is renderable (server/client) */
 	protected MapSquare[][] map; /**< The 2D representation of the game map.  */
-	
-	protected transient RenderPanel panel; /**< The panel that should be used for rendering game squares (client) */
 	
 	private static final long serialVersionUID = -6200242944785221212L;
 }

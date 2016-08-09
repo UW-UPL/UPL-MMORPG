@@ -10,12 +10,11 @@ import com.upl.mmorpg.lib.map.MapSquare;
 
 public class EditableMapSquare extends MapSquare 
 {
-	private EditableMapSquare(AssetManager assets){super(assets);}
 	public EditableMapSquare(double x, double y, double size,
-			AssetManager assets, String image_name, String overlay_name,
+			String image_name, String overlay_name,
 			String destroyed_overlay_name) 
 	{
-		super(x, y, size, assets, image_name, overlay_name, destroyed_overlay_name);
+		super(x, y, size, image_name, overlay_name, destroyed_overlay_name);
 	}
 	
 	@Override
@@ -48,9 +47,9 @@ public class EditableMapSquare extends MapSquare
 	}
 	
 	@Override
-	public void loadImages() throws IOException
+	public void loadImages(AssetManager assets) throws IOException
 	{
-		super.loadImages();
+		super.loadImages(assets);
 		
 		linkLandingImage = assets.loadImage("assets/images/editor/landingTool.png");
 		mapLinkImage = assets.loadImage("assets/images/editor/linkTool.png");

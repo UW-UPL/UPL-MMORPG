@@ -21,6 +21,14 @@ public class EditableGrid2DMap extends Grid2DMap
 		super(tile_size);
 	}
 	
+	public EditableGrid2DMap(String file_name, AssetManager assets, double tile_size) throws IOException
+	{
+		super(tile_size);
+		
+		if(!load(file_name, assets, tile_size))
+			throw new IOException("Ilegal map format exception");
+	}
+	
 	public void createNewMap(int rows, int cols)
 	{
 		map = new EditableMapSquare[rows][cols];
@@ -55,20 +63,32 @@ public class EditableGrid2DMap extends Grid2DMap
 		FileManager file = assets.getFile(file_path, true, true, true);
 		StackBuffer buff = new StackBuffer();
 		buff.pushObject(this);
-		file.writeBytes(buff.toArray());
+		byte[] arr = buff.toArray();
+		file.writeBytes(arr);
 		assets.closeFile(file);
 	}
-
-	public static EditableGrid2DMap load(String file_name, AssetManager assets, double tile_size) throws IOException
+	
+	public boolean load(String file_name, AssetManager assets, double tile_size) throws IOException
 	{
 		FileManager file = assets.getFile(file_name, false, true, false);
+		if(!file.opened())
+			return false;
 		StackBuffer buff = new StackBuffer(file);
 		file.close();
 		
 		Object load = buff.popObject();
-		if(load instanceof Grid2DMap)
-			return (EditableGrid2DMap)load;
-		else return null;
+		if(load instanceof EditableGrid2DMap)
+		{
+			EditableGrid2DMap grid = (EditableGrid2DMap)buff.popObject();
+			if(grid == null)
+				return false;
+			this.map = grid.map;
+			this.rowCount = grid.rowCount;
+			this.colCount = grid.colCount;
+			this.loaded = true;
+		} else return false;
+		
+		return true;
 	}
 	
 	public void unload()
@@ -87,7 +107,7 @@ public class EditableGrid2DMap extends Grid2DMap
 	public static int[][] getAllLandings(String file, AssetManager assets) 
 			throws IOException
 	{
-		EditableGrid2DMap map = EditableGrid2DMap.load(file, assets, 1);
+		EditableGrid2DMap map = new EditableGrid2DMap(file, assets, 1);
 		
 		
 		ArrayList<Integer> rows = new ArrayList<Integer>();

@@ -89,8 +89,13 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 						String path = chooser.getSelectedFile().getAbsolutePath();
 						if(!path.endsWith(".mmomap"))
 							path = path + ".mmomap";
-						map.load(path, assets, TILE_SIZE);
-						map.loadAllImages();
+						if(map.load(path, assets, TILE_SIZE))
+						{
+							map.generateSquareProperties();
+							map.loadAllImages(assets);
+						} else {
+							JOptionPane.showMessageDialog(window, "Map format exception!");
+						}
 					} catch (IOException e1) {
 						JOptionPane.showMessageDialog(window, "File does not exist or is currupted!");
 						map.unload();
@@ -504,7 +509,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			{
 				square = new EditableMapSquare(
 						col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE,
-						assets, texture_file, null, null);
+						texture_file, null, null);
 				set = true;
 			} else {
 				square.setImage(texture_file);
@@ -513,7 +518,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			try 
 			{
 				/* reload images */
-				square.loadImages();
+				square.loadImages(assets);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -554,7 +559,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			{
 				square = new EditableMapSquare(
 						col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE,
-						assets, null, null, null);
+						null, null, null);
 				set = true;
 			} else {
 				square.setOverlay(texture_file);
@@ -563,7 +568,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			try 
 			{
 				/* reload images */
-				square.loadImages();
+				square.loadImages(assets);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -600,7 +605,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 					{
 						square = new EditableMapSquare(
 								col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE,
-								assets, null, null, null);
+								null, null, null);
 						set = true;
 					}
 					
@@ -609,7 +614,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 					try 
 					{
 						/* reload images */
-						square.loadImages();
+						square.loadImages(assets);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

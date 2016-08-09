@@ -11,9 +11,8 @@ import com.upl.mmorpg.lib.gui.Renderable;
 
 public class MapSquare extends Renderable implements Serializable
 {
-	protected MapSquare(AssetManager assets)
+	protected MapSquare()
 	{
-		this.assets = assets;
 		destroyed = false;
 		destructible = false;
 		image_name = null;
@@ -29,15 +28,13 @@ public class MapSquare extends Renderable implements Serializable
 		link_col = -1;
 	}
 	
-	public MapSquare(double x, double y, double size,
-			AssetManager assets, String image_name, 
+	public MapSquare(double x, double y, double size, String image_name, 
 			String overlay_name, String destroyed_overlay_name)
 	{
 		this.locX = x;
 		this.locY = y;
 		this.width = size;
 		this.height = size;
-		this.assets = assets;
 		this.image_name = image_name;
 		this.overlay_name = overlay_name;
 		this.destroyed_overlay_name = destroyed_overlay_name;
@@ -56,16 +53,26 @@ public class MapSquare extends Renderable implements Serializable
 	}
 
 	@Override
-	public void loadImages() throws IOException
+	public void loadImages(AssetManager assets) throws IOException
 	{
 		if(image_name != null)
+		{
 			image = assets.loadImage(image_name);
+			if(image == null) throw new IOException(image_name + " not found!\n");
+		}
+		
 		if(overlay_name != null)
+		{
 			overlay = assets.loadImage(overlay_name);
+			if(overlay == null) throw new IOException(overlay_name + " not found!\n");
+		}
+		
 		if(destroyed_overlay_name !=  null)
 		{
 			destructible = true;
 			destroyed_overlay = assets.loadImage(destroyed_overlay_name);
+			if(destroyed_overlay == null)
+				throw new IOException(destroyed_overlay + " not found!\n");
 		}
 	}
 
@@ -113,7 +120,6 @@ public class MapSquare extends Renderable implements Serializable
 		return passThrough;
 	}
 	
-	protected transient AssetManager assets;
 	protected String image_name;
 	protected String overlay_name;
 	protected String destroyed_overlay_name;
