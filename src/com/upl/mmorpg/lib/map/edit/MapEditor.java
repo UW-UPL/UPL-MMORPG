@@ -91,6 +91,10 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 							path = path + ".mmomap";
 						if(map.load(path, assets, TILE_SIZE))
 						{
+							/**
+							 * The square positions and sizes aren't sent over the network
+							 * because they are relative to the client/server's screen
+							 */
 							map.generateSquareProperties();
 							map.loadAllImages(assets);
 						} else {
