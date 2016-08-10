@@ -5,10 +5,12 @@ import java.util.LinkedList;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.lib.quest.action.CharacterDamaged;
 import com.upl.mmorpg.lib.quest.action.CharacterDied;
 import com.upl.mmorpg.lib.quest.action.CharacterKilled;
 import com.upl.mmorpg.lib.quest.action.CharacterMovedTo;
+import com.upl.mmorpg.lib.quest.action.PickedUp;
 import com.upl.mmorpg.lib.quest.action.QuestAction;
 
 public class QuestEngine
@@ -37,6 +39,11 @@ public class QuestEngine
 	public void movedTo(MMOCharacter character, int row, int col)
 	{
 		addQuest(new CharacterMovedTo(game, character, row, col));
+	}
+	
+	public void pickedUp(MMOCharacter character, Item item)
+	{
+		addQuest(new PickedUp(game, character, item));
 	}
 	
 	private void addQuest(QuestAction quest)
