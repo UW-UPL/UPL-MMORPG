@@ -47,7 +47,7 @@ public class ServerGame extends Game
 	{
 		try 
 		{
-			ServerGame g = new ServerGame("assets/maps/example.mmomap", 
+			final ServerGame g = new ServerGame("assets/maps/example.mmomap", 
 					new AssetManager(), false);
 			g.loadAssets();
 			g.loadMap();
@@ -75,10 +75,22 @@ public class ServerGame extends Game
 //			};
 //			new Thread(run).start();
 			
-			Goblin defender = g.createGoblin(11, 10);
+			final Goblin collector = g.createGoblin(12, 12);
+			collector.walkTo(14, 9);
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					try { Thread.sleep(4500);} catch(Exception e) {}
+					g.pickupItem(collector, g.getItemsOnSquare(14, 9).iterator().next());
+				}
+			};
+			new Thread(run).start();
+			
+			//Goblin defender = g.createGoblin(11, 10);
 			//defender.wander(5);
-			Goblin attacker = g.createGoblin(11, 11);
-			attacker.attack(defender);
+			//Goblin attacker = g.createGoblin(11, 11);
+			//attacker.attack(defender);
 //			final Goblin die = g.createGoblin(12, 12);
 //			Runnable run = new Runnable()
 //			{

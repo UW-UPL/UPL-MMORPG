@@ -35,6 +35,7 @@ public abstract class MMOCharacter extends Renderable
 		this(col * map.getTileSize(), row * map.getTileSize(),
 				map.getTileSize(), map.getTileSize(),
 				map, assets, game);
+		inventory = new Inventory();
 	}
 	
 	public MMOCharacter(double x, double y, double width, double height, 
@@ -67,6 +68,7 @@ public abstract class MMOCharacter extends Renderable
 				map.getTileSize(), null);
 		followers = new LinkedList<FollowListener>();
 		effects = new LinkedList<CharacterEffect>();
+		inventory = new Inventory();
 	}
 	
 	/** Animation methods */

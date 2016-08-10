@@ -62,18 +62,28 @@ public class Game
 		return square.getItems();
 	}
 	
-	public synchronized boolean pickupItem(MMOCharacter character, MapSquare square, Item item)
+	public synchronized boolean pickupItem(MMOCharacter character, Item item)
 	{
+		int row = character.getRow();
+		int col = character.getCol();
+		
+		/* Get the square the character is currently on */
+		MapSquare square = map.getSquare(row, col);
+		
+		/* Are they on a valid square? */
+		if(square == null)
+			return false;
+		
+		/* Is this item on the square? */
 		if(square.getItems().containsItem(item))
 		{
-			if(character.getRow() == square.getRow()
-					&& character.getCol() == square.getCol())
+			/* Does this character have room for this item? */
+			if(character.receiveItem(item))
 			{
-				if(character.receiveItem(item))
-				{
-					square.getItems().removeItem(item);
-					return true;
-				}
+				square.getItems().removeItem(item);
+				/* Let everyone know someone picked up an item */
+				questEngine.pickedUp(character, item);
+				return true;
 			}
 		}
 		
@@ -105,5 +115,5 @@ public class Game
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
 	
-	protected static final double TILE_SIZE = 40;
+	protected static final double TILE_SIZE = 32;
 }
