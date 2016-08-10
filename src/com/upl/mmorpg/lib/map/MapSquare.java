@@ -4,7 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Iterator;
 
+import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
@@ -26,6 +28,7 @@ public class MapSquare extends Renderable implements Serializable
 		linked_map = null;
 		link_row = -1;
 		link_col = -1;
+		list = new ItemList(1);
 	}
 	
 	public MapSquare(double x, double y, double size, String image_name, 
@@ -50,6 +53,7 @@ public class MapSquare extends Renderable implements Serializable
 		linked_map = null;
 		link_row = -1;
 		link_col = -1;
+		list = new ItemList(1);
 	}
 
 	@Override
@@ -74,6 +78,10 @@ public class MapSquare extends Renderable implements Serializable
 			if(destroyed_overlay == null)
 				throw new IOException(destroyed_overlay + " not found!\n");
 		}
+		
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+			it.next().loadImages(assets);
 	}
 
 	@Override
@@ -90,6 +98,10 @@ public class MapSquare extends Renderable implements Serializable
 		if(destroyed && destroyed_overlay != null)
 			g.drawImage(destroyed_overlay, (int)locX, (int)locY, 
 					(int)width, (int)height, null);
+		
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+			it.next().render(g);
 	}
 
 	@Override
@@ -120,22 +132,55 @@ public class MapSquare extends Renderable implements Serializable
 		return passThrough;
 	}
 	
-	protected String image_name;
-	protected String overlay_name;
-	protected String destroyed_overlay_name;
-	protected transient BufferedImage image;
-	protected transient BufferedImage overlay;
-	protected transient BufferedImage destroyed_overlay;
-	protected boolean destroyed;
-	protected boolean destructible;
-	protected boolean passThrough;
-	protected boolean passThroughWhenDestroyed;
-	protected boolean isLinkLanding;
-	protected boolean isMapLink;
-	protected String linked_map;
-	protected int link_row;
-	protected int link_col;
-	protected ItemList stack;
+	/**
+	 * Called when an item is dropped on this space. This could
+	 * be an item or an item stack.
+	 * @param item The item that was dropped.
+	 */
+	public boolean itemDropped(Item item)
+	{
+		boolean result;
+		result = list.addItem(item);
+		updateItemProperties();
+		return result;
+	}
+	
+	public void updateItemProperties()
+	{
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			i.setLocation(locX, locY);
+			i.setSize(width);
+		}
+	}
+	
+	/**
+	 * Get all of the items on the MapSquare.
+	 * @return The list of items on the MapSquare.
+	 */
+	public ItemList getItems()
+	{
+		return list;
+	}
+	
+	protected String image_name; /**< The asset name of the image for this MapSquare. */
+	protected String overlay_name; /**< If the asset has an overlay, this is the overlay asset. */
+	protected String destroyed_overlay_name; /**< If this square is destroyed, this is the overlay asset. */
+	protected transient BufferedImage image; /**< Background image asset for the MapSquare. */
+	protected transient BufferedImage overlay; /**< Overlay image. This must have an alpha channel. */
+	protected transient BufferedImage destroyed_overlay; /**< The overlay to be drawn when the square is destroyed. */
+	protected boolean destroyed; /**< Whether or not this square is destroyed. */
+	protected boolean destructible; /**< Whether or not this square can be destroyed. */
+	protected boolean passThrough; /**< Whether or not this square can be passed through. */
+	protected boolean passThroughWhenDestroyed; /**< Whether or not this square can be passed through when destroyed. */
+	protected boolean isLinkLanding; /**< Whether or not this space can be traveled to. */
+	protected boolean isMapLink; /**< Whether or not this square can move a player */
+	protected String linked_map; /**< The map the map link goes to. */
+	protected int link_row; /**< The row the link takes the player to. */
+	protected int link_col; /**< The column the link takes the player to. */
+	protected ItemList list; /**< All of the items on the square. */
 	
 	private static final long serialVersionUID = -5877817070442524231L;
 }

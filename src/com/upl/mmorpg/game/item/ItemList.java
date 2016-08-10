@@ -13,7 +13,7 @@ import java.util.Iterator;
 
 public class ItemList implements Serializable
 {
-	protected ItemList(int capacity)
+	public ItemList(int capacity)
 	{
 		this.capacity = capacity;
 		items = new ArrayList<Item>(capacity);
@@ -134,7 +134,7 @@ public class ItemList implements Serializable
 	 * Return an iterator for the item list.
 	 * @return An iterator for the item list.
 	 */
-	protected Iterator<Item> iterator()
+	public Iterator<Item> iterator()
 	{
 		return items.iterator();
 	}

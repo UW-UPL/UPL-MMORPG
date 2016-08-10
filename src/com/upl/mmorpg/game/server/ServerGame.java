@@ -14,11 +14,13 @@ public class ServerGame extends Game
 	public ServerGame(String map_path, AssetManager assets, boolean headless)
 	{
 		super(map_path, assets, headless, true, true);
+		
+		map = new Grid2DMap(render, TILE_SIZE);
 		control = new MapControl(render, map);
 		render.addMouseListener(control);
 		render.addMouseMotionListener(control);
 		
-		map = new Grid2DMap(render, TILE_SIZE);
+		
 		if(!headless)
 		{
 			window = new JFrame("MMO Server Window");
@@ -47,7 +49,7 @@ public class ServerGame extends Game
 	{
 		try 
 		{
-			ServerGame g = new ServerGame("assets/maps/example-map1.mmomap", 
+			ServerGame g = new ServerGame("assets/maps/example.mmomap", 
 					new AssetManager(), false);
 			g.loadAssets();
 			g.loadMap();
