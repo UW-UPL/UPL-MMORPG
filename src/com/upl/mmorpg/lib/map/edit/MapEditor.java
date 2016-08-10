@@ -35,6 +35,13 @@ import javax.swing.ScrollPaneConstants;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 
+/**
+ * Let's you create maps for the MMO.
+ * 
+ * @author John Detter <jdetter@wisc.edu>
+ *
+ */
+
 public class MapEditor implements ActionListener, MouseMotionListener, MouseListener, WindowListener
 {
 	public MapEditor() throws IOException
@@ -72,6 +79,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			}
 		});
 		
+		/* Setup the map open menu item. */
 		open = new JMenuItem("Open");
 		file_menu.add(open);
 		open.addActionListener(new ActionListener()
@@ -79,28 +87,39 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				/* Setup the file chooser */
 				JFileChooser chooser = new JFileChooser();
+				
+				/* Wait for the user to select the file */
 				int option = chooser.showOpenDialog(window);
+				
+				/* Was there a file chosen or was the dialog canceled? */
 				if(option == JFileChooser.APPROVE_OPTION)
 				{
+					/* Unload the current map */
 					map.unload();
+					
 					try 
 					{
 						String path = chooser.getSelectedFile().getAbsolutePath();
+						
+						/* Did the user not include the proper extension? */
 						if(!path.endsWith(".mmomap"))
 							path = path + ".mmomap";
+						
+						/* Load the map from the file */
 						if(map.load(path, assets, TILE_SIZE))
 						{
-							/**
-							 * The square positions and sizes aren't sent over the network
-							 * because they are relative to the client/server's screen
-							 */
+							/* Generate the square properties for this screen size */
 							map.generateSquareProperties();
+							/* Load all of the assets for this map */
 							map.loadAllImages(assets);
 						} else {
+							/* Couldn't load the map file */
 							JOptionPane.showMessageDialog(window, "Map format exception!");
 						}
 					} catch (IOException e1) {
+						/* There was an issue with the actual file. */
 						JOptionPane.showMessageDialog(window, "File does not exist or is currupted!");
 						map.unload();
 					}
@@ -108,6 +127,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			}
 		});
 		
+		/* Setup the save menu item */
 		save = new JMenuItem("Save");
 		file_menu.add(save);
 		save.addActionListener(new ActionListener()
@@ -115,15 +135,22 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				/* Open the file chooser */
 				JFileChooser chooser = new JFileChooser();
+				/* Wait for the user to select a file */
 				int option = chooser.showSaveDialog(window);
+				
+				/* Did the user complete the dialog or cancel it? */
 				if(option == JFileChooser.APPROVE_OPTION)
 				{
 					try 
 					{
 						String path = chooser.getSelectedFile().getAbsolutePath();
+						/* Does the file have the proper extension? */
 						if(!path.endsWith(".mmomap"))
 							path = path + ".mmomap";
+						
+						/* Save the file */
 						map.export(path, assets);
 					} catch (IOException e1) {
 						JOptionPane.showMessageDialog(window, "Permission Denied");
@@ -133,46 +160,59 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			}
 		});
 		
+		/* Setup the window and set the menu bar */
 		window = new JFrame("UPL-MMORPG Map Editor");
 		window.setJMenuBar(bar);
 		window.addWindowListener(this);
+		
+		/* Initialize the render panel */
 		render = new RenderPanel(true, true, false);
+		/* Create an empty map (not loaded) */
 		map = new EditableGrid2DMap(render, TILE_SIZE);
 		render.addBPRenderable(map);
 		
+		/* This holds the panel that renders the map and the panel that renders the tools */
 		parentPanel = new JPanel();
 
+		/* Setup the tool panel */
 		toolPanel = new JPanel();
 		toolPanel.setBackground(Color.gray);
-		toolPanel.setMaximumSize(new Dimension(200, 800));
-		toolPanel.setMinimumSize(new Dimension(200, 800));
-		toolPanel.setPreferredSize(new Dimension(200, 800));
+		toolPanel.setMaximumSize(new Dimension(TOOLS_PANEL_WIDTH, TOOLS_PANEL_HEIGHT));
+		toolPanel.setMinimumSize(new Dimension(TOOLS_PANEL_WIDTH, TOOLS_PANEL_HEIGHT));
+		toolPanel.setPreferredSize(new Dimension(TOOLS_PANEL_WIDTH, TOOLS_PANEL_HEIGHT));
 		JScrollPane scroll = new JScrollPane(toolPanel);
-		scroll.setMaximumSize(new Dimension(200, 600));
-		scroll.setMinimumSize(new Dimension(200, 600));
-		scroll.setPreferredSize(new Dimension(200, 600));
+		scroll.setMaximumSize(new Dimension(TOOLS_PANEL_WIDTH + 25, 600));
+		scroll.setMinimumSize(new Dimension(TOOLS_PANEL_WIDTH + 25, 600));
+		scroll.setPreferredSize(new Dimension(TOOLS_PANEL_WIDTH + 25, 600));
 		scroll.setHorizontalScrollBarPolicy(
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scroll.getVerticalScrollBar().setUnitIncrement(16);
 
 		addLabel("Control Tools");
-		moveTool = addTool("assets/images/editor/move_tool.png");
-		eraseTool = addTool("assets/images/editor/erase_tool.png");
+		JPanel controlPanel = new JPanel();
+		addPanel(80, controlPanel);
+		moveTool = addTool("assets/images/editor/move_tool.png", controlPanel);
+		eraseTool = addTool("assets/images/editor/erase_tool.png", controlPanel);
 
 		addLabel("    Tile Tools    ");
-		new TileTool("assets/images/tiles/grass1.png");
-		new TileTool("assets/images/tiles/desert1.png");
-		new TileTool("assets/images/tiles/snow1.png");
+		JPanel tileToolsPanel = new JPanel();
+		addPanel(50, tileToolsPanel);
+		new TileTool("assets/images/tiles/grass1.png", tileToolsPanel);
+		new TileTool("assets/images/tiles/desert1.png", tileToolsPanel);
+		new TileTool("assets/images/tiles/snow1.png", tileToolsPanel);
 		
 		addLabel("    Overlay Tools    ");
-		new OverlayTool("assets/images/tiles/overlays/fence_l.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_ld.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_lu.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_lud.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_r.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_rd.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_ru.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_rud.png");
-		new OverlayTool("assets/images/tiles/overlays/fence_rl.png");
+		JPanel overlayToolsPanel = new JPanel();
+		addPanel(225, overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_l.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_ld.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_lu.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_lud.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_r.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_rd.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_ru.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_rud.png", overlayToolsPanel);
+		new OverlayTool("assets/images/tiles/overlays/fence_rl.png", overlayToolsPanel);
 		
 		new ExpandingOverlayTool("assets/images/tiles/overlays/tree_left.png",
 				new String[][]{
@@ -180,36 +220,44 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 					"assets/images/tiles/overlays/tree_left_ur.png"}, 
 				{"assets/images/tiles/overlays/tree_left_dl.png", 
 						"assets/images/tiles/overlays/tree_left_dr.png"}
-				});
+				}, overlayToolsPanel);
 		new ExpandingOverlayTool("assets/images/tiles/overlays/tree_mid.png",
 				new String[][]{
 				{"assets/images/tiles/overlays/tree_mid_ul.png", 
 					"assets/images/tiles/overlays/tree_mid_ur.png"}, 
 				{"assets/images/tiles/overlays/tree_mid_dl.png", 
 						"assets/images/tiles/overlays/tree_mid_dr.png"}
-				});
+				}, overlayToolsPanel);
 		new ExpandingOverlayTool("assets/images/tiles/overlays/tree_right.png",
 				new String[][]{
 				{"assets/images/tiles/overlays/tree_right_ul.png", 
 					"assets/images/tiles/overlays/tree_right_ur.png"}, 
 				{"assets/images/tiles/overlays/tree_right_dl.png", 
 						"assets/images/tiles/overlays/tree_right_dr.png"}
-				});
+				}, overlayToolsPanel);
 		
 		addLabel("    Tile Properties    ");
-		new PassThroughTool("assets/images/editor/passThroughTool.png", true);
-		new PassThroughTool("assets/images/editor/impassibleTool.png", false);
-		new DestructibleTool("assets/images/editor/destructibleTool.png", true);
-		new DestructibleTool("assets/images/editor/indestructibleTool.png", false);
-		new LandingTool("assets/images/editor/landingTool.png");
-		new LinkTool("assets/images/editor/linkTool.png");
+		JPanel tilePropertiesPanel = new JPanel();
+		addPanel(80, tilePropertiesPanel);
+		new PassThroughTool("assets/images/editor/passThroughTool.png", true, tilePropertiesPanel);
+		new PassThroughTool("assets/images/editor/impassibleTool.png", false, tilePropertiesPanel);
+		new DestructibleTool("assets/images/editor/destructibleTool.png", true, tilePropertiesPanel);
+		new DestructibleTool("assets/images/editor/indestructibleTool.png", false, tilePropertiesPanel);
+		new LandingTool("assets/images/editor/landingTool.png", tilePropertiesPanel);
+		new LinkTool("assets/images/editor/linkTool.png", tilePropertiesPanel);
 		
 		addLabel("Brush Size: ");
+		JPanel brushPanel = new JPanel();
+		addPanel(50, brushPanel);
 		sz_field = new JTextField(2);
 		sz_field.setFont(SMALL_FONT);
 		sz_field.setText("1");
-		setBrushSize(1);
+		brushPanel.add(sz_field);
 		
+		/**
+		 * Focus listener for the brush size field. This just updates the brush
+		 * size when the text field loses focus.
+		 */
 		FocusListener sz_field_listen = new FocusListener()
 		{
 			@Override
@@ -233,10 +281,9 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			
 		};
 		sz_field.addFocusListener(sz_field_listen);
-		toolPanel.add(sz_field);
+		setBrushSize(1);
 		
 		parentPanel.add(render);
-		//parentPanel.add(toolPanel);
 		parentPanel.add(scroll);
 		
 		window.getContentPane().add(parentPanel);
@@ -253,7 +300,17 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		currTool = Tools.NONE;
 		currTileTool = null;
 		
+		/* Start rendering the map */
 		render.startRender();
+	}
+	
+	public void addPanel(int height, JPanel panel)
+	{
+		panel.setPreferredSize(new Dimension(TOOLS_PANEL_WIDTH, height));
+		panel.setMaximumSize(new Dimension(TOOLS_PANEL_WIDTH, height));
+		panel.setMinimumSize(new Dimension(TOOLS_PANEL_WIDTH, height));
+		panel.setBackground(Color.gray);
+		toolPanel.add(panel);
 	}
 
 	@Override
@@ -392,7 +449,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	@Override public void windowIconified(WindowEvent arg0) {}
 	@Override public void windowOpened(WindowEvent arg0) {}
 
-	private JToggleButton addTool(String path) throws IOException
+	private JToggleButton addTool(String path, JPanel panel) throws IOException
 	{
 		BufferedImage img = assets.loadImage(path);
 		
@@ -401,8 +458,8 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		button.setMinimumSize(new Dimension(img.getWidth(), img.getHeight()));
 		button.setMaximumSize(new Dimension(img.getWidth(), img.getHeight()));
 		button.addActionListener(this);
+		panel.add(button);
 		toolButtons.add(button);
-		toolPanel.add(button);
 
 		return button;
 	}
@@ -484,6 +541,8 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	private JMenuItem open;
 	
 	private static final int TILE_SIZE = 32;
+	private static final int TOOLS_PANEL_WIDTH = 200;
+	private static final int TOOLS_PANEL_HEIGHT = 800;
 	private static final Font LARGE_FONT = new Font("Times New Roman", Font.PLAIN, 30);
 	private static final Font SMALL_FONT = new Font("Times New Roman", Font.PLAIN, 18);
 
@@ -494,9 +553,9 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	
 	private class TileTool
 	{
-		public TileTool(String texture_file) throws IOException
+		public TileTool(String texture_file, JPanel panel) throws IOException
 		{
-			button = addTool(texture_file);
+			button = addTool(texture_file, panel);
 			tileTools.add(this);
 			brushable = true;
 			this.texture_file = texture_file;
@@ -547,9 +606,9 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	
 	private class OverlayTool extends TileTool
 	{
-		public OverlayTool(String texture_file) throws IOException 
+		public OverlayTool(String texture_file, JPanel panel) throws IOException 
 		{
-			super(texture_file);
+			super(texture_file, panel);
 		}
 		
 		public void mouseDragged(int row, int col)
@@ -584,9 +643,9 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	private class ExpandingOverlayTool extends OverlayTool
 	{
 		public ExpandingOverlayTool(String complete, 
-				String texture_files[][]) throws IOException 
+				String texture_files[][], JPanel panel) throws IOException 
 		{
-			super(complete);
+			super(complete, panel);
 			brushable = false;
 			this.texture_files = texture_files;
 		}
@@ -633,10 +692,10 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	
 	private class PassThroughTool extends TileTool
 	{
-		public PassThroughTool(String texture_file, boolean passThrough) 
+		public PassThroughTool(String texture_file, boolean passThrough, JPanel panel) 
 				throws IOException 
 			{
-			super(texture_file);
+			super(texture_file, panel);
 			this.passThrough = passThrough;
 		}
 		
@@ -659,10 +718,10 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	
 	private class DestructibleTool extends TileTool
 	{
-		public DestructibleTool(String texture_file, boolean destructible) 
+		public DestructibleTool(String texture_file, boolean destructible, JPanel panel) 
 				throws IOException 
-			{
-			super(texture_file);
+		{
+			super(texture_file, panel);
 			this.destructible = destructible;
 		}
 		
@@ -685,10 +744,10 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	
 	private class LinkTool extends TileTool
 	{
-		public LinkTool(String texture_file) 
+		public LinkTool(String texture_file, JPanel panel) 
 				throws IOException 
 		{
-			super(texture_file);
+			super(texture_file, panel);
 			brushable = false;
 		}
 		
@@ -743,9 +802,9 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	
 	private class LandingTool extends TileTool
 	{
-		public LandingTool(String texture_file) throws IOException 
+		public LandingTool(String texture_file, JPanel panel) throws IOException 
 		{
-			super(texture_file);
+			super(texture_file, panel);
 			brushable = false;
 		}
 		
