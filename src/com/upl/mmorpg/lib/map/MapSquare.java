@@ -156,6 +156,20 @@ public class MapSquare extends Renderable implements Serializable
 		}
 	}
 	
+	public int getRow()
+	{
+		if(width == 0)
+			return 0;
+		return (int)(locY / width);
+	}
+	
+	public int getCol()
+	{
+		if(width == 0)
+			return 0;
+		return (int)(locX / width);
+	}
+	
 	/**
 	 * Get all of the items on the MapSquare.
 	 * @return The list of items on the MapSquare.

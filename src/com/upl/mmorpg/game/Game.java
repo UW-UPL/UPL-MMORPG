@@ -6,9 +6,12 @@ import java.util.LinkedList;
 
 import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.map.Grid2DMap;
+import com.upl.mmorpg.lib.map.MapSquare;
 import com.upl.mmorpg.lib.quest.QuestEngine;
 
 public class Game 
@@ -49,6 +52,32 @@ public class Game
 	{
 		characters.remove(c);
 		render.removeRenderable(c);
+	}
+	
+	public ItemList getItemsOnSquare(int row, int col)
+	{
+		MapSquare square = map.getSquare(row, col);
+		if(square == null)
+			return null;
+		return square.getItems();
+	}
+	
+	public synchronized boolean pickupItem(MMOCharacter character, MapSquare square, Item item)
+	{
+		if(square.getItems().containsItem(item))
+		{
+			if(character.getRow() == square.getRow()
+					&& character.getCol() == square.getCol())
+			{
+				if(character.receiveItem(item))
+				{
+					square.getItems().removeItem(item);
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	public Goblin createGoblin(int row, int col)

@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.item.Inventory;
+import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
@@ -308,6 +309,11 @@ public abstract class MMOCharacter extends Renderable
 		}
 		
 		return amount;
+	}
+	
+	public boolean receiveItem(Item i)
+	{
+		return inventory.addItem(i);
 	}
 	
 	protected AssetManager assets;
