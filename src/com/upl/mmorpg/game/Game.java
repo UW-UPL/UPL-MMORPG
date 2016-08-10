@@ -34,8 +34,9 @@ public class Game
 	public void loadMap() throws IOException
 	{
 		if(map == null) return;
-		map.load(map_path, assets, TILE_SIZE);
-		map.loadAllImages();
+		if(!map.load(map_path, assets, TILE_SIZE))
+			throw new IOException("Map format exception");
+		map.loadAllImages(assets);
 	}
 	
 	public void addCharacter(MMOCharacter c)

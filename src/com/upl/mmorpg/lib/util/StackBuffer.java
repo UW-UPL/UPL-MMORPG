@@ -1,15 +1,22 @@
-package com.upl.mmorpg.lib;
+package com.upl.mmorpg.lib.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.upl.mmorpg.lib.libfile.FileManager;
+
 public class StackBuffer 
 {
 	public StackBuffer()
 	{
-		/* Using the stack buffer in read mode */
+		/* Using the stack buffer in write mode */
 		rbuff = null;
 		rbuff_pos = -1;
 		chunks = new LinkedList<byte[]>();
@@ -17,10 +24,18 @@ public class StackBuffer
 	
 	public StackBuffer(byte arr[])
 	{
-		/* Using the stack buffer in write mode */
+		/* Using the stack buffer in read mode */
 		rbuff = arr;
 		rbuff_pos =  0;
 		chunks = null;
+	}
+	
+	public StackBuffer(FileManager file)
+	{
+		/* Using the stack buffer in read mode */
+		chunks = null;
+		rbuff = file.readBytes((int)file.length());
+		rbuff_pos = 0;
 	}
 	
 	/** Methods for pushing stuff into the buffer */
@@ -131,6 +146,30 @@ public class StackBuffer
 		pushInt(arr.length);
 		for(int x = 0;x < arr.length;x++)
 			pushDouble(arr[x]);
+	}
+	
+	public void pushObject(Serializable obj)
+	{
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
+		byte[] arr = null;
+		
+		try
+		{
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(obj);
+			arr = bos.toByteArray();
+		} catch(Exception e){}
+		
+		try {bos.close();} catch(Exception e){}
+		try {oos.close();} catch(Exception e){}
+		bos = null;
+		oos = null;
+		
+		if(arr != null)
+			chunks.add(arr);
+		else throw new RuntimeException("Couldn't serialize object: " + obj);
 	}
 	
 	/** Methods for popping stuff out of the buffer */
@@ -256,6 +295,31 @@ public class StackBuffer
 		return arr;
 	}
 	
+	public Object popObject()
+	{
+		ByteArrayInputStream bin = null;
+		ObjectInputStream ois = null;
+		Object result = null;
+		
+		try
+		{
+			bin = new ByteArrayInputStream(rbuff);
+			bin.skip(rbuff_pos);
+			ois = new ObjectInputStream(bin);
+			result = ois.readObject();
+		} catch(Exception e){ result = null; }
+		
+		try {bin.close();} catch(Exception e){}
+		try {ois.close();} catch(Exception e){}
+		bin = null;
+		ois = null;
+		
+		if(result == null)
+			throw new RuntimeException("Failed to read object from stream.");
+		
+		return result;
+	}
+	
 	/**
 	 * Turn the stack into a single array.
 	 * @return The array representation of the stack.
@@ -325,6 +389,8 @@ public class StackBuffer
 			return "String";
 		if(type.compareToIgnoreCase("string[]") == 0)
 			return "String[]";
+		if(type.compareToIgnoreCase("object") == 0)
+			return "Object";
 		
 		return null;
 	}
@@ -361,6 +427,8 @@ public class StackBuffer
 			return "popString";
 		if(type.compareToIgnoreCase("string[]") == 0)
 			return "popStringArr";
+		if(type.compareToIgnoreCase("object") == 0)
+			return "popObject";
 		
 		return null;
 	}
@@ -397,6 +465,8 @@ public class StackBuffer
 			return "pushString";
 		if(type.compareToIgnoreCase("string[]") == 0)
 			return "pushStringArr";
+		if(type.compareToIgnoreCase("object") == 0)
+			return "pushObject";
 		
 		return null;
 	}

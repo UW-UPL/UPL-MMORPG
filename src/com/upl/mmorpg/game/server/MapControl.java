@@ -12,9 +12,6 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 		this.render = render;
 		this.map = map;
 
-		mapWidth = this.map.getWidth();
-		mapHeight = this.map.getHeight();
-
 		moveUp = false;
 		moveDown = false;
 		moveRight = false;
@@ -73,23 +70,36 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-
 		double x = e.getX();
 		double y = e.getY();
+		boolean found = false;
 
 		if (x - render.getWidth() + 25 > 0) {
 			moveRight = true;
 			startMovement();
-		} else if (x + render.getWidth() - 25 < render.getWidth()) {
+			found = true;
+		}
+		
+		if (x + render.getWidth() - 25 < render.getWidth()) {
 			moveLeft = true;
 			startMovement();
-		} else if (y - render.getHeight() + 25 > 0) {
+			found = true;
+		}
+		
+		if (y - render.getHeight() + 25 > 0) {
 			moveDown = true;
 			startMovement();
-		} else if (y + render.getHeight() - 25 < render.getHeight()) {
+			found = true;
+		}
+		
+		if (y + render.getHeight() - 25 < render.getHeight()) {
 			moveUp = true;
 			startMovement();
-		} else {
+			found = true;
+		}
+		
+		if(!found)
+		{
 			moving = false;
 			moveDown = false;
 			moveUp = false;
@@ -97,51 +107,44 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 			moveLeft = false;
 			stopMovement();
 		}
-
 	}
 
 	public void startMovement() {
-
 		if (moving)
 			return;
 
 		moving = true;
 		moveThread = new Thread(this);
 		moveThread.start();
-
 	}
 
 	public void stopMovement() {
 		moving = false;
-		try{
-			moveThread.interrupt();
-		}catch(Exception e) {}
 		
-		try{
+		try
+		{
+			moveThread.interrupt();
+		} catch(Exception e) {}
+		
+		try
+		{
 			moveThread.join(1000);
-		}catch(Exception e){}
+		} catch(Exception e){}
 
 		moveThread = null;
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-
-		System.out.print("mouseX: " + e.getX() + "\nmouseY: " + e.getY() + "\n");
-		System.out.print(e.getX() - render.getWidth() + 50 + "\n");
-		System.out.print(render.getWidth() + "\n");
-
+		// System.out.print("mouseX: " + e.getX() + "\nmouseY: " + e.getY() + "\n");
+		// System.out.print(e.getX() - render.getWidth() + 50 + "\n");
+		// System.out.print(render.getWidth() + "\n");
 	}
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
+	@Override public void mouseEntered(MouseEvent e) {}
+	@Override public void mouseExited(MouseEvent e) {}
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-
-	private Thread moveThread; /* For moving screen */
+	private Thread moveThread; /**< Thread for moving screen */
 	private boolean moveRight;
 	private boolean moveLeft;
 	private boolean moveUp;
@@ -149,10 +152,7 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 	private boolean moving;
 	private double lastX;
 	private double lastY;
-	private double mapWidth;
-	private double mapHeight;
 	private boolean dragging;
 	private RenderPanel render;
 	private Grid2DMap map;
-
 }
