@@ -1,6 +1,6 @@
 package com.upl.mmorpg.lib.librpc;
 
-import com.upl.mmorpg.lib.StackBuffer;
+import com.upl.mmorpg.lib.util.StackBuffer;
 
 public interface RPCObject 
 {

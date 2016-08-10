@@ -23,9 +23,9 @@ public class RenderWindow
 		return panel;
 	}
 	
-	public void show() throws IOException
+	public void show(AssetManager assets) throws IOException
 	{
-		panel.loadAllImages();
+		panel.loadAllImages(assets);
 		panel.startRender();
 		frame.setVisible(true);
 	}

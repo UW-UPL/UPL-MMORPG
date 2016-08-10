@@ -3,6 +3,7 @@ package com.upl.mmorpg.lib;
 import java.util.Arrays;
 
 import com.upl.mmorpg.lib.liblog.Log;
+import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class TestMain 
 {

@@ -3,15 +3,18 @@ package com.upl.mmorpg.lib.map;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Iterator;
 
+import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.Renderable;
 
-public class MapSquare extends Renderable
+public class MapSquare extends Renderable implements Serializable
 {
-	protected MapSquare(AssetManager assets)
+	protected MapSquare()
 	{
-		this.assets = assets;
 		destroyed = false;
 		destructible = false;
 		image_name = null;
@@ -25,17 +28,16 @@ public class MapSquare extends Renderable
 		linked_map = null;
 		link_row = -1;
 		link_col = -1;
+		list = new ItemList(1);
 	}
 	
-	public MapSquare(double x, double y, double size,
-			AssetManager assets, String image_name, 
+	public MapSquare(double x, double y, double size, String image_name, 
 			String overlay_name, String destroyed_overlay_name)
 	{
 		this.locX = x;
 		this.locY = y;
 		this.width = size;
 		this.height = size;
-		this.assets = assets;
 		this.image_name = image_name;
 		this.overlay_name = overlay_name;
 		this.destroyed_overlay_name = destroyed_overlay_name;
@@ -51,20 +53,35 @@ public class MapSquare extends Renderable
 		linked_map = null;
 		link_row = -1;
 		link_col = -1;
+		list = new ItemList(1);
 	}
 
 	@Override
-	public void loadImages() throws IOException
+	public void loadImages(AssetManager assets) throws IOException
 	{
 		if(image_name != null)
+		{
 			image = assets.loadImage(image_name);
+			if(image == null) throw new IOException(image_name + " not found!\n");
+		}
+		
 		if(overlay_name != null)
+		{
 			overlay = assets.loadImage(overlay_name);
+			if(overlay == null) throw new IOException(overlay_name + " not found!\n");
+		}
+		
 		if(destroyed_overlay_name !=  null)
 		{
 			destructible = true;
 			destroyed_overlay = assets.loadImage(destroyed_overlay_name);
+			if(destroyed_overlay == null)
+				throw new IOException(destroyed_overlay + " not found!\n");
 		}
+		
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+			it.next().loadImages(assets);
 	}
 
 	@Override
@@ -81,6 +98,10 @@ public class MapSquare extends Renderable
 		if(destroyed && destroyed_overlay != null)
 			g.drawImage(destroyed_overlay, (int)locX, (int)locY, 
 					(int)width, (int)height, null);
+		
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+			it.next().render(g);
 	}
 
 	@Override
@@ -111,63 +132,55 @@ public class MapSquare extends Renderable
 		return passThrough;
 	}
 	
-	public String export_square()
+	/**
+	 * Called when an item is dropped on this space. This could
+	 * be an item or an item stack.
+	 * @param item The item that was dropped.
+	 */
+	public boolean itemDropped(Item item)
 	{
-		/* Export all init properties to a string */
-		return image_name + "," + overlay_name + "," + destroyed_overlay_name 
-				+ "," + destructible + "," + passThrough + "," + passThroughWhenDestroyed 
-				+ "," + isLinkLanding + "," + isMapLink + "," + linked_map 
-				+ "," + link_row + "," + link_col;
+		boolean result;
+		result = list.addItem(item);
+		updateItemProperties();
+		return result;
 	}
 	
-	public static MapSquare import_square(String line, AssetManager assets, 
-			double x, double y, double size)
+	public void updateItemProperties()
 	{
-		String parts[] = line.split(",");
-		MapSquare out = new MapSquare(assets);
-		out.image_name = parts[0];
-		out.overlay_name = parts[1];
-		out.destroyed_overlay_name = parts[2];
-		out.destructible = parts[3].equalsIgnoreCase("true");
-		out.passThrough = parts[4].equalsIgnoreCase("true");
-		out.passThroughWhenDestroyed = parts[5].equalsIgnoreCase("true");
-		out.isLinkLanding = parts[6].equalsIgnoreCase("true");
-		out.isMapLink = parts[7].equalsIgnoreCase("true");
-		out.linked_map = parts[8];
-		out.link_row = Integer.parseInt(parts[9].trim());
-		out.link_col = Integer.parseInt(parts[10].trim());
-		
-		if(out.image_name.equalsIgnoreCase("null"))
-			out.image_name = null;
-		if(out.overlay_name.equalsIgnoreCase("null"))
-			out.overlay_name = null;
-		if(out.destroyed_overlay_name.equalsIgnoreCase("null"))
-			out.destroyed_overlay_name = null;
-		if(out.linked_map.equalsIgnoreCase("null"))
-			out.linked_map = null;
-		
-		out.locX = x;
-		out.locY = y;
-		out.width = size;
-		out.height = size;
-		
-		return out;
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			i.setLocation(locX, locY);
+			i.setSize(width);
+		}
 	}
 	
-	protected AssetManager assets;
-	protected String image_name;
-	protected String overlay_name;
-	protected String destroyed_overlay_name;
-	protected BufferedImage image;
-	protected BufferedImage overlay;
-	protected BufferedImage destroyed_overlay;
-	protected boolean destroyed;
-	protected boolean destructible;
-	protected boolean passThrough;
-	protected boolean passThroughWhenDestroyed;
-	protected boolean isLinkLanding;
-	protected boolean isMapLink;
-	protected String linked_map;
-	protected int link_row;
-	protected int link_col;
+	/**
+	 * Get all of the items on the MapSquare.
+	 * @return The list of items on the MapSquare.
+	 */
+	public ItemList getItems()
+	{
+		return list;
+	}
+	
+	protected String image_name; /**< The asset name of the image for this MapSquare. */
+	protected String overlay_name; /**< If the asset has an overlay, this is the overlay asset. */
+	protected String destroyed_overlay_name; /**< If this square is destroyed, this is the overlay asset. */
+	protected transient BufferedImage image; /**< Background image asset for the MapSquare. */
+	protected transient BufferedImage overlay; /**< Overlay image. This must have an alpha channel. */
+	protected transient BufferedImage destroyed_overlay; /**< The overlay to be drawn when the square is destroyed. */
+	protected boolean destroyed; /**< Whether or not this square is destroyed. */
+	protected boolean destructible; /**< Whether or not this square can be destroyed. */
+	protected boolean passThrough; /**< Whether or not this square can be passed through. */
+	protected boolean passThroughWhenDestroyed; /**< Whether or not this square can be passed through when destroyed. */
+	protected boolean isLinkLanding; /**< Whether or not this space can be traveled to. */
+	protected boolean isMapLink; /**< Whether or not this square can move a player */
+	protected String linked_map; /**< The map the map link goes to. */
+	protected int link_row; /**< The row the link takes the player to. */
+	protected int link_col; /**< The column the link takes the player to. */
+	protected ItemList list; /**< All of the items on the square. */
+	
+	private static final long serialVersionUID = -5877817070442524231L;
 }
