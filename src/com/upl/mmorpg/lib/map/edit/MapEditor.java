@@ -32,6 +32,8 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 
+import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.item.ItemDef;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 
@@ -47,6 +49,10 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	public MapEditor() throws IOException
 	{
 		assets = new AssetManager();
+		try
+		{
+			ItemDef.loadAssets(assets);
+		} catch(Exception e) { System.exit(1); }
 		toolButtons = new LinkedList<JToggleButton>();
 		tileTools = new LinkedList<TileTool>();
 
@@ -152,6 +158,8 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 						
 						/* Save the file */
 						map.export(path, assets);
+						
+						JOptionPane.showMessageDialog(window, "Map saved to: " + path);
 					} catch (IOException e1) {
 						JOptionPane.showMessageDialog(window, "Permission Denied");
 						map.unload();
@@ -235,6 +243,11 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 				{"assets/images/tiles/overlays/tree_right_dl.png", 
 						"assets/images/tiles/overlays/tree_right_dr.png"}
 				}, overlayToolsPanel);
+		
+		addLabel("    Drop items    ");
+		JPanel itemPanel = new JPanel();
+		addPanel(75, itemPanel);
+		new ItemDroptool(ItemDef.WEAPON, itemPanel);
 		
 		addLabel("    Tile Properties    ");
 		JPanel tilePropertiesPanel = new JPanel();
@@ -410,6 +423,8 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 							currTileTool.mouseDragged(row + x - brush_sub,
 									col + y - brush_sub);
 				} else currTileTool.mouseDragged(row, col);
+				
+				currTileTool.mouseClicked(row, col);
 				break;
 			case ERASE:
 				for(int x = 0;x < brush;x++)
@@ -542,7 +557,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 	
 	private static final int TILE_SIZE = 32;
 	private static final int TOOLS_PANEL_WIDTH = 200;
-	private static final int TOOLS_PANEL_HEIGHT = 800;
+	private static final int TOOLS_PANEL_HEIGHT = 900;
 	private static final Font LARGE_FONT = new Font("Times New Roman", Font.PLAIN, 30);
 	private static final Font SMALL_FONT = new Font("Times New Roman", Font.PLAIN, 18);
 
@@ -588,6 +603,8 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			
 			if(set) map.setSquare(row, col, square);
 		}
+		
+		public void mouseClicked(int row, int col){}
 		
 		private JToggleButton getButton()
 		{
@@ -821,6 +838,28 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 				square.setLanding(true);
 			}
 		}
+	}
+	
+	public class ItemDroptool extends TileTool
+	{
+		public ItemDroptool(Item dropItem, JPanel panel) 
+				throws IOException 
+		{
+			super(dropItem.getAssetPath(), panel);
+			brushable = false;
+			this.dropItem = dropItem;
+		}
+		
+		public void mouseDragged(int row, int col){}
+		public void mouseClicked(int row, int col)
+		{
+			EditableMapSquare square = map.getSquare(row, col);
+			if(square == null) return;
+			if(!square.itemDropped(new Item(dropItem)))
+				System.out.println("Warning: failed to drop item: " + dropItem.getName());
+		}
+		
+		private Item dropItem;
 	}
 	
 	public static void main(String args[])

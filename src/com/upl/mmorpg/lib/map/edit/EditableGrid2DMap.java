@@ -95,6 +95,8 @@ public class EditableGrid2DMap extends Grid2DMap
 	{
 		loaded = false;
 		map = null;
+		rowCount = 0;
+		colCount = 0;
 	}
 
 	public EditableMapSquare getSquare(int row, int col)

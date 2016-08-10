@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 
@@ -27,7 +26,6 @@ public class AssetManager
 	public AssetManager()
 	{
 		images = new HashMap<String, BufferedImage>();
-		files = new HashMap<String, FileManager>();
 	}
 
 	/**
@@ -41,23 +39,12 @@ public class AssetManager
 	 */
 	public FileManager getFile(String path, boolean create, boolean r, boolean w) throws IOException
 	{
-		/* Is this file already open? */
-		if(files.containsKey(path))
-		{
-			FileManager file = files.get(path);
-			file.addReference();
-			return file;
-		}
-
 		/* File not already open, open it */
 		FileManager f = new FileManager(path, create, r, w);
 
 		/* Were we able to open the file */
 		if(!f.opened())
 			return null;
-
-		/* Add the new file manager to the hashmap */
-		files.put(path, f);
 
 		/* Return the new file */
 		return f;
@@ -67,10 +54,6 @@ public class AssetManager
 	{
 		/* Close a reference to the file */
 		file.close();
-		
-		/* Is the file still in use? */
-		if(!file.opened())
-			files.remove(file.getPath());
 	}
 
 	/**
@@ -96,7 +79,7 @@ public class AssetManager
 			result = ImageIO.read(file);
 		}catch(IOException e)
 		{
-			Log.wtf("Image Not Found!", e);
+			Log.wtf("Image Not Found: " + path, e);
 			file = null;
 			throw e;
 		}
@@ -113,13 +96,7 @@ public class AssetManager
 	{
 		/* Release all of the images */
 		images.clear();
-		
-		/* Release all of the file */
-		Iterator<FileManager> f  = files.values().iterator();
-		while(f.hasNext()) f.next().close();
-		files.clear();
 	}
 
 	private HashMap<String, BufferedImage> images; /**< Cached/open images */
-	private HashMap<String, FileManager> files; /**< Cached/open files s*/
 }

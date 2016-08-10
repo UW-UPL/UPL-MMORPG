@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Iterator;
 
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.item.ItemList;
@@ -27,6 +28,7 @@ public class MapSquare extends Renderable implements Serializable
 		linked_map = null;
 		link_row = -1;
 		link_col = -1;
+		list = new ItemList(1);
 	}
 	
 	public MapSquare(double x, double y, double size, String image_name, 
@@ -51,6 +53,7 @@ public class MapSquare extends Renderable implements Serializable
 		linked_map = null;
 		link_row = -1;
 		link_col = -1;
+		list = new ItemList(1);
 	}
 
 	@Override
@@ -75,6 +78,10 @@ public class MapSquare extends Renderable implements Serializable
 			if(destroyed_overlay == null)
 				throw new IOException(destroyed_overlay + " not found!\n");
 		}
+		
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+			it.next().loadImages(assets);
 	}
 
 	@Override
@@ -91,6 +98,10 @@ public class MapSquare extends Renderable implements Serializable
 		if(destroyed && destroyed_overlay != null)
 			g.drawImage(destroyed_overlay, (int)locX, (int)locY, 
 					(int)width, (int)height, null);
+		
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+			it.next().render(g);
 	}
 
 	@Override
@@ -126,9 +137,23 @@ public class MapSquare extends Renderable implements Serializable
 	 * be an item or an item stack.
 	 * @param item The item that was dropped.
 	 */
-	public void itemDropped(Item item)
+	public boolean itemDropped(Item item)
 	{
-		stack.addItem(item);
+		boolean result;
+		result = list.addItem(item);
+		updateItemProperties();
+		return result;
+	}
+	
+	public void updateItemProperties()
+	{
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			i.setLocation(locX, locY);
+			i.setSize(width);
+		}
 	}
 	
 	/**
@@ -137,7 +162,7 @@ public class MapSquare extends Renderable implements Serializable
 	 */
 	public ItemList getItems()
 	{
-		return stack;
+		return list;
 	}
 	
 	protected String image_name; /**< The asset name of the image for this MapSquare. */
@@ -155,7 +180,7 @@ public class MapSquare extends Renderable implements Serializable
 	protected String linked_map; /**< The map the map link goes to. */
 	protected int link_row; /**< The row the link takes the player to. */
 	protected int link_col; /**< The column the link takes the player to. */
-	protected ItemList stack; /**< All of the items on the square. */
+	protected ItemList list; /**< All of the items on the square. */
 	
 	private static final long serialVersionUID = -5877817070442524231L;
 }

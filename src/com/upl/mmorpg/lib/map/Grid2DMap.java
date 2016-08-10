@@ -141,17 +141,14 @@ public class Grid2DMap extends Renderable implements Serializable
 		if(load instanceof Grid2DMap)
 		{
 			Grid2DMap grid = (Grid2DMap)buff.popObject();
-			this.map = grid.map;
-			this.rowCount = grid.rowCount;
-			this.colCount = grid.colCount;
-			this.loaded = true;
-		} else {
-			this.map = null;
-			this.rowCount = -1;
-			this.colCount = -1;
-			this.loaded = false;
-			return false;
-		}
+			if(grid == null)
+				return false;
+			map = grid.map;
+			rowCount = grid.rowCount;
+			colCount = grid.colCount;
+			loaded = true;
+			generateSquareProperties();
+		} else return false;
 		
 		return true;
 	}
@@ -170,6 +167,8 @@ public class Grid2DMap extends Renderable implements Serializable
 					map[row][col].loadImages(assets);
 			}
 		}
+		
+		renderable = true;
 	}
 	
 	/**
@@ -201,6 +200,7 @@ public class Grid2DMap extends Renderable implements Serializable
 					map[row][col].setWidth(tileSize);
 					map[row][col].setHeight(tileSize);
 					map[row][col].setRotation(0.0f);
+					map[row][col].updateItemProperties();
 				}
 	}
 	

@@ -47,7 +47,7 @@ public class ServerGame extends Game
 	{
 		try 
 		{
-			ServerGame g = new ServerGame("assets/maps/example-map1.mmomap", 
+			ServerGame g = new ServerGame("assets/maps/example.mmomap", 
 					new AssetManager(), false);
 			g.loadAssets();
 			g.loadMap();

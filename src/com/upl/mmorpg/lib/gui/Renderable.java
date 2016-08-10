@@ -131,6 +131,18 @@ public abstract class Renderable implements Runnable, Collidable
 	public double getHeight(){return height;}
 	public void setRotation(double degrees){this.rotation = degrees;}
 	public double getRotation(){return rotation;}
+	
+	public void setLocation(double x, double y)
+	{
+		this.locX = x;
+		this.locY = y;
+	}
+	
+	public void setSize(double size)
+	{
+		this.width = size;
+		this.height = size;
+	}
 
 	public void show()
 	{
