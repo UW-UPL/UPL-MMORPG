@@ -185,10 +185,6 @@ public class Grid2DMap extends Renderable implements Serializable
 		return map[row][col];
 	}
 	
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 93b067a241dd3045f55f410e446950fbd5110b9e
 	public double getWidth() {
 		return tileSize * colCount;
 	}
@@ -197,11 +193,6 @@ public class Grid2DMap extends Renderable implements Serializable
 		return tileSize * rowCount;
 	}
 	
-<<<<<<< HEAD
-	protected double tileSize;
-=======
-=======
->>>>>>> 93b067a241dd3045f55f410e446950fbd5110b9e
 	/**
 	 * Regenerates the properties of all of the map squares. This should be
 	 * called after the tile size is changed.
@@ -225,10 +216,6 @@ public class Grid2DMap extends Renderable implements Serializable
 	protected transient boolean loaded; /**< Whether or not the assets have been loaded for this map. */
 	protected transient boolean renderable; /**< Whether or not this map is renderable (server/client) */
 	protected transient RenderPanel panel; /**< The panel that should be used for rendering game squares (client) */
-<<<<<<< HEAD
->>>>>>> 0534434b097357a2e4ff215d22225008c9e17e5a
-=======
->>>>>>> 93b067a241dd3045f55f410e446950fbd5110b9e
 	
 	protected int rowCount; /**< How many rows are in this map */
 	protected int colCount; /**< How many columns are in this map. s*/
