@@ -141,17 +141,14 @@ public class Grid2DMap extends Renderable implements Serializable
 		if(load instanceof Grid2DMap)
 		{
 			Grid2DMap grid = (Grid2DMap)buff.popObject();
-			this.map = grid.map;
-			this.rowCount = grid.rowCount;
-			this.colCount = grid.colCount;
-			this.loaded = true;
-		} else {
-			this.map = null;
-			this.rowCount = -1;
-			this.colCount = -1;
-			this.loaded = false;
-			return false;
-		}
+			if(grid == null)
+				return false;
+			map = grid.map;
+			rowCount = grid.rowCount;
+			colCount = grid.colCount;
+			loaded = true;
+			generateSquareProperties();
+		} else return false;
 		
 		return true;
 	}
@@ -170,6 +167,8 @@ public class Grid2DMap extends Renderable implements Serializable
 					map[row][col].loadImages(assets);
 			}
 		}
+		
+		renderable = true;
 	}
 	
 	/**
@@ -187,16 +186,22 @@ public class Grid2DMap extends Renderable implements Serializable
 	}
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 93b067a241dd3045f55f410e446950fbd5110b9e
 	public double getWidth() {
-		return tileSize*colCount;
+		return tileSize * colCount;
 	}
 	
 	public double getHeight() {
-		return tileSize*rowCount;
+		return tileSize * rowCount;
 	}
 	
+<<<<<<< HEAD
 	protected double tileSize;
 =======
+=======
+>>>>>>> 93b067a241dd3045f55f410e446950fbd5110b9e
 	/**
 	 * Regenerates the properties of all of the map squares. This should be
 	 * called after the tile size is changed.
@@ -212,6 +217,7 @@ public class Grid2DMap extends Renderable implements Serializable
 					map[row][col].setWidth(tileSize);
 					map[row][col].setHeight(tileSize);
 					map[row][col].setRotation(0.0f);
+					map[row][col].updateItemProperties();
 				}
 	}
 	
@@ -219,7 +225,10 @@ public class Grid2DMap extends Renderable implements Serializable
 	protected transient boolean loaded; /**< Whether or not the assets have been loaded for this map. */
 	protected transient boolean renderable; /**< Whether or not this map is renderable (server/client) */
 	protected transient RenderPanel panel; /**< The panel that should be used for rendering game squares (client) */
+<<<<<<< HEAD
 >>>>>>> 0534434b097357a2e4ff215d22225008c9e17e5a
+=======
+>>>>>>> 93b067a241dd3045f55f410e446950fbd5110b9e
 	
 	protected int rowCount; /**< How many rows are in this map */
 	protected int colCount; /**< How many columns are in this map. s*/
