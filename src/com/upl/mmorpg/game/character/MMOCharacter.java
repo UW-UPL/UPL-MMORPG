@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.item.Inventory;
+import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
@@ -34,6 +35,7 @@ public abstract class MMOCharacter extends Renderable
 		this(col * map.getTileSize(), row * map.getTileSize(),
 				map.getTileSize(), map.getTileSize(),
 				map, assets, game);
+		inventory = new Inventory();
 	}
 	
 	public MMOCharacter(double x, double y, double width, double height, 
@@ -66,6 +68,7 @@ public abstract class MMOCharacter extends Renderable
 				map.getTileSize(), null);
 		followers = new LinkedList<FollowListener>();
 		effects = new LinkedList<CharacterEffect>();
+		inventory = new Inventory();
 	}
 	
 	/** Animation methods */
@@ -308,6 +311,11 @@ public abstract class MMOCharacter extends Renderable
 		}
 		
 		return amount;
+	}
+	
+	public boolean receiveItem(Item i)
+	{
+		return inventory.addItem(i);
 	}
 	
 	protected AssetManager assets;

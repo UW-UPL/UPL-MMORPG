@@ -20,6 +20,18 @@ public class ItemList implements Serializable
 	}
 	
 	/**
+	 * Check to see if the item list contains the given item.
+	 * @param i The item to check for.
+	 * @return Whether or not Item i is in this list.
+	 */
+	public boolean containsItem(Item i)
+	{
+		if(items.contains(i))
+			return true;
+		return false;
+	}
+	
+	/**
 	 * Get the maximum amount of items that can go into the item list.
 	 * @return The maximum capacity of the item list.
 	 */

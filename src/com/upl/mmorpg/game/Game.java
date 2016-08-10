@@ -6,9 +6,12 @@ import java.util.LinkedList;
 
 import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.map.Grid2DMap;
+import com.upl.mmorpg.lib.map.MapSquare;
 import com.upl.mmorpg.lib.quest.QuestEngine;
 
 public class Game 
@@ -51,6 +54,42 @@ public class Game
 		render.removeRenderable(c);
 	}
 	
+	public ItemList getItemsOnSquare(int row, int col)
+	{
+		MapSquare square = map.getSquare(row, col);
+		if(square == null)
+			return null;
+		return square.getItems();
+	}
+	
+	public synchronized boolean pickupItem(MMOCharacter character, Item item)
+	{
+		int row = character.getRow();
+		int col = character.getCol();
+		
+		/* Get the square the character is currently on */
+		MapSquare square = map.getSquare(row, col);
+		
+		/* Are they on a valid square? */
+		if(square == null)
+			return false;
+		
+		/* Is this item on the square? */
+		if(square.getItems().containsItem(item))
+		{
+			/* Does this character have room for this item? */
+			if(character.receiveItem(item))
+			{
+				square.getItems().removeItem(item);
+				/* Let everyone know someone picked up an item */
+				questEngine.pickedUp(character, item);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public Goblin createGoblin(int row, int col)
 	{
 		Goblin g = new Goblin(row, col, map, assets, this);
@@ -76,5 +115,5 @@ public class Game
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
 	
-	protected static final double TILE_SIZE = 40;
+	protected static final double TILE_SIZE = 32;
 }

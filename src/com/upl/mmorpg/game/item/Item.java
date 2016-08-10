@@ -47,7 +47,7 @@ public class Item extends Renderable implements Serializable
 	
 	@Override
 	public void render(Graphics2D g) 
-	{
+	{		
 		if(asset == null)
 			return;
 		
