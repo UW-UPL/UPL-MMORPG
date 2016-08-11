@@ -32,16 +32,19 @@ public abstract class MMOCharacter extends Renderable
 	public MMOCharacter(int row, int col,
 			Grid2DMap map, AssetManager assets, Game game)
 	{
-		this(col * map.getTileSize(), row * map.getTileSize(),
+		this(row, col, 
+				col * map.getTileSize(), row * map.getTileSize(),
 				map.getTileSize(), map.getTileSize(),
 				map, assets, game);
 		inventory = new Inventory();
 	}
 	
-	public MMOCharacter(double x, double y, double width, double height, 
+	public MMOCharacter(int row, int col, double x, double y, double width, double height, 
 			Grid2DMap map, AssetManager assets, Game game)
 	{
 		super();
+		this.row = row;
+		this.col = col;
 		this.locX = x;
 		this.locY = y;
 		this.width = width;
@@ -61,11 +64,10 @@ public abstract class MMOCharacter extends Renderable
 		
 		animation = new AnimationManager(assets);
 		attack = null;
-		walking = new WalkingAnimation(game, animation, this, map.getTileSize(), null);
-		idle = new IdleAnimation(game, animation, this, map.getTileSize(), null);
-		death = new DeathAnimation(game, animation, this, map.getTileSize(), null);
-		follow = new FollowAnimation(game, animation, this, map, 
-				map.getTileSize(), null);
+		walking = new WalkingAnimation(game, animation, this, null);
+		idle = new IdleAnimation(game, animation, this, null);
+		death = new DeathAnimation(game, animation, this, null);
+		follow = new FollowAnimation(game, animation, this, map, null);
 		followers = new LinkedList<FollowListener>();
 		effects = new LinkedList<CharacterEffect>();
 		inventory = new Inventory();
@@ -84,8 +86,7 @@ public abstract class MMOCharacter extends Renderable
 	public void die() { animation.setAnimation(death); }
 	public void attack(MMOCharacter character) 
 	{
-		attack = new PunchAnimation(game, animation, this, map,
-				map.getTileSize(), null);
+		attack = new PunchAnimation(game, animation, this, map, null);
 		attack.setAttacking(character);
 		animation.setAnimation(attack); 
 	}
@@ -253,8 +254,6 @@ public abstract class MMOCharacter extends Renderable
 	public void startQuest(Quest quest) { this.quests.add(quest); }
 	public void questComplete(Quest quest) { this.quests.remove(quest); }
 	public Iterator<Quest> getQuestIterator() { return quests.iterator(); }
-	public int getRow(){return (int)(locY / map.getTileSize());}
-	public int getCol(){return (int)(locX / map.getTileSize());}
 	@Override public abstract String getRenderName();
 	
 	/** Getters/setters for properties */
@@ -270,6 +269,30 @@ public abstract class MMOCharacter extends Renderable
 	public void setHealth(int health) { this.health = health; }
 	public double getAttackSpeed() { return attackSpeed; }
 	public void setAttackSpeed(double attackSpeed) { this.attackSpeed = attackSpeed; }
+	public Grid2DMap getCurrentMap() { return map; }
+	public int getRow() { return row; }
+	public int getCol() { return col; }
+	
+	public void setRow(int row) 
+	{
+		this.row = row;
+		this.locY = row * map.getTileSize();
+	}
+	
+	public void setColumn(int col) 
+	{ 
+		this.col = col; 
+		this.locX = col * map.getTileSize();
+	}
+	
+	public void setPosition(int row, int col)
+	{
+		this.row = row;
+		this.col = col;
+		this.locY = row * map.getTileSize();
+		this.locX = col * map.getTileSize();
+	}
+	
 	
 	/**
 	 * Give the character some damage. This may kill the character
@@ -339,6 +362,8 @@ public abstract class MMOCharacter extends Renderable
 	/** Character properties (time related) */
 	protected String name; /**< The character's name */
 	protected double walkingSpeed; /**< Horizontal/Vertical tiles per second */
+	protected int row; /**< The current row of the character */
+	protected int col; /**< The current column of the character */
 	
 	protected int maxHealth; /**< How much health the player can hold */
 	protected int health; /**< How much health the player has */

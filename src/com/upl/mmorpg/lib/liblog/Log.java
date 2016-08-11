@@ -9,12 +9,12 @@ public class Log
 	/* Whether or not to display basic output */
 	public static final boolean VERBOSE =      true && DEBUG;
 	/* Whether or not to display very verbose messages */
-	public static final boolean VERY_VERBOSE = true && DEBUG && VERBOSE;
+	public static final boolean VERY_VERBOSE = true;// && DEBUG && VERBOSE;
 
 	/* Whether or not to display very verbose messages */
-	public static final boolean NETWORK =      false && DEBUG && VERBOSE;
+	public static final boolean NETWORK =      true; // false && DEBUG && VERBOSE;
 	/* Whether or not to display very verbose messages */
-	public static final boolean TICKET =       false && DEBUG && VERY_VERBOSE;
+	public static final boolean TICKET =       true; //false && DEBUG && VERY_VERBOSE;
 	/* Whether or not to display rendering debug messages */
 	public static final boolean RENDER =       false && DEBUG && VERBOSE;
 	/* Whether or not to display collision debug messages */

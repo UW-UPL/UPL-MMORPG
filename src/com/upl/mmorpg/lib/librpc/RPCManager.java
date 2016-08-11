@@ -28,6 +28,11 @@ public class RPCManager implements NetworkListener
 		client = new NetworkManager(this, socket, 0);
 	}
 	
+	public void setCallee(RPCCallee callee)
+	{
+		this.callee = callee;
+	}
+	
 	public void setListener(RPCListener listen)
 	{
 		this.listen = listen;
@@ -46,7 +51,7 @@ public class RPCManager implements NetworkListener
 		client.writeBytes(buff.toArray());
 		client.flush();
 		
-		Log.vln("Sent out RPC CALL: " + ticket);
+		Log.vnetln("Sent out RPC CALL: " + ticket);
 
 		if(!block) return null;
 		

@@ -12,13 +12,13 @@ public class FollowAnimation extends Animation
 		implements FollowListener, AnimationListener
 {
 	public FollowAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, double tile_size, AnimationListener listener)
+			Grid2DMap map, AnimationListener listener)
 	{
-		super(game, manager, character, tile_size, listener);
+		super(game, manager, character, listener);
 
 		this.map = map;
-		walking = new WalkingAnimation(game, manager, character, tile_size, this);
-		idle = new IdleAnimation(game, manager, character, tile_size, null);
+		walking = new WalkingAnimation(game, manager, character, this);
+		idle = new IdleAnimation(game, manager, character, null);
 		isMoving = false;
 		animating = false;
 		this.following = null;

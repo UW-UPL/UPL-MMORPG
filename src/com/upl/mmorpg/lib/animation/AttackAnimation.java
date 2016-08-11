@@ -8,15 +8,13 @@ public abstract class AttackAnimation extends FollowAnimation
 {
 	public AttackAnimation(Game game, AnimationManager manager, 
 			MMOCharacter character, Grid2DMap map,
-			double tile_size, 
 			AnimationListener listener) 
 	{
-		super(game, manager, character, map, tile_size, listener);
+		super(game, manager, character, map, listener);
 		animating = false;
 		lastAttack = 0.0d;
 		
-		idle = new IdleAnimation(game, manager, 
-				character, tile_size, listener);
+		idle = new IdleAnimation(game, manager, character, listener);
 	}
 	
 	@Override

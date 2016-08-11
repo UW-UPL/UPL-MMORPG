@@ -12,13 +12,13 @@ import com.upl.mmorpg.lib.map.MapSquare;
 public class WanderAnimation extends Animation implements AnimationListener
 {
 	public WanderAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, double tile_size, AnimationListener listener)
+			Grid2DMap map, AnimationListener listener)
 	{
-		super(game, manager, character, tile_size, listener);
+		super(game, manager, character, listener);
 
 		this.map = map;
-		walking = new WalkingAnimation(game, manager, character, tile_size, this);
-		idle = new IdleAnimation(game, manager, character, tile_size, this);
+		walking = new WalkingAnimation(game, manager, character, this);
+		idle = new IdleAnimation(game, manager, character, this);
 		isWalking = false;
 		animating = false;
 		this.startRow = character.getRow();

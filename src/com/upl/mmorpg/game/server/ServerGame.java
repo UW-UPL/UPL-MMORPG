@@ -1,24 +1,28 @@
 package com.upl.mmorpg.game.server;
 
 import java.io.IOException;
+import java.net.Socket;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.Goblin;
+import com.upl.mmorpg.game.server.login.LoginManager;
 import com.upl.mmorpg.lib.gui.AssetManager;
-import com.upl.mmorpg.lib.map.Grid2DMap;
+import com.upl.mmorpg.lib.liblog.Log;
+import com.upl.mmorpg.lib.libnet.Server;
+import com.upl.mmorpg.lib.libnet.ServerListener;
+import com.upl.mmorpg.lib.librpc.RPCManager;
+import com.upl.mmorpg.lib.map.GameMap;
 
-public class ServerGame extends Game
+public class ServerGame extends Game implements ServerListener
 {
-	public ServerGame(String map_path, AssetManager assets, boolean headless)
+	public ServerGame(AssetManager assets, boolean headless)
 	{
-		super(map_path, assets, headless, true, true);
-		control = new MapControl(render, map);
-		render.addMouseListener(control);
-		render.addMouseMotionListener(control);
+		super(assets, headless, true, true);
 		
-		map = new Grid2DMap(render, TILE_SIZE);
 		if(!headless)
 		{
 			window = new JFrame("MMO Server Window");
@@ -27,30 +31,86 @@ public class ServerGame extends Game
 			window.setLocationRelativeTo(null);
 			window.setResizable(false);
 			window.setVisible(true);
+			
+			control = new MapControl(render, maps[0]);
+			render.addMouseListener(control);
+			render.addMouseMotionListener(control);
 		}
+		
+		rpcs = new LinkedList<RPCManager>();
 		
 		render.startRender();
 	}
 	
-	@Override
-	public void loadMap() throws IOException
+	public boolean startServer()
 	{
-		super.loadMap();
+		if(server != null)
+			return false;
+		
+		server = new Server(this, PORT);
+		if(!server.startServer())
+		{
+			server.shutdown();
+			server = null;
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public void stopServer()
+	{
+		Iterator<RPCManager> it = rpcs.iterator();
+		while(it.hasNext())
+			it.next().shutdown();
+		
+		rpcs.clear();
+		server.shutdown();
+		server = null;
+	}
+	
+	@Override
+	public void loadMaps() throws IOException
+	{
+		super.loadMaps();
 		if(!headless)
-			render.addBPRenderable(map);
+			render.addBPRenderable(maps[0]);
+	}
+	
+	@Override
+	public void acceptClient(Socket socket, int cid) 
+	{
+		try 
+		{
+			RPCManager rpc = new RPCManager(socket, cid, new LoginServerCallee(new LoginManager(this)));
+			rpcs.add(rpc);
+			Log.vnet("Client accepted.");
+		} catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private JFrame window;
 	private MapControl control;
+	private Server server;
+	
+	private LinkedList<RPCManager> rpcs;
+	
+	private static final int PORT = 8080;
 	
 	public static void main(String[] args) 
 	{
 		try 
 		{
-			final ServerGame g = new ServerGame("assets/maps/example.mmomap", 
-					new AssetManager(), false);
+			final ServerGame g = new ServerGame(new AssetManager(), false);
+			if(!g.startServer())
+			{
+				Log.e("Couldn't start server.");
+				return;
+			}
 			g.loadAssets();
-			g.loadMap();
+			g.loadMaps();
 //			for(int row = 7;row < 13;row++)
 //			{
 //				for(int col = 9;col < 15;col++)
@@ -75,14 +135,16 @@ public class ServerGame extends Game
 //			};
 //			new Thread(run).start();
 			
-			final Goblin collector = g.createGoblin(12, 12);
+			final Goblin collector = g.createGoblin(12, 12, GameMap.EXAMPLE1);
 			collector.walkTo(14, 9);
 			Runnable run = new Runnable()
 			{
 				public void run()
 				{
 					try { Thread.sleep(4500);} catch(Exception e) {}
-					g.pickupItem(collector, g.getItemsOnSquare(14, 9).iterator().next());
+					g.pickupItem(collector, 
+							g.getItemsOnSquare(14, 9, GameMap.EXAMPLE1).iterator().next(), 
+							GameMap.EXAMPLE1);
 				}
 			};
 			new Thread(run).start();

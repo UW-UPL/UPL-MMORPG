@@ -11,10 +11,10 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class WalkingAnimation extends Animation
 {
-	public WalkingAnimation(Game game, AnimationManager animation, MMOCharacter character, 
-			double tile_size, AnimationListener listener)
+	public WalkingAnimation(Game game, AnimationManager animation, 
+			MMOCharacter character, AnimationListener listener)
 	{
-		super(game, animation, character, tile_size, listener);
+		super(game, animation, character, listener);
 		this.vector_x = 0;
 		this.vector_y = 0;
 		arrived = false;
@@ -28,8 +28,9 @@ public class WalkingAnimation extends Animation
 		interrupted = false;
 		
 		/* If we're at the first point, remove it */
-		int myRow = (int)(character.getCenterY() / tile_size);
-		int myCol = (int)(character.getCenterX() / tile_size);
+		int myRow = character.getRow();
+		int myCol = character.getCol();
+		
 		while(this.walkingPath.getNextCol() == myCol 
 				&& this.walkingPath.getNextRow() == myRow)
 			this.walkingPath.moveForward();
@@ -138,6 +139,7 @@ public class WalkingAnimation extends Animation
 	{
 		if(walkingPath == null) return;
 		
+		double tile_size = character.getCurrentMap().getTileSize();
 		double speed = character.getWalkingSpeed();
 		double charX = character.getX() + (speed * vector_x * seconds * tile_size);
 		double charY = character.getY() + (speed * vector_y * seconds * tile_size);

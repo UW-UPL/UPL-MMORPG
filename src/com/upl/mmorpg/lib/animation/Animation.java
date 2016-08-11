@@ -6,7 +6,7 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 public abstract class Animation
 {
 	public Animation(Game game, AnimationManager manager, MMOCharacter character, 
-			double tile_size, AnimationListener listener)
+			AnimationListener listener)
 	{
 		this.game = game;
 		this.manager = manager;
@@ -14,7 +14,6 @@ public abstract class Animation
 		
 		this.vector_x = 0;
 		this.vector_y = 0;
-		this.tile_size = tile_size;
 		this.listener = listener;
 	}
 	
@@ -66,8 +65,8 @@ public abstract class Animation
 	public int lookTowards(int row, int col)
 	{
 		int direction = -1;
-		int myRow = (int)(character.getY() / tile_size);
-		int myCol = (int)(character.getX() / tile_size);
+		int myRow = character.getRow();
+		int myCol = character.getCol();
 		
 		if(myRow > row)
 		{
@@ -105,7 +104,6 @@ public abstract class Animation
 	protected AnimationManager manager;
 	protected MMOCharacter character;
 	
-	protected double tile_size;
 	protected double vector_x;
 	protected double vector_y;
 }

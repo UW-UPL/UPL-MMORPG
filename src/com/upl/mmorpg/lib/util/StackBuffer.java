@@ -82,6 +82,9 @@ public class StackBuffer
 		for(int x = 0;x < arr.length;x++)
 			copy[x] = arr[x];
 		
+		/* Push the size of the array */
+		pushInt(arr.length);
+		
 		/* Add the copy */
 		chunks.add(copy);
 	}

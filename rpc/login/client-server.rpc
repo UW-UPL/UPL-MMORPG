@@ -1,0 +1,8 @@
+# Return value, method name, arg1, arg2, ... argn
+
+# public boolean login(String username, byte[] password_hash);
+boolean,login,String,byte[]
+
+# Say hello to the server
+# public boolean hello();
+boolean,hello

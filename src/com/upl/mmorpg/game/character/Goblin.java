@@ -30,12 +30,9 @@ public class Goblin extends NonPlayerCharacter
 		this.attackSpeed = 3.0d;
 	}
 	
-	public static void prefetchAssets(AssetManager assets, double tile_size, Game game) 
+	public static void prefetchAssets(AssetManager assets, Game game) 
 			throws IOException
 	{
-		Grid2DMap map = new Grid2DMap(tile_size);
-		Goblin g = new Goblin(0, 0, map, assets, game);
-		g.setAnimationReels("assets/models/goblin");
 	}
 
 	@Override

@@ -6,15 +6,16 @@ import java.util.LinkedList;
 
 import com.upl.mmorpg.lib.liblog.Log;;
 
+/**
+ * 
+ * Server manager class.
+ * 
+ * @author John Detter <jdetter@wisc.edu>
+ *
+ */
+
 public class Server implements Runnable 
 {
-	public Server(ServerListener listener)
-	{
-		this.listener = listener;
-		this.port = DEFAULT_PORT;
-		clients = new LinkedList<Socket>();
-	}
-	
 	public Server(ServerListener listener, int port)
 	{
 		this.listener = listener;
@@ -22,6 +23,15 @@ public class Server implements Runnable
 		clients = new LinkedList<Socket>();
 	}
 	
+	public Server(ServerListener listener)
+	{
+		this(listener, DEFAULT_PORT);
+	}
+	
+	/**
+	 * Start the server. Returns whether or not the server is running.
+	 * @return Whether or not the server is running or was started.
+	 */
 	public boolean startServer()
 	{
 		if(running) return true;
@@ -31,18 +41,18 @@ public class Server implements Runnable
 		try
 		{
 			/* Open the port for the RPC server */
-			Log.v("Opening port...\t\t\t\t\t");
+			Log.vnet("Opening port...\t\t\t\t\t");
 			serverSocket = new ServerSocket(port);
-			Log.vok();
+			Log.vnetok();
 			
-			Log.v("Starting listen thread...\t\t\t");
+			Log.vnet("Starting listen thread...\t\t\t");
 			running = true;
 			listenThread = new Thread(this);
 			listenThread.start();
-			Log.vok();
+			Log.vnetok();
 		}catch (Exception e)
 		{
-			Log.vfail();
+			Log.vnetfail();
 			Log.wtf("Port Busy", e);
 			return false;
 		}
@@ -53,7 +63,7 @@ public class Server implements Runnable
 	@Override
 	public void run()
 	{
-		Log.vln("Ready for clients...");
+		Log.vnetln("Ready for clients...");
 		while(running)
 		{
 			try
@@ -61,7 +71,7 @@ public class Server implements Runnable
 				/* Accept a client socket */
 				Socket client = serverSocket.accept();
 				clients.add(client);
-				Log.vln("Received client " + clientCounter);
+				Log.vnetln("Received client " + clientCounter);
 				
 				listener.acceptClient(client, clientCounter++);
 				/* Were we interrupted due to a shutdown? */
@@ -116,13 +126,13 @@ public class Server implements Runnable
 		listenThread = null;
 	}
 	
-	private int port; /* The port the server is running on */
-	private int clientCounter; /* The amount of clients that have connected. */
-	private LinkedList<Socket> clients; /* Connected sockets */
-	private ServerListener listener; /* The object waiting for clients to accept */
+	private int port; /**< The port the server is running on */
+	private int clientCounter; /**< The amount of clients that have connected. */
+	private LinkedList<Socket> clients; /**< Connected sockets */
+	private ServerListener listener; /**< The object waiting for clients to accept */
 	
-	private ServerSocket serverSocket; /* The socket used to accept clients */
-	private Thread listenThread; /* The thread that is used to listen for clients. */
+	private ServerSocket serverSocket; /**< The socket used to accept clients */
+	private Thread listenThread; /**< The thread that is used to listen for clients. */
 	private boolean running;
 	
 	/** If a port is not supplied, the default port will be used. */

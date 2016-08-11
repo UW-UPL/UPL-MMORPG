@@ -16,12 +16,14 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * Create a Grid2DMap that can be used for a headless server (no graphic rendering).
 	 * @param tileSize The tile size that should be used.
 	 */
-	public Grid2DMap(double tileSize)
+	public Grid2DMap(double tile_size, int map_id)
 	{
 		map = null;
 		loaded = false;
 		renderable = false;
-		this.tileSize = tileSize;
+		this.id = map_id;
+		this.tileSize = tile_size;
+		this.panel = null;
 	}
 	
 	/**
@@ -29,10 +31,11 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * @param panel The panel to render the map on.
 	 * @param tileSize The default tile size based on screen resolution.
 	 */
-	public Grid2DMap(RenderPanel panel, double tileSize)
+	public Grid2DMap(RenderPanel panel, double tileSize, int map_id)
 	{
 		this.panel = panel;
 		this.tileSize = tileSize;
+		this.id = map_id;
 		loaded = false;
 		renderable = true;
 		map = null;
@@ -45,9 +48,8 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * @param tile_size The size of a single tile.
 	 * @throws IOException If the file doesn't exist.
 	 */
-	public Grid2DMap(String file_name, AssetManager assets, double tile_size) throws IOException
+	public Grid2DMap(String file_name, AssetManager assets, double tile_size, int map_id) throws IOException
 	{
-		this(tile_size);
 		if(!load(file_name, assets, tile_size))
 			throw new IOException("Ilegal map format exception");
 	}
@@ -107,6 +109,34 @@ public class Grid2DMap extends Renderable implements Serializable
 	}
 	
 	/**
+	 * Get the ID of the map.
+	 * @return The ID of the map.
+	 */
+	public int getID()
+	{
+		return id;
+	}
+	
+	/**
+	 * Set the current ID of the map.
+	 * @param map_id The new map ID.
+	 */
+	public void setID(int map_id)
+	{
+		this.id = map_id;
+	}
+	
+	/**
+	 * Change the tile size of the map.
+	 * @param tile_size The new tile size.
+	 */
+	public void setTileSize(double tile_size)
+	{
+		this.tileSize = tile_size;
+		generateSquareProperties();
+	}
+	
+	/**
 	 * Set a map square on the map.
 	 * @param row The row of the map square.
 	 * @param col The column of the map square.
@@ -146,6 +176,7 @@ public class Grid2DMap extends Renderable implements Serializable
 			map = grid.map;
 			rowCount = grid.rowCount;
 			colCount = grid.colCount;
+			tileSize = tile_size;
 			loaded = true;
 			generateSquareProperties();
 		} else return false;
@@ -205,13 +236,14 @@ public class Grid2DMap extends Renderable implements Serializable
 	}
 	
 	protected transient double tileSize; /**< Display size of a map square. */
+	protected transient int id; /**< The id number for this map (set by Game). */
 	protected transient boolean loaded; /**< Whether or not the assets have been loaded for this map. */
 	protected transient boolean renderable; /**< Whether or not this map is renderable (server/client) */
 	protected transient RenderPanel panel; /**< The panel that should be used for rendering game squares (client) */
 	
 	protected int rowCount; /**< How many rows are in this map */
 	protected int colCount; /**< How many columns are in this map. s*/
-	
+
 	protected MapSquare[][] map; /**< The 2D representation of the game map.  */
 	
 	private static final long serialVersionUID = -6200242944785221212L;

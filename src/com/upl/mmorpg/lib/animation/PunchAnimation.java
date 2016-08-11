@@ -7,10 +7,9 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 public class PunchAnimation extends AttackAnimation
 {
 	public PunchAnimation(Game game, AnimationManager manager, 
-			MMOCharacter character, Grid2DMap map,
-			double tile_size, AnimationListener listener) 
+			MMOCharacter character, Grid2DMap map, AnimationListener listener) 
 	{
-		super(game, manager, character, map, tile_size, listener);
+		super(game, manager, character, map, listener);
 	}
 
 	@Override

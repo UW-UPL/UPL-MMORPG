@@ -11,19 +11,19 @@ import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class EditableGrid2DMap extends Grid2DMap
 {
-	public EditableGrid2DMap(RenderPanel panel, double tileSize) 
+	public EditableGrid2DMap(RenderPanel panel, double tileSize, int map_id) 
 	{
-		super(panel, tileSize);
+		super(panel, tileSize, map_id);
 	}
 
-	public EditableGrid2DMap(double tile_size)
+	public EditableGrid2DMap(double tile_size, int map_id)
 	{
-		super(tile_size);
+		super(tile_size, map_id);
 	}
 	
 	public EditableGrid2DMap(String file_name, AssetManager assets, double tile_size) throws IOException
 	{
-		super(tile_size);
+		super(tile_size, 0);
 		
 		if(!load(file_name, assets, tile_size))
 			throw new IOException("Ilegal map format exception");
@@ -110,7 +110,6 @@ public class EditableGrid2DMap extends Grid2DMap
 			throws IOException
 	{
 		EditableGrid2DMap map = new EditableGrid2DMap(file, assets, 1);
-		
 		
 		ArrayList<Integer> rows = new ArrayList<Integer>();
 		ArrayList<Integer> cols = new ArrayList<Integer>();

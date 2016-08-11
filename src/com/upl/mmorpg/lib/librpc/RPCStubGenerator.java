@@ -83,7 +83,7 @@ public class RPCStubGenerator
 			callee_stubs.println("");
 			
 			String s;
-			int line = 0;
+			int line = 1;
 			int func_num = 1;
 			while((s = file.readLine()) != null)
 			{
@@ -108,7 +108,7 @@ public class RPCStubGenerator
 				{
 					block = "false";
 					ret_type = "void";
-				}else StackBuffer.typeSupported(parts[0]);
+				} else ret_type = StackBuffer.typeSupported(parts[0].trim());
 				
 				String func_name = parts[1].trim();
 				if(ret_type == null)
