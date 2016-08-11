@@ -32,4 +32,6 @@ public abstract class NonPlayerCharacter extends MMOCharacter
 	}
 	
 	private WanderAnimation wander;
+	
+	private static final long serialVersionUID = -1096329246846177789L;
 }

@@ -222,4 +222,6 @@ public class WalkingAnimation extends Animation
 	private boolean arrived;
 	private boolean interrupted;
 	private boolean smooth;
+	
+	private static final long serialVersionUID = 4015343237303860257L;
 }

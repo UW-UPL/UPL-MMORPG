@@ -1,9 +1,11 @@
 package com.upl.mmorpg.lib.animation;
 
+import java.io.Serializable;
+
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
 
-public abstract class Animation
+public abstract class Animation implements Serializable
 {
 	public Animation(Game game, AnimationManager manager, MMOCharacter character, 
 			AnimationListener listener)
@@ -99,11 +101,13 @@ public abstract class Animation
 		return direction;
 	}
 	
-	protected Game game;
-	protected AnimationListener listener;
+	protected transient Game game;
+	protected transient AnimationListener listener;
 	protected AnimationManager manager;
-	protected MMOCharacter character;
+	protected transient MMOCharacter character;
 	
 	protected double vector_x;
 	protected double vector_y;
+	
+	private static final long serialVersionUID = 576767154808433026L;
 }

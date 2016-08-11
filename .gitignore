@@ -5,3 +5,6 @@
 
 # Object files
 bin/
+
+# NFS stuff
+.nfs*

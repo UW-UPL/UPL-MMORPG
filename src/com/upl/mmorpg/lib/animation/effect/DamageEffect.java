@@ -82,11 +82,13 @@ public class DamageEffect extends CharacterEffect
 	private int damage_amount;
 	private String damage_str;
 
-	private BufferedImage splat;
+	private transient BufferedImage splat;
 
 	private static final double FLOAT_SPEED = 0.25d;
 
 	private static final int damage_font_sz = 20;
 	private static final Font damage_font = new Font("Times New Roman", 
 			Font.PLAIN, damage_font_sz);
+	
+	private static final long serialVersionUID = 635830854469552966L;
 }

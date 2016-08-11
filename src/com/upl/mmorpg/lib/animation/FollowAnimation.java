@@ -132,6 +132,7 @@ public class FollowAnimation extends Animation
 		}
 	}
 
+	private MMOCharacter following;
 	private WalkingAnimation walking;
 	private IdleAnimation idle;
 	private Grid2DMap map;
@@ -141,5 +142,6 @@ public class FollowAnimation extends Animation
 	private boolean animating;
 	private boolean isMoving;
 	private boolean followingIsMoving;
-	private MMOCharacter following;
+	
+	private static final long serialVersionUID = -3127413296635186049L;
 }

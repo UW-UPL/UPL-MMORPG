@@ -3,6 +3,7 @@ package com.upl.mmorpg.lib.animation;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -11,7 +12,7 @@ import com.upl.mmorpg.lib.gui.RenderMath;
 import com.upl.mmorpg.lib.libfile.FileManager;
 import com.upl.mmorpg.lib.liblog.Log;
 
-public class AnimationManager
+public class AnimationManager implements Serializable
 {
 	public AnimationManager(AssetManager assets)
 	{
@@ -230,11 +231,11 @@ public class AnimationManager
 			currentAnimation.animation(seconds);
 	}
 	
-	protected Animation currentAnimation;
+	protected transient Animation currentAnimation;
 	
-	protected AssetManager assets;
-	protected BufferedImage currentFrame;
-	protected BufferedImage currentReel[][];
+	protected transient AssetManager assets;
+	protected transient BufferedImage currentFrame;
+	protected transient BufferedImage currentReel[][];
 	protected int reelDirection;
 	protected int reelPos;
 	protected int maxReelPos;
@@ -244,7 +245,7 @@ public class AnimationManager
 	protected double animation_speed;
 	protected double animation_total;
 
-	protected HashMap<String, BufferedImage[][]> map;
+	protected transient HashMap<String, BufferedImage[][]> map;
 
 	public static final String directions_str[] = {
 			"front", "front_left", "front_right", "right", 
@@ -259,4 +260,6 @@ public class AnimationManager
 	public static final int BACK_RIGHT = 5;
 	public static final int BACK_LEFT = 6;
 	public static final int LEFT = 7;
+	
+	private static final long serialVersionUID = -3092837263228127154L;
 }

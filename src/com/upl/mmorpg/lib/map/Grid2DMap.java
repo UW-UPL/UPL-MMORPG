@@ -3,7 +3,9 @@ package com.upl.mmorpg.lib.map;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.LinkedList;
 
+import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
@@ -235,11 +237,31 @@ public class Grid2DMap extends Renderable implements Serializable
 				}
 	}
 	
+	/**
+	 * Add a character to a map.
+	 * @param character The character to add to the map.
+	 */
+	public void addCharacter(MMOCharacter character)
+	{
+		characters.add(character);
+	}
+	
+	/**
+	 * Remove a player from a map.
+	 * @param character The character to remove from the map.
+	 * @return Whether or not the character could be removed from the map.
+	 */
+	public boolean removeCharacter(MMOCharacter character)
+	{
+		return characters.remove(character);
+	}
+	
 	protected transient double tileSize; /**< Display size of a map square. */
 	protected transient int id; /**< The id number for this map (set by Game). */
 	protected transient boolean loaded; /**< Whether or not the assets have been loaded for this map. */
 	protected transient boolean renderable; /**< Whether or not this map is renderable (server/client) */
 	protected transient RenderPanel panel; /**< The panel that should be used for rendering game squares (client) */
+	protected transient LinkedList<MMOCharacter> characters; /**< The characters that are on this map */
 	
 	protected int rowCount; /**< How many rows are in this map */
 	protected int colCount; /**< How many columns are in this map. s*/

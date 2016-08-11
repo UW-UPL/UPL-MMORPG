@@ -1,11 +1,12 @@
 package com.upl.mmorpg.lib.animation.effect;
 
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.gui.AssetManager;
 
-public abstract class CharacterEffect 
+public abstract class CharacterEffect implements Serializable
 {
 	public CharacterEffect(MMOCharacter character, AssetManager assets)
 	{
@@ -31,4 +32,6 @@ public abstract class CharacterEffect
 	
 	protected AssetManager assets; /** Asset manager for this effect */
 	protected MMOCharacter character; /** The character who owns this effect. */
+	
+	private static final long serialVersionUID = -5793681997575957647L;
 }

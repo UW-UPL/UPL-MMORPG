@@ -40,4 +40,6 @@ public class Goblin extends NonPlayerCharacter
 	{
 		return "Goblin";
 	}
+	
+	private static final long serialVersionUID = 1203515561216565986L;
 }

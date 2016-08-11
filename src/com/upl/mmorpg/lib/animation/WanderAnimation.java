@@ -134,5 +134,7 @@ public class WanderAnimation extends Animation implements AnimationListener
 
 	private boolean animating;
 	private boolean isWalking;
-	private Random random;
+	private transient Random random;
+	
+	private static final long serialVersionUID = 9139723565757939753L;
 }

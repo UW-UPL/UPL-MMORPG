@@ -1,9 +1,11 @@
 package com.upl.mmorpg.lib.quest;
 
+import java.io.Serializable;
+
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
 
-public interface Quest 
+public interface Quest extends Serializable
 {
 	public void died(MMOCharacter character);
 	public void killed(MMOCharacter attacker, MMOCharacter victim);

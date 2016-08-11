@@ -47,7 +47,7 @@ public class Game
 		}
 	}
 
-	public void addCharacter(MMOCharacter c)
+	public void addCharacter(MMOCharacter c, int map_id)
 	{
 		characters.add(c);
 		render.addRenderable(c);
@@ -56,6 +56,7 @@ public class Game
 	public void removeCharacter(MMOCharacter c)
 	{
 		characters.remove(c);
+		
 		render.removeRenderable(c);
 	}
 
@@ -98,7 +99,7 @@ public class Game
 	public Goblin createGoblin(int row, int col, int map_id)
 	{
 		Goblin g = new Goblin(row, col, maps[map_id], assets, this);
-		this.addCharacter(g);
+		addCharacter(g, map_id);
 		return g;
 	}
 

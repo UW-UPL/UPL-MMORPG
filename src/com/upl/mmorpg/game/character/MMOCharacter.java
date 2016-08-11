@@ -3,6 +3,7 @@ package com.upl.mmorpg.game.character;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -27,8 +28,12 @@ import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.quest.Quest;
 
-public abstract class MMOCharacter extends Renderable
+public abstract class MMOCharacter extends Renderable implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8281796539996826293L;
 	public MMOCharacter(int row, int col,
 			Grid2DMap map, AssetManager assets, Game game)
 	{
@@ -341,23 +346,23 @@ public abstract class MMOCharacter extends Renderable
 		return inventory.addItem(i);
 	}
 	
-	protected AssetManager assets;
-	protected Grid2DMap map;
-	protected AnimationManager animation;
-	protected Game game;
-	protected Quest currentQuest;
-	protected LinkedList<Quest> quests;
-	protected LinkedList<CharacterEffect> effects;
+	protected transient AssetManager assets;
+	protected transient Grid2DMap map;
+	protected transient AnimationManager animation;
+	protected transient Game game;
+	protected transient Quest currentQuest;
+	protected transient LinkedList<Quest> quests;
+	protected transient LinkedList<CharacterEffect> effects;
 	
 	/* Generic animations */
-	protected IdleAnimation idle;
-	protected WalkingAnimation walking;
-	protected FollowAnimation follow;
-	protected AttackAnimation attack;
-	protected DeathAnimation death;
+	protected transient IdleAnimation idle;
+	protected transient WalkingAnimation walking;
+	protected transient FollowAnimation follow;
+	protected transient AttackAnimation attack;
+	protected transient DeathAnimation death;
 	
 	/* Characters that are following this character */
-	protected LinkedList<FollowListener> followers;
+	protected transient LinkedList<FollowListener> followers;
 
 	/** Character properties (time related) */
 	protected String name; /**< The character's name */

@@ -52,8 +52,10 @@ public class DeathAnimation extends Animation
 	@Override
 	public void directionChanged(int direction) {}
 	
-	private Game game;
+	private transient Game game;
 	private boolean died;
 	private double disappearTimer;
 	private double disappearSeconds;
+	
+	private static final long serialVersionUID = -3895351315046806201L;
 }

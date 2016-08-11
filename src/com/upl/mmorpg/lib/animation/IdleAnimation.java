@@ -30,4 +30,6 @@ public class IdleAnimation extends Animation
 
 	@Override
 	public void directionChanged(int direction) {}
+	
+	private static final long serialVersionUID = 2015342140727303213L;
 }

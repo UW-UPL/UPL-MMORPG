@@ -1,11 +1,12 @@
 package com.upl.mmorpg.lib.algo;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.upl.mmorpg.lib.gui.RenderMath;
 
-public class Path
+public class Path implements Serializable
 {
 	public Path() 
 	{
@@ -136,4 +137,6 @@ public class Path
 	}
 	
 	private LinkedList<GridPoint> path;
+	
+	private static final long serialVersionUID = 9130629493103118867L;
 }

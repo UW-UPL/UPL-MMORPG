@@ -84,7 +84,9 @@ public abstract class AttackAnimation extends FollowAnimation
 	
 	private boolean animating;
 	private double lastAttack;
-	private MMOCharacter attacking;
+	private transient MMOCharacter attacking;
 	
 	private IdleAnimation idle;
+	
+	private static final long serialVersionUID = -1742965394212302361L;
 }

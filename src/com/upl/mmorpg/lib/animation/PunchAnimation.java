@@ -22,4 +22,6 @@ public class PunchAnimation extends AttackAnimation
 	
 	@Override
 	public void directionChanged(int direction) {}
+	
+	private static final long serialVersionUID = 5185740540745833021L;
 }
