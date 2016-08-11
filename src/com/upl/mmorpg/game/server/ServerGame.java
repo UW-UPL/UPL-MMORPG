@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.Goblin;
+import com.upl.mmorpg.game.window.Window;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
@@ -81,6 +82,7 @@ public class ServerGame extends Game
 			//defender.wander(5);
 			Goblin attacker = g.createGoblin(11, 11);
 			attacker.attack(defender);
+			g.createWindows();
 //			final Goblin die = g.createGoblin(12, 12);
 //			Runnable run = new Runnable()
 //			{

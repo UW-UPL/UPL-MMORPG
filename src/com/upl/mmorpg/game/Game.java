@@ -6,12 +6,20 @@ import java.util.LinkedList;
 
 import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.window.InventoryWindow;
+import com.upl.mmorpg.game.window.Window;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.quest.QuestEngine;
 
-public class Game 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+public class Game
 {
 	public Game(String map_path, AssetManager assets, 
 			boolean headless, boolean fps, boolean vsync) 
@@ -23,12 +31,16 @@ public class Game
 		questEngine.startScheduler();
 		render = new RenderPanel(vsync, fps, headless);
 		characters = new LinkedList<MMOCharacter>();
+		windows = new LinkedList<Window>();
 	}
 	
 	public void loadAssets() throws IOException
 	{
 		/* Supported Characters */
 		Goblin.prefetchAssets(assets, TILE_SIZE, this);
+		
+		/* Supported Windows */
+		InventoryWindow.prefetchAssets(assets, this);
 	}
 	
 	public void loadMap() throws IOException
@@ -51,11 +63,26 @@ public class Game
 		render.removeRenderable(c);
 	}
 	
+	public void addWindow(Window w){
+		windows.add(w);
+		render.addGPRenderable(w);
+	}
+	
+	public void removeWindow(Window w){
+		windows.remove(w);
+		render.removeRenderable(w);
+	}
+	
 	public Goblin createGoblin(int row, int col)
 	{
 		Goblin g = new Goblin(row, col, map, assets, this);
 		this.addCharacter(g);
 		return g;
+	}
+	
+	public void createWindows(){
+		InventoryWindow i = new InventoryWindow(0, 0, assets, this);
+		this.addWindow(i);
 	}
 	
 	public Iterator<MMOCharacter> characterIterator()
@@ -68,6 +95,13 @@ public class Game
 		return questEngine;
 	}
 	
+	private void keyPressed(KeyEvent e){
+		
+		if(e.getKeyCode()== KeyEvent.VK_ESCAPE){
+			
+		}
+	}
+	
 	protected RenderPanel render;
 	protected AssetManager assets;
 	protected QuestEngine questEngine;
@@ -75,6 +109,8 @@ public class Game
 	protected String map_path;
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
+	protected LinkedList<Window> windows;
 	
 	protected static final double TILE_SIZE = 40;
+
 }

@@ -30,7 +30,9 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 		double x = e.getX();
 		double y = e.getY();
 
-		render.moveView(lastX - x, lastY - y);
+		if(!render.getHovered()){
+			render.moveView(lastX - x, lastY - y);
+		}
 
 		lastX = x;
 		lastY = y;
@@ -74,30 +76,30 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 		double y = e.getY();
 		boolean found = false;
 
-		if (x - render.getWidth() + 25 > 0) {
+		if (x - render.getWidth() + 25 > 0 && !render.getHovered()) {
 			moveRight = true;
 			startMovement();
 			found = true;
 		}
-		
-		if (x + render.getWidth() - 25 < render.getWidth()) {
+
+		if (x + render.getWidth() - 25 < render.getWidth() && !render.getHovered()) {
 			moveLeft = true;
 			startMovement();
 			found = true;
 		}
-		
-		if (y - render.getHeight() + 25 > 0) {
+
+		if (y - render.getHeight() + 25 > 0 && !render.getHovered()) {
 			moveDown = true;
 			startMovement();
 			found = true;
 		}
-		
-		if (y + render.getHeight() - 25 < render.getHeight()) {
+
+		if (y + render.getHeight() - 25 < render.getHeight() && !render.getHovered()) {
 			moveUp = true;
 			startMovement();
 			found = true;
 		}
-		
+
 		if(!found)
 		{
 			moving = false;
@@ -120,12 +122,12 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 
 	public void stopMovement() {
 		moving = false;
-		
+
 		try
 		{
 			moveThread.interrupt();
 		} catch(Exception e) {}
-		
+
 		try
 		{
 			moveThread.join(1000);
@@ -136,13 +138,16 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// System.out.print("mouseX: " + e.getX() + "\nmouseY: " + e.getY() + "\n");
-		// System.out.print(e.getX() - render.getWidth() + 50 + "\n");
-		// System.out.print(render.getWidth() + "\n");
+
+		System.out.println("X: "+e.getX()+"\nY: "+e.getY()+"\n");
 	}
 
 	@Override public void mouseEntered(MouseEvent e) {}
-	@Override public void mouseExited(MouseEvent e) {}
+
+	@Override 
+	public void mouseExited(MouseEvent e) {
+		stopMovement();
+	}
 
 	private Thread moveThread; /**< Thread for moving screen */
 	private boolean moveRight;

@@ -4,17 +4,21 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
+import com.upl.mmorpg.game.window.Window;
 import com.upl.mmorpg.lib.collision.Collidable;
 import com.upl.mmorpg.lib.collision.CollisionManager;
 import com.upl.mmorpg.lib.liblog.Log;
 
-public class RenderPanel extends JPanel implements Runnable
+public class RenderPanel extends JPanel implements Runnable, MouseListener, MouseMotionListener
 {
 	public RenderPanel(boolean vsync, boolean showfps, boolean headless)
 	{
@@ -28,6 +32,7 @@ public class RenderPanel extends JPanel implements Runnable
 		backPane = new LinkedList<Renderable>();
 		midPane = new LinkedList<Renderable>();
 		glassPane = new LinkedList<Renderable>();
+		
 
 		/* Initilize collision manager */
 		collision_manager = new CollisionManager();
@@ -48,6 +53,14 @@ public class RenderPanel extends JPanel implements Runnable
 
 		/* Make this panel visible */
 		this.setVisible(true);
+	}
+	
+	public void setHovered(boolean b){
+		isHovered = b;
+	}
+	
+	public boolean getHovered(){
+		return isHovered;
 	}
 	
 	public void addGuideLines()
@@ -345,6 +358,8 @@ public class RenderPanel extends JPanel implements Runnable
 	
 	private double viewX;
 	private double viewY;
+	
+	private boolean isHovered;
 
 	private static final int PANEL_SCALE = 1;
 	private static final int PANEL_WIDTH = 800 * PANEL_SCALE;
@@ -424,5 +439,47 @@ public class RenderPanel extends JPanel implements Runnable
 		private Thread framesThread; /* Thread for measuring fps */
 		private boolean measuring; /* whether or not we are generating stats */
 		private RenderPanel panel;
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }
