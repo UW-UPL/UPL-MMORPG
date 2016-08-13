@@ -8,3 +8,8 @@ bin/
 
 # NFS stuff
 .nfs*
+
+# Swap files
+*.swp
+*.swn
+*.swo
