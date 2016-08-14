@@ -61,7 +61,7 @@ public class FollowAnimation extends Animation
 	{
 		isMoving = true;
 		GridGraph graph = new GridGraph(character.getRow(), 
-				character.getCol(), map);
+				character.getColumn(), map);
 		Path p = graph.shortestPathTo(row, col);
 		walking.setPath(p);
 	}
@@ -127,7 +127,7 @@ public class FollowAnimation extends Animation
 			}
 			
 			if(character.getRow() == nextRow 
-					&& character.getCol() == nextCol)
+					&& character.getColumn() == nextCol)
 				return;
 		}
 	}

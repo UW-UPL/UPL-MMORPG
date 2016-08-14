@@ -9,9 +9,10 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class Goblin extends NonPlayerCharacter
 {
-	public Goblin(int row, int col, Grid2DMap map, AssetManager assets, Game game) 
+	public Goblin(int row, int column, Grid2DMap map, AssetManager assets, Game game) 
 	{
-		super(row, col, map, assets, game);
+		super(0, 0, 0, 0, map, assets, game);
+		this.setGridPosition(row, column);
 		
 		try 
 		{

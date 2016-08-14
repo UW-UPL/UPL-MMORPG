@@ -14,10 +14,11 @@ public class ExampleLine extends Renderable
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel, double zoom) 
 	{
 		g.setColor(Color.BLUE);
-		g.drawLine((int)locX, (int)locY, (int)width, (int)height);
+		g.drawLine((int)(locX * zoom), (int)(locY * zoom), 
+				(int)(width * zoom), (int)(height * zoom));
 	}
 
 	@Override

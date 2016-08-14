@@ -6,25 +6,26 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import com.upl.mmorpg.lib.gui.AssetManager;
+import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.map.MapSquare;
 
 public class EditableMapSquare extends MapSquare 
 {
-	public EditableMapSquare(double x, double y, double size,
+	public EditableMapSquare(int row, int col,
 			String image_name, String overlay_name,
 			String destroyed_overlay_name) 
 	{
-		super(x, y, size, image_name, overlay_name, destroyed_overlay_name);
+		super(row, col, image_name, overlay_name, destroyed_overlay_name);
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel, double zoom) 
 	{
-		super.render(g);
+		super.render(g, panel, zoom);
 		if(!this.passThrough)
 		{
 			g.setColor(Color.BLUE);
-			g.drawRect((int)locX, (int)locY, (int)width - 1, (int)height - 1);
+			g.drawRect((int)(locX * zoom), (int)(locY * zoom), (int)(width - 1), (int)height - 1);
 			g.drawRect((int)locX + 1, (int)locY + 1, (int)width - 3, (int)height - 3);
 		}
 		

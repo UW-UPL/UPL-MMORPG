@@ -18,29 +18,11 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * Create a Grid2DMap that can be used for a headless server (no graphic rendering).
 	 * @param tileSize The tile size that should be used.
 	 */
-	public Grid2DMap(double tile_size, int map_id)
+	public Grid2DMap(int map_id)
 	{
 		map = null;
 		loaded = false;
-		renderable = false;
 		this.id = map_id;
-		this.tileSize = tile_size;
-		this.panel = null;
-	}
-	
-	/**
-	 * Create a new Grid2DMap that can be used for rendering.
-	 * @param panel The panel to render the map on.
-	 * @param tileSize The default tile size based on screen resolution.
-	 */
-	public Grid2DMap(RenderPanel panel, double tileSize, int map_id)
-	{
-		this.panel = panel;
-		this.tileSize = tileSize;
-		this.id = map_id;
-		loaded = false;
-		renderable = true;
-		map = null;
 	}
 	
 	/**
@@ -50,26 +32,26 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * @param tile_size The size of a single tile.
 	 * @throws IOException If the file doesn't exist.
 	 */
-	public Grid2DMap(String file_name, AssetManager assets, double tile_size, int map_id) throws IOException
+	public Grid2DMap(String file_name, AssetManager assets, int map_id) throws IOException
 	{
-		if(!load(file_name, assets, tile_size))
+		if(!load(file_name, assets))
 			throw new IOException("Ilegal map format exception");
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel, double zoom) 
 	{
-		if(!renderable || !loaded || map == null) return;
+		if(!loaded || map == null) return;
 		
 		/* Only draw the tiles that are on the screen */
-		double startX = panel.getViewX() - tileSize;
-		double startY = panel.getViewY() - tileSize;
+		double startX = panel.getGlobalViewX() - zoom;
+		double startY = panel.getGlobalViewY() - zoom;
 		
-		int displayCols = (int)(panel.getWidth() / tileSize) + 2;
-		int displayRows = (int)(panel.getHeight() / tileSize) + 3;
+		int displayCols = (int)(panel.getWidth() / zoom) + 2;
+		int displayRows = (int)(panel.getHeight() / zoom) + 3;
 		
-		int startRow = (int)(startY / tileSize);
-		int startCol = (int)(startX / tileSize);
+		int startRow = (int)(startY / zoom);
+		int startCol = (int)(startX / zoom);
 		
 		for(int rows = 0;rows < displayRows;rows++)
 		{
@@ -81,7 +63,7 @@ public class Grid2DMap extends Renderable implements Serializable
 				if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 					continue;
 				if(map[row][col] != null)
-					map[row][col].render(g);
+					map[row][col].render(g, panel, zoom);
 			}
 		}
 	}
@@ -102,15 +84,6 @@ public class Grid2DMap extends Renderable implements Serializable
 	}
 	
 	/**
-	 * Returns the size of a tile on this map.
-	 * @return The size of a tile.
-	 */
-	public double getTileSize()
-	{
-		return this.tileSize;
-	}
-	
-	/**
 	 * Get the ID of the map.
 	 * @return The ID of the map.
 	 */
@@ -126,16 +99,6 @@ public class Grid2DMap extends Renderable implements Serializable
 	public void setID(int map_id)
 	{
 		this.id = map_id;
-	}
-	
-	/**
-	 * Change the tile size of the map.
-	 * @param tile_size The new tile size.
-	 */
-	public void setTileSize(double tile_size)
-	{
-		this.tileSize = tile_size;
-		generateSquareProperties();
 	}
 	
 	/**
@@ -161,7 +124,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * @return Whether or not the map could be loaded.
 	 * @throws IOException If the file couldn't be found.
 	 */
-	public boolean load(String file_name, AssetManager assets, double tile_size) throws IOException
+	public boolean load(String file_name, AssetManager assets) throws IOException
 	{
 		FileManager file = assets.getFile(file_name, false, true, false);
 		if(!file.opened())
@@ -178,7 +141,6 @@ public class Grid2DMap extends Renderable implements Serializable
 			map = grid.map;
 			rowCount = grid.rowCount;
 			colCount = grid.colCount;
-			tileSize = tile_size;
 			loaded = true;
 			generateSquareProperties();
 		} else return false;
@@ -200,8 +162,6 @@ public class Grid2DMap extends Renderable implements Serializable
 					map[row][col].loadImages(assets);
 			}
 		}
-		
-		renderable = true;
 	}
 	
 	/**
@@ -228,10 +188,10 @@ public class Grid2DMap extends Renderable implements Serializable
 			for(int col = 0;col < colCount;col++)
 				if(map[row][col] != null)
 				{
-					map[row][col].setX(col * tileSize);
-					map[row][col].setY(row * tileSize);
-					map[row][col].setWidth(tileSize);
-					map[row][col].setHeight(tileSize);
+					map[row][col].setX(col);
+					map[row][col].setY(row);
+					map[row][col].setWidth(1);
+					map[row][col].setHeight(1);
 					map[row][col].setRotation(0.0f);
 					map[row][col].updateItemProperties();
 				}
@@ -256,11 +216,8 @@ public class Grid2DMap extends Renderable implements Serializable
 		return characters.remove(character);
 	}
 	
-	protected transient double tileSize; /**< Display size of a map square. */
 	protected transient int id; /**< The id number for this map (set by Game). */
 	protected transient boolean loaded; /**< Whether or not the assets have been loaded for this map. */
-	protected transient boolean renderable; /**< Whether or not this map is renderable (server/client) */
-	protected transient RenderPanel panel; /**< The panel that should be used for rendering game squares (client) */
 	protected transient LinkedList<MMOCharacter> characters; /**< The characters that are on this map */
 	
 	protected int rowCount; /**< How many rows are in this map */

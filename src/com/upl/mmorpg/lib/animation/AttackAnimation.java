@@ -21,7 +21,7 @@ public abstract class AttackAnimation extends FollowAnimation
 	public void animationFinished()
 	{
 		super.animationFinished();
-		this.lookTowards(attacking.getRow(), attacking.getCol());
+		this.lookTowards(attacking.getRow(), attacking.getColumn());
 	}
 
 	public void setAttacking(MMOCharacter attacking)

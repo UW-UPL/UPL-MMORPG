@@ -82,12 +82,12 @@ public class ExampleCircle extends Renderable
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel, double zoom) 
 	{
 		g.setColor(color);
 		double x = this.locX - (radius);
 		double y = this.locY - (radius);
-		g.fillOval((int)x, (int)y, (int)radius * 2, (int)radius * 2);
+		g.fillOval((int)(x * zoom), (int)(y * zoom), (int)((radius * 2) * zoom), (int)(radius * 2 * zoom));
 	}
 
 	@Override

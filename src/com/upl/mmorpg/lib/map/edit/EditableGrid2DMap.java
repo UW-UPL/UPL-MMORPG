@@ -4,28 +4,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.upl.mmorpg.lib.gui.AssetManager;
-import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.libfile.FileManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class EditableGrid2DMap extends Grid2DMap
 {
-	public EditableGrid2DMap(RenderPanel panel, double tileSize, int map_id) 
+	public EditableGrid2DMap(int map_id)
 	{
-		super(panel, tileSize, map_id);
-	}
-
-	public EditableGrid2DMap(double tile_size, int map_id)
-	{
-		super(tile_size, map_id);
+		super(map_id);
 	}
 	
-	public EditableGrid2DMap(String file_name, AssetManager assets, double tile_size) throws IOException
+	public EditableGrid2DMap(String file_name, AssetManager assets) throws IOException
 	{
-		super(tile_size, 0);
+		super(0);
 		
-		if(!load(file_name, assets, tile_size))
+		if(!load(file_name, assets))
 			throw new IOException("Ilegal map format exception");
 	}
 	
@@ -109,7 +103,7 @@ public class EditableGrid2DMap extends Grid2DMap
 	public static int[][] getAllLandings(String file, AssetManager assets) 
 			throws IOException
 	{
-		EditableGrid2DMap map = new EditableGrid2DMap(file, assets, 1);
+		EditableGrid2DMap map = new EditableGrid2DMap(file, assets);
 		
 		ArrayList<Integer> rows = new ArrayList<Integer>();
 		ArrayList<Integer> cols = new ArrayList<Integer>();

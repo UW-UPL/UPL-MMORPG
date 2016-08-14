@@ -9,12 +9,19 @@ import java.util.Iterator;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.lib.gui.AssetManager;
+import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
 
 public class MapSquare extends Renderable implements Serializable
 {
 	protected MapSquare()
 	{
+		row = 0;
+		col = 0;
+		locX = 0;
+		locY = 0;
+		width = 0;
+		height = 0;
 		destroyed = false;
 		destructible = false;
 		image_name = null;
@@ -31,13 +38,10 @@ public class MapSquare extends Renderable implements Serializable
 		list = new ItemList(1);
 	}
 	
-	public MapSquare(double x, double y, double size, String image_name, 
+	public MapSquare(int row, int col, String image_name, 
 			String overlay_name, String destroyed_overlay_name)
 	{
-		this.locX = x;
-		this.locY = y;
-		this.width = size;
-		this.height = size;
+		this.setPosition(row, col);
 		this.image_name = image_name;
 		this.overlay_name = overlay_name;
 		this.destroyed_overlay_name = destroyed_overlay_name;
@@ -85,23 +89,23 @@ public class MapSquare extends Renderable implements Serializable
 	}
 
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel, double zoom) 
 	{
 		if(image != null)
-			g.drawImage(image, (int)locX, (int)locY, 
-					(int)width, (int)height, null);
+			g.drawImage(image, (int)(locX * zoom), (int)(locY * zoom), 
+					(int)(width * zoom), (int)(height * zoom), null);
 
 		if(overlay != null && !destroyed)
-			g.drawImage(overlay, (int)locX, (int)locY, 
-					(int)width, (int)height, null);
+			g.drawImage(overlay, (int)(locX * zoom), (int)(locY * zoom), 
+					(int)(width * zoom), (int)(height * zoom), null);
 
 		if(destroyed && destroyed_overlay != null)
-			g.drawImage(destroyed_overlay, (int)locX, (int)locY, 
-					(int)width, (int)height, null);
+			g.drawImage(destroyed_overlay, (int)(locX * zoom), (int)(locY * zoom), 
+					(int)(width * zoom), (int)(height * zoom), null);
 		
 		Iterator<Item> it = list.iterator();
 		while(it.hasNext())
-			it.next().render(g);
+			it.next().render(g, panel, zoom);
 	}
 
 	@Override
@@ -145,6 +149,9 @@ public class MapSquare extends Renderable implements Serializable
 		return result;
 	}
 	
+	/**
+	 * Update the positional properties of all of the items on this square.
+	 */
 	public void updateItemProperties()
 	{
 		Iterator<Item> it = list.iterator();
@@ -156,18 +163,33 @@ public class MapSquare extends Renderable implements Serializable
 		}
 	}
 	
-	public int getRow()
+	public int getRow() { return row; }
+	public int getCol() { return col; }
+	public void setRow(int row) { this.row = row; }
+	public void setCol(int col) { this.col = col; }
+	
+	/**
+	 * Set the position of this square in the map.
+	 * @param row The row of this square.
+	 * @param col The column of this square.
+	 */
+	public void setPosition(int row, int col)
 	{
-		if(width == 0)
-			return 0;
-		return (int)(locY / width);
+		this.row = row;
+		this.col = col;
+		positionUpdated();
 	}
 	
-	public int getCol()
+	/**
+	 * Update the render properties based on the new row
+	 * and column.
+	 */
+	private void positionUpdated()
 	{
-		if(width == 0)
-			return 0;
-		return (int)(locX / width);
+		this.locX = col;
+		this.locY = row;
+		this.width = 1;
+		this.height = 1;
 	}
 	
 	/**
@@ -179,6 +201,8 @@ public class MapSquare extends Renderable implements Serializable
 		return list;
 	}
 	
+	protected int row; /**< The row of this map square. */
+	protected int col; /**< The column of this map square. */
 	protected String image_name; /**< The asset name of the image for this MapSquare. */
 	protected String overlay_name; /**< If the asset has an overlay, this is the overlay asset. */
 	protected String destroyed_overlay_name; /**< If this square is destroyed, this is the overlay asset. */

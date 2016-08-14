@@ -23,6 +23,7 @@ import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.animation.effect.CharacterEffect;
 import com.upl.mmorpg.lib.animation.effect.DamageEffect;
 import com.upl.mmorpg.lib.gui.AssetManager;
+import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -30,26 +31,10 @@ import com.upl.mmorpg.lib.quest.Quest;
 
 public abstract class MMOCharacter extends Renderable implements Serializable
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8281796539996826293L;
-	public MMOCharacter(int row, int col,
-			Grid2DMap map, AssetManager assets, Game game)
-	{
-		this(row, col, 
-				col * map.getTileSize(), row * map.getTileSize(),
-				map.getTileSize(), map.getTileSize(),
-				map, assets, game);
-		inventory = new Inventory();
-	}
-	
-	public MMOCharacter(int row, int col, double x, double y, double width, double height, 
+	protected MMOCharacter(double x, double y, double width, double height, 
 			Grid2DMap map, AssetManager assets, Game game)
 	{
 		super();
-		this.row = row;
-		this.col = col;
 		this.locX = x;
 		this.locY = y;
 		this.width = width;
@@ -76,6 +61,29 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		followers = new LinkedList<FollowListener>();
 		effects = new LinkedList<CharacterEffect>();
 		inventory = new Inventory();
+	}
+	
+	/**
+	 * Set the global position of the character.
+	 * @param x The x position of the character.
+	 * @param y The y position of the character.
+	 */
+	public void setPosition(double x, double y)
+	{
+		this.locX = x;
+		this.locY = y;
+	}
+	
+	/**
+	 * Set the position of this character based on a row and
+	 * column.
+	 * @param row The row of the position of the character.
+	 * @param column The column of the position of the character.
+	 */
+	public void setGridPosition(int row, int column)
+	{
+		this.locX = column;
+		this.locY = row;
 	}
 	
 	/** Animation methods */
@@ -113,13 +121,14 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	}
 	
 	@Override
-	public void render(Graphics2D g)
+	public void render(Graphics2D g, RenderPanel panel, double zoom)
 	{
 		BufferedImage img = animation.getFrame();
 		if(img == null) return;
 		
 		g.drawImage(animation.getFrame(), 
-				(int)locX, (int)locY, (int)width, (int)height, null);
+				(int)(locX * zoom), (int)(locY * zoom), 
+				(int)(width * zoom), (int)(height * zoom), null);
 	}
 	
 	@Override
@@ -155,7 +164,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 			public void run()
 			{
 				int startRow = getRow();
-				int startCol = getCol();
+				int startCol = getColumn();
 				
 				GridGraph graph = new GridGraph(startRow, startCol, map);
 				Path p = graph.shortestPathTo(row, col);
@@ -177,8 +186,8 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	 */
 	public void walkTo(int row, int col)
 	{
-		int startRow = (int)(locY / map.getTileSize());
-		int startCol = (int)(locX / map.getTileSize());
+		int startRow = getRow();
+		int startCol = getColumn();
 		
 		GridGraph graph = new GridGraph(startRow, startCol, map);
 		Path p = graph.shortestPathTo(row, col);
@@ -194,7 +203,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public GridPoint getBehindPoint()
 	{
 		int row = getRow();
-		int col = getCol();
+		int col = getColumn();
 		GridPoint point = null;
 		
 		switch(animation.getReelDirection())
@@ -275,27 +284,23 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public double getAttackSpeed() { return attackSpeed; }
 	public void setAttackSpeed(double attackSpeed) { this.attackSpeed = attackSpeed; }
 	public Grid2DMap getCurrentMap() { return map; }
-	public int getRow() { return row; }
-	public int getCol() { return col; }
+	public int getRow() { return (int)(locY + 0.5d); }
+	public int getColumn() { return (int)(locX + 0.5d); }
 	
 	public void setRow(int row) 
 	{
-		this.row = row;
-		this.locY = row * map.getTileSize();
+		this.locY = (double)row + 0.5d;
 	}
 	
 	public void setColumn(int col) 
 	{ 
-		this.col = col; 
-		this.locX = col * map.getTileSize();
+		this.locX = (double)col + 0.5d;
 	}
 	
 	public void setPosition(int row, int col)
 	{
-		this.row = row;
-		this.col = col;
-		this.locY = row * map.getTileSize();
-		this.locX = col * map.getTileSize();
+		this.locX = (double)col + 0.5d;
+		this.locY = (double)row + 0.5d;
 	}
 	
 	
@@ -311,8 +316,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public int takeDamage(int amount, MMOCharacter attacker)
 	{
 		/* Add a splat to our character */
-		DamageEffect effect = new DamageEffect(this, assets, 
-				map.getTileSize());
+		DamageEffect effect = new DamageEffect(this, assets);
 		if(amount > health)
 			amount = health;
 		health -= amount;
@@ -367,11 +371,11 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	/** Character properties (time related) */
 	protected String name; /**< The character's name */
 	protected double walkingSpeed; /**< Horizontal/Vertical tiles per second */
-	protected int row; /**< The current row of the character */
-	protected int col; /**< The current column of the character */
 	
 	protected int maxHealth; /**< How much health the player can hold */
 	protected int health; /**< How much health the player has */
 	protected double attackSpeed; /**< How many attacks/second can this character do? */
 	protected Inventory inventory; /**< The character's inventory */
+	
+	private static final long serialVersionUID = 8281796539996826293L;
 }

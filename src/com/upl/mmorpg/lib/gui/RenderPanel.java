@@ -19,11 +19,13 @@ public class RenderPanel extends JPanel implements Runnable
 	public RenderPanel(boolean vsync, boolean showfps, boolean headless)
 	{
 		this.headless = headless;
+		this.addGuideLines();
 		
 		timer = new DynamicRenderTimer(FRAMES_PER_SECOND, this);
 
 		viewX = 0;
 		viewY = 0;
+		zoom = DEFAULT_ZOOM;
 		/* Initilize panels */
 		backPane = new LinkedList<Renderable>();
 		midPane = new LinkedList<Renderable>();
@@ -50,6 +52,27 @@ public class RenderPanel extends JPanel implements Runnable
 		this.setVisible(true);
 	}
 	
+	/**
+	 * Set the zoom of this render panel.
+	 * @param zoom The zoom to set.
+	 */
+	public void setZoom(double zoom)
+	{
+		this.zoom = zoom;
+	}
+	
+	/**
+	 * Get the zoom of this render panel.
+	 * @return The current zoom value.
+	 */
+	public double getZoom()
+	{
+		return zoom;
+	}
+	
+	/**
+	 * Adds rendering guide lines (Debugging).
+	 */
 	public void addGuideLines()
 	{
 		ExampleLine line1 = new ExampleLine(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
@@ -200,7 +223,7 @@ public class RenderPanel extends JPanel implements Runnable
 			Log.vrndln("Rendering component: " + render.getRenderName());
 			if(render.hasAnimation)
 				render.animation(seconds);
-			render.render(g);
+			render.render(g, this, zoom);
 		}
 	}
 	
@@ -249,8 +272,10 @@ public class RenderPanel extends JPanel implements Runnable
 		this.viewY += diffY;
 	}
 	
-	public synchronized double getViewX() {return viewX;}
-	public synchronized double getViewY() {return viewY;}
+	public synchronized double getViewX() { return viewX; }
+	public synchronized double getViewY() { return viewY; }
+	public synchronized double getGlobalViewX() { return viewX / zoom; }
+	public synchronized double getGlobalViewY() { return viewY / zoom; }
 
 	public void paintComponent(Graphics g)
 	{
@@ -345,7 +370,9 @@ public class RenderPanel extends JPanel implements Runnable
 	
 	private double viewX;
 	private double viewY;
+	private double zoom;
 
+	private static final double DEFAULT_ZOOM = 32;
 	private static final int PANEL_SCALE = 1;
 	private static final int PANEL_WIDTH = 800 * PANEL_SCALE;
 	private static final int PANEL_HEIGHT = 600 * PANEL_SCALE;
@@ -363,7 +390,7 @@ public class RenderPanel extends JPanel implements Runnable
 		}
 
 		@Override
-		public void render(Graphics2D g) 
+		public void render(Graphics2D g, RenderPanel panel, double zoom) 
 		{
 			g.setColor(Color.red);
 			g.drawString(getText(), (float)locX, (float)locY);

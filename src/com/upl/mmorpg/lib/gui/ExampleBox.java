@@ -84,10 +84,11 @@ public class ExampleBox extends Renderable
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel, double zoom) 
 	{
 		g.setColor(color);
-		g.fillRect((int)locX, (int)locY, (int)width, (int)height);
+		g.fillRect((int)(locX * zoom), (int)(locY * zoom), 
+				(int)(width * zoom), (int)(height * zoom));
 	}
 
 	@Override

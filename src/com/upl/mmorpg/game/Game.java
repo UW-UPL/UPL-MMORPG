@@ -26,7 +26,7 @@ public class Game
 		characters = new LinkedList<MMOCharacter>();
 		maps = new Grid2DMap[map_paths.length];
 		for(int x = 0;x < maps.length;x++)
-			maps[x] = new Grid2DMap(TILE_SIZE, x);
+			maps[x] = new Grid2DMap(x);
 	}
 
 	public void loadAssets() throws IOException
@@ -41,7 +41,7 @@ public class Game
 
 		for(int x = 0;x < maps.length;x++)
 		{
-			if(!maps[x].load(map_paths[x], assets, TILE_SIZE))
+			if(!maps[x].load(map_paths[x], assets))
 				throw new IOException("Map format exception");
 			maps[x].loadAllImages(assets);
 		}
@@ -71,7 +71,7 @@ public class Game
 	public synchronized boolean pickupItem(MMOCharacter character, Item item, int map_id)
 	{
 		int row = character.getRow();
-		int col = character.getCol();
+		int col = character.getColumn();
 
 		/* Get the square the character is currently on */
 		MapSquare square = maps[map_id].getSquare(row, col);
@@ -123,6 +123,4 @@ public class Game
 	protected String map_paths[] = {
 		"assets/maps/example.mmomap"	
 	};
-	
-	private static final int TILE_SIZE = 32;
 }

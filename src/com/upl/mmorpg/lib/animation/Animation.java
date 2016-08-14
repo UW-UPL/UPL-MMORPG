@@ -68,7 +68,7 @@ public abstract class Animation implements Serializable
 	{
 		int direction = -1;
 		int myRow = character.getRow();
-		int myCol = character.getCol();
+		int myCol = character.getColumn();
 		
 		if(myRow > row)
 		{

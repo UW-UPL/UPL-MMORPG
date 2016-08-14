@@ -11,8 +11,7 @@ import com.upl.mmorpg.lib.gui.AssetManager;
 
 public class DamageEffect extends CharacterEffect 
 {
-	public DamageEffect(MMOCharacter character, AssetManager assets, 
-			double tile_size)
+	public DamageEffect(MMOCharacter character, AssetManager assets)
 	{
 		super(character, assets);
 		centerX = character.getCenterX();

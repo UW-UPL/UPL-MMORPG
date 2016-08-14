@@ -101,7 +101,7 @@ public abstract class Renderable implements Runnable, Collidable
 	 * render the object in the graphics pane
 	 * @param g the object to render
 	 */
-	public abstract void render(Graphics2D g);
+	public abstract void render(Graphics2D g, RenderPanel parent, double zoom);
 	
 	/**
 	 * Render any additional effects that should be above

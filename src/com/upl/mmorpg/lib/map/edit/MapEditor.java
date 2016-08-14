@@ -176,7 +176,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		/* Initialize the render panel */
 		render = new RenderPanel(true, true, false);
 		/* Create an empty map (not loaded) */
-		map = new EditableGrid2DMap(render, TILE_SIZE, -1);
+		map = new EditableGrid2DMap(TILE_SIZE, -1);
 		render.addBPRenderable(map);
 		
 		/* This holds the panel that renders the map and the panel that renders the tools */

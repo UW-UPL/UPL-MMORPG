@@ -22,7 +22,7 @@ public class WanderAnimation extends Animation implements AnimationListener
 		isWalking = false;
 		animating = false;
 		this.startRow = character.getRow();
-		this.startCol = character.getCol();
+		this.startCol = character.getColumn();
 		radius = 0;
 		random = new Random(System.nanoTime());
 	}
@@ -69,7 +69,7 @@ public class WanderAnimation extends Animation implements AnimationListener
 			
 			isWalking = true;
 			GridGraph graph = new GridGraph(character.getRow(), 
-					character.getCol(), map);
+					character.getColumn(), map);
 			Path p = graph.shortestPathTo(row, col);
 			walking.setPath(p);
 			manager.setAnimation(walking);

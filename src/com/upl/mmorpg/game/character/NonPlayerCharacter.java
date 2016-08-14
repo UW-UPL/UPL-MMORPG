@@ -7,18 +7,10 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public abstract class NonPlayerCharacter extends MMOCharacter 
 {
-	public NonPlayerCharacter(int row, int col, 
-			double x, double y, double width, double height,
+	public NonPlayerCharacter(double x, double y, double width, double height,
 			Grid2DMap map, AssetManager assets, Game game) 
 	{
-		super(row, col, x, y, width, height, map, assets, game);
-		wander = new WanderAnimation(game, animation, this, map, null);
-	}
-
-	public NonPlayerCharacter(int row, int col, Grid2DMap map,
-			AssetManager assets, Game game) 
-	{
-		super(row, col, map, assets, game);
+		super(x, y, width, height, map, assets, game);
 		wander = new WanderAnimation(game, animation, this, map, null);
 	}
 
