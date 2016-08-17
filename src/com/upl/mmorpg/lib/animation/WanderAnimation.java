@@ -24,7 +24,8 @@ public class WanderAnimation extends Animation implements AnimationListener
 		this.startRow = character.getRow();
 		this.startCol = character.getColumn();
 		radius = 0;
-		random = new Random(System.nanoTime());
+		this.seed = System.nanoTime();
+		random = new Random(seed);
 	}
 
 	@Override
@@ -125,16 +126,27 @@ public class WanderAnimation extends Animation implements AnimationListener
 		}
 	}
 
+	public void updateTransient(Game game, MMOCharacter character)
+	{
+		super.updateTransient(game, null, character);
+		random = new Random(seed);
+		map = character.getCurrentMap();
+		
+		walking.updateTransient(game, this, character);
+		idle.updateTransient(game, this, character);
+	}
+	
+	private long seed;
+	private transient Random random;
+	private transient Grid2DMap map;
 	private WalkingAnimation walking;
 	private IdleAnimation idle;
-	private Grid2DMap map;
 	private int radius;
 	private int startRow;
 	private int startCol;
 
 	private boolean animating;
 	private boolean isWalking;
-	private transient Random random;
 	
 	private static final long serialVersionUID = 9139723565757939753L;
 }
