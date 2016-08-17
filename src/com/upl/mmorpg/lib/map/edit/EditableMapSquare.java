@@ -18,13 +18,18 @@ public class EditableMapSquare extends MapSquare
 		super(row, col, image_name, overlay_name, destroyed_overlay_name);
 	}
 	
+	public EditableMapSquare(MapSquare square)
+	{
+		super(square);
+	}
+	
 	@Override
 	public void render(Graphics2D g, RenderPanel panel) 
 	{
 		super.render(g, panel);
 		
 		double line_width = 1.0d / 8.0d;
-		if(!this.passThrough && false)
+		if(!this.passThrough)
 		{
 			g.setColor(Color.BLUE);
 			

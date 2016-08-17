@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.libfile.FileManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
+import com.upl.mmorpg.lib.map.MapSquare;
 import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class EditableGrid2DMap extends Grid2DMap
@@ -21,6 +22,23 @@ public class EditableGrid2DMap extends Grid2DMap
 		
 		if(!load(file_name, assets))
 			throw new IOException("Ilegal map format exception");
+	}
+	
+	public EditableGrid2DMap(Grid2DMap map)
+	{
+		super(-1);
+		
+		this.map = new EditableMapSquare[map.getRows()][map.getColumns()];
+		this.rowCount = map.getRows();
+		this.colCount = map.getColumns();
+		for(int row = 0;row < map.getRows();row++)
+			for(int col = 0;col < map.getColumns();col++)
+			{
+				MapSquare square = map.getSquare(row, col);
+				if(square != null)
+					this.map[row][col] = new EditableMapSquare(square);
+				else System.out.println("NULL");;
+			}
 	}
 	
 	public void createNewMap(int rows, int cols)
@@ -55,11 +73,9 @@ public class EditableGrid2DMap extends Grid2DMap
 	public void export(String file_path, AssetManager assets) throws IOException
 	{
 		/* Convert this to a normal Grid2DMap */
-		Grid2DMap map = new Grid2DMap(-1);
-		for(int row = 0;row < rowCount;row++)
-			for(int col = 0;col < colCount;col++)
-				map.setSquare(row, col, ((EditableMapSquare)this.map[row][col]).export());
+		Grid2DMap map = new Grid2DMap(this);
 		
+		/* Output the map */
 		FileManager file = assets.getFile(file_path, true, true, true);
 		StackBuffer buff = new StackBuffer();
 		buff.pushObject(map);
@@ -77,6 +93,18 @@ public class EditableGrid2DMap extends Grid2DMap
 		file.close();
 		
 		Object obj = buff.popObject();
+		System.out.println("Object: " + obj);
+		if(obj == null)
+			return false;
+		
+		if(obj instanceof Grid2DMap)
+		{
+			/* Do the up conversion from Grid2DMap to EditableGrid2DMap */
+			Grid2DMap map = (Grid2DMap)obj;
+			map.setLoaded(); /* This map is already loaded */
+			EditableGrid2DMap editable = new EditableGrid2DMap(map);
+			obj = editable;
+		}
 		
 		if(obj instanceof EditableGrid2DMap)
 		{
@@ -86,6 +114,7 @@ public class EditableGrid2DMap extends Grid2DMap
 			this.rowCount = grid.rowCount;
 			this.colCount = grid.colCount;
 			this.loaded = true;
+			this.generateSquareProperties();
 		} else return false;
 		
 		return true;

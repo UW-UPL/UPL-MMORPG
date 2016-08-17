@@ -32,7 +32,7 @@ public class ServerGame extends Game implements ServerListener
 			window.setResizable(false);
 			window.setVisible(true);
 			
-			control = new MapControl(render, maps[0]);
+			control = new MapControl(render, maps[0], true);
 			render.addMouseListener(control);
 			render.addMouseMotionListener(control);
 		}
@@ -135,15 +135,16 @@ public class ServerGame extends Game implements ServerListener
 //			};
 //			new Thread(run).start();
 			
-			final Goblin collector = g.createGoblin(12, 12, GameMap.EXAMPLE1);
-			collector.walkTo(14, 9);
+			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
+			collector.walkTo(6, 6);
 			Runnable run = new Runnable()
 			{
 				public void run()
 				{
-					try { Thread.sleep(4500);} catch(Exception e) {}
+					try { Thread.sleep(30000);} catch(Exception e) {}
+					System.out.println("Picking up item...");;
 					g.pickupItem(collector, 
-							g.getItemsOnSquare(14, 9, GameMap.EXAMPLE1).iterator().next(), 
+							g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next(), 
 							GameMap.EXAMPLE1);
 				}
 			};

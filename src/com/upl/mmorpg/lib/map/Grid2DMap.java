@@ -38,6 +38,29 @@ public class Grid2DMap extends Renderable implements Serializable
 			throw new IOException("Ilegal map format exception");
 	}
 	
+	public Grid2DMap(Grid2DMap map)
+	{
+		this.map = new MapSquare[map.getRows()][map.getColumns()];
+		this.rowCount = map.getRows();
+		this.colCount = map.getColumns();
+		this.id = map.getID();
+		
+		for(int row = 0;row < map.getRows();row++)
+			for(int col = 0;col < map.getColumns();col++)
+			{
+				MapSquare square = map.getSquare(row, col);
+				if(square != null)
+					this.map[row][col] = new MapSquare(square);
+			}
+		
+		this.loaded = true;
+	}
+	
+	public void setLoaded()
+	{
+		this.loaded = true;
+	}
+	
 	@Override
 	public void render(Graphics2D g, RenderPanel panel) 
 	{
@@ -111,7 +134,6 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public void setSquare(int row, int col, MapSquare square)
 	{
-		if(!loaded) return;
 		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 			return;
 		map[row][col] = square;
@@ -135,6 +157,7 @@ public class Grid2DMap extends Renderable implements Serializable
 		file.close();
 		
 		Object load = buff.popObject();
+		
 		if(load instanceof Grid2DMap)
 		{
 			Grid2DMap grid = (Grid2DMap)buff.popObject();
@@ -174,7 +197,6 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public MapSquare getSquare(int row, int col)
 	{
-		if(!loaded) return null;
 		if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 			return null;
 		return map[row][col];
@@ -216,6 +238,36 @@ public class Grid2DMap extends Renderable implements Serializable
 	public boolean removeCharacter(MMOCharacter character)
 	{
 		return characters.remove(character);
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Grid2DMap)
+		{
+			Grid2DMap map = (Grid2DMap)o;
+			if(!(map.getRows() == this.rowCount
+					&& map.getColumns() == this.colCount))
+				return false;
+			
+			for(int row = 0;row < this.rowCount;row++)
+				for(int col = 0;col < this.colCount;col++)
+				{
+					System.out.println("ROW: " + row + " COL: " + col);;
+					MapSquare square = map.getSquare(row, col);
+					if((this.map[row][col] == null)
+							!= (square == null))
+						return false;
+					System.out.println("Both either null or non null");;
+					if(square != null)
+						if(!square.equals(this.map[row][col]))
+							return false;
+				}
+			
+			return true;
+		}
+		
+		return false;
 	}
 	
 	protected transient int id; /**< The id number for this map (set by Game). */

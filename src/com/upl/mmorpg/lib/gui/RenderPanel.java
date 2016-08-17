@@ -29,7 +29,7 @@ public class RenderPanel extends JPanel implements Runnable
 		backPane = new LinkedList<Renderable>();
 		midPane = new LinkedList<Renderable>();
 		glassPane = new LinkedList<Renderable>();
-		this.addGuideLines();
+		// this.addGuideLines();
 
 		/* Initilize collision manager */
 		collision_manager = new CollisionManager();

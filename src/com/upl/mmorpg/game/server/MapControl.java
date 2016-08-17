@@ -8,9 +8,10 @@ import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class MapControl implements MouseMotionListener, MouseListener, Runnable {
-	public MapControl(RenderPanel render, Grid2DMap map) {
+	public MapControl(RenderPanel render, Grid2DMap map, boolean autoscroll) {
 		this.render = render;
 		this.map = map;
+		this.autoscroll = autoscroll;
 
 		moveUp = false;
 		moveDown = false;
@@ -70,6 +71,8 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		if(!autoscroll)
+			return;
 		double x = e.getX();
 		double y = e.getY();
 		boolean found = false;
@@ -110,7 +113,7 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 	}
 
 	public void startMovement() {
-		if (moving)
+		if (moving || !autoscroll)
 			return;
 
 		moving = true;
@@ -134,13 +137,7 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 		moveThread = null;
 	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// System.out.print("mouseX: " + e.getX() + "\nmouseY: " + e.getY() + "\n");
-		// System.out.print(e.getX() - render.getWidth() + 50 + "\n");
-		// System.out.print(render.getWidth() + "\n");
-	}
-
+	@Override public void mouseClicked(MouseEvent e) {}
 	@Override public void mouseEntered(MouseEvent e) {}
 	@Override public void mouseExited(MouseEvent e) {}
 
@@ -150,6 +147,7 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 	private boolean moveUp;
 	private boolean moveDown;
 	private boolean moving;
+	private boolean autoscroll;
 	private double lastX;
 	private double lastY;
 	private boolean dragging;
