@@ -35,6 +35,21 @@ public class MapSquare extends Renderable implements Serializable
 		link_col = -1;
 		list = new ItemList(1);
 	}
+	
+	public MapSquare(MapSquare square)
+	{
+		this(square.row, square.col, square.image_name, 
+				square.overlay_name, square.destroyed_overlay_name);
+		this.list = square.getItems();
+		this.destroyed = square.destroyed;
+		this.destructible = square.destructible;
+		this.passThrough = square.passThrough;
+		this.passThroughWhenDestroyed = square.passThroughWhenDestroyed;
+		this.isMapLink = square.isMapLink;
+		this.linked_map = square.linked_map;
+		this.link_row = square.link_row;
+		this.link_col = square.link_col;
+	}
 
 	@Override
 	public void loadImages(AssetManager assets) throws IOException
@@ -137,9 +152,9 @@ public class MapSquare extends Renderable implements Serializable
 	}
 	
 	public int getRow() { return row; }
-	public int getCol() { return col; }
+	public int getColumn() { return col; }
 	public void setRow(int row) { this.row = row; }
-	public void setCol(int col) { this.col = col; }
+	public void setColumn(int col) { this.col = col; }
 	
 	/**
 	 * Set the position of this square in the map.
@@ -172,6 +187,32 @@ public class MapSquare extends Renderable implements Serializable
 	public ItemList getItems()
 	{
 		return list;
+	}
+	
+	public String getImageName() { return image_name; }
+	public String getOverlayName() { return overlay_name; }
+	public String getDestroyedOverlayName() { return destroyed_overlay_name; }
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof MapSquare)
+		{
+			MapSquare square = (MapSquare)obj;
+			if(square.getRow() != row)
+				return false;
+			if(square.getColumn() != col)
+				return false;
+			if(square.getImageName() != image_name)
+				return false;
+			if(square.getOverlayName() != overlay_name)
+				return false;
+			if(square.getDestroyedOverlayName() != destroyed_overlay_name)
+				return false;
+			return true;
+		}
+		
+		return false;
 	}
 	
 	protected int row; /**< The row of this map square. */
