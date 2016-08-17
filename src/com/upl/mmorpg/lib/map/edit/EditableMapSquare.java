@@ -24,7 +24,7 @@ public class EditableMapSquare extends MapSquare
 		super.render(g, panel);
 		
 		double line_width = 1.0d / 8.0d;
-		if(!this.passThrough)
+		if(!this.passThrough && false)
 		{
 			g.setColor(Color.BLUE);
 			

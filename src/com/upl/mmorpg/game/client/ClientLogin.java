@@ -19,7 +19,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import com.upl.mmorpg.game.server.ServerGame;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;

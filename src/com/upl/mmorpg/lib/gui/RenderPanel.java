@@ -19,7 +19,7 @@ public class RenderPanel extends JPanel implements Runnable
 	public RenderPanel(boolean vsync, boolean showfps, boolean headless)
 	{
 		this.headless = headless;
-		
+
 		timer = new DynamicRenderTimer(FRAMES_PER_SECOND, this);
 
 		viewX = 0;
@@ -51,7 +51,7 @@ public class RenderPanel extends JPanel implements Runnable
 		/* Make this panel visible */
 		this.setVisible(true);
 	}
-	
+
 	/**
 	 * Set the zoom of this render panel.
 	 * @param zoom The zoom to set.
@@ -60,7 +60,7 @@ public class RenderPanel extends JPanel implements Runnable
 	{
 		this.zoom = zoom;
 	}
-	
+
 	/**
 	 * Get the zoom of this render panel.
 	 * @return The current zoom value.
@@ -69,7 +69,7 @@ public class RenderPanel extends JPanel implements Runnable
 	{
 		return zoom;
 	}
-	
+
 	/**
 	 * Adds rendering guide lines (Debugging).
 	 */
@@ -78,8 +78,8 @@ public class RenderPanel extends JPanel implements Runnable
 		ExampleLine line1 = new ExampleLine(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
 		ExampleLine line2 = new ExampleLine(0, PANEL_HEIGHT, PANEL_WIDTH, 0);
 
-		glassPane.add(line1);
-		glassPane.add(line2);
+		addGPRenderable(line1);
+		addGPRenderable(line2);
 	}
 
 	/**
@@ -147,6 +147,7 @@ public class RenderPanel extends JPanel implements Runnable
 
 	public synchronized void addGPRenderable(Renderable render)
 	{
+		render.setInGlass(true);
 		glassPane.add(render);
 	}
 
@@ -213,7 +214,7 @@ public class RenderPanel extends JPanel implements Runnable
 			render.renderEffects(g);
 		}
 	}
-	
+
 	private void renderPane(LinkedList<Renderable> pane, Graphics2D g, double seconds)
 	{
 		Iterator<Renderable> it = pane.iterator();
@@ -226,7 +227,7 @@ public class RenderPanel extends JPanel implements Runnable
 			render.render(g, this);
 		}
 	}
-	
+
 	private void renderPaneHeadless(LinkedList<Renderable> pane, double seconds)
 	{
 		Iterator<Renderable> it = pane.iterator();
@@ -238,13 +239,13 @@ public class RenderPanel extends JPanel implements Runnable
 				render.animation(seconds);
 		}
 	}
-	
+
 	private synchronized void renderAll(Graphics2D g, double seconds)
 	{
 		/* Move to the proper spot on the canvas */
 		int vx = (int)-getViewX();
 		int vy = (int)-getViewY();
-		
+
 		Graphics2D notransform = (Graphics2D)g.create();
 		g.translate(vx, vy);
 		renderPane(backPane, (Graphics2D)g.create(), seconds);
@@ -252,26 +253,26 @@ public class RenderPanel extends JPanel implements Runnable
 		renderEffects(midPane, (Graphics2D)g.create(), seconds);
 		renderPane(glassPane, notransform, seconds);
 	}
-	
+
 	private synchronized void renderAllHeadless(double seconds)
 	{
 		renderPaneHeadless(backPane, seconds);
 		renderPaneHeadless(midPane, seconds);
 		renderPaneHeadless(glassPane, seconds);
 	}
-	
+
 	public synchronized void setView(double viewX, double viewY)
 	{
 		this.viewX = viewX;
 		this.viewY = viewY;
 	}
-	
+
 	public synchronized void moveView(double diffX, double diffY)
 	{
 		this.viewX += diffX;
 		this.viewY += diffY;
 	}
-	
+
 	public synchronized double getViewX() { return viewX; }
 	public synchronized double getViewY() { return viewY; }
 	public synchronized double getGlobalViewX() { return viewX / zoom; }
@@ -294,9 +295,9 @@ public class RenderPanel extends JPanel implements Runnable
 		g.dispose();
 
 		increment_fps();
-		
+
 	}
-	
+
 	public void headlessRender()
 	{
 		if(lastRender == 0)
@@ -310,7 +311,7 @@ public class RenderPanel extends JPanel implements Runnable
 		renderAllHeadless(seconds_change);
 
 		increment_fps();
-		
+
 	}
 
 	/* Draw loop */
@@ -349,12 +350,12 @@ public class RenderPanel extends JPanel implements Runnable
 		}
 		return tmp;
 	}
-	
+
 	private synchronized void increment_fps()
 	{
 		frames_per_second++;
 	}
-	
+
 	/* Some statistics stuff */
 	private int frames_per_second; /* fps counter */
 	private FPSMeasure fps;
@@ -367,7 +368,7 @@ public class RenderPanel extends JPanel implements Runnable
 	private LinkedList<Renderable> midPane;
 	private LinkedList<Renderable> backPane;
 	private CollisionManager collision_manager;
-	
+
 	private double viewX;
 	private double viewY;
 	private double zoom;

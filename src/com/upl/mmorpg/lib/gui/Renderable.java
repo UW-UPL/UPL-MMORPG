@@ -31,6 +31,16 @@ public abstract class Renderable implements Runnable, Collidable
 		animation_wait = RenderMath.calculateVSYNC(ANIMATION_SPEED);
 	}
 	
+	public boolean inGlass()
+	{
+		return inGlass;
+	}
+	
+	public void setInGlass(boolean inGlass)
+	{
+		this.inGlass = inGlass;
+	}
+	
 	public void setCollisionManager(CollisionManager collision)
 	{
 		collision_manager = collision;
@@ -215,27 +225,39 @@ public abstract class Renderable implements Runnable, Collidable
 	public void drawString(RenderPanel parent, Graphics2D g, String text, double x, double y)
 	{
 		double zoom = parent.getZoom();
-		g.drawString(text, (int)(x * zoom), (int)(y * zoom));
+		if(inGlass)
+			g.drawString(text, (int)(x), (int)(y));
+		else
+			g.drawString(text, (int)(x * zoom), (int)(y * zoom));
 	}
 	
 	public void drawLine(RenderPanel parent, Graphics2D g, double x1, double y1, 
 			double x2, double y2)
 	{
 		double zoom = parent.getZoom();
-		g.drawLine((int)(x1 * zoom), (int)(y1 * zoom), (int)(x2 * zoom), (int)(y2 * zoom));
+		if(inGlass)
+			g.drawLine((int)(x1), (int)(y1), (int)(x2), (int)(y2));
+		else 
+			g.drawLine((int)(x1 * zoom), (int)(y1 * zoom), (int)(x2 * zoom), (int)(y2 * zoom));
 	}
 	
 	public void drawOval(RenderPanel parent, Graphics2D g, double x, double y,
 			double width, double height)
 	{
 		double zoom = parent.getZoom();
-		g.drawOval((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+		if(inGlass)
+			g.drawOval((int)(x), (int)(y), (int)(width), (int)(height));
+		else
+			g.drawOval((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
 	}
 	
 	public void fillOval(RenderPanel parent, Graphics2D g, double x, double y,
 			double width, double height)
 	{
 		double zoom = parent.getZoom();
+		if(inGlass)
+			g.fillOval((int)(x), (int)(y), (int)(width), (int)(height));
+		else
 		g.fillOval((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
 	}
 	
@@ -243,6 +265,9 @@ public abstract class Renderable implements Runnable, Collidable
 			double width, double height)
 	{
 		double zoom = parent.getZoom();
+		if(inGlass)
+			g.drawRect((int)(x), (int)(y), (int)(width), (int)(height));
+		else
 		g.drawRect((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
 	}
 	
@@ -250,6 +275,9 @@ public abstract class Renderable implements Runnable, Collidable
 			double width, double height)
 	{
 		double zoom = parent.getZoom();
+		if(inGlass)
+			g.fillRect((int)(x), (int)(y), (int)(width), (int)(height));
+		else
 		g.fillRect((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
 	}
 	
@@ -263,6 +291,7 @@ public abstract class Renderable implements Runnable, Collidable
 
 	protected boolean showing;
 	protected boolean hasAnimation;
+	protected boolean inGlass; /**< Whether or not this renderable is in the glass pane */
 
 	private int animation_wait;
 	private Thread animationThread;
