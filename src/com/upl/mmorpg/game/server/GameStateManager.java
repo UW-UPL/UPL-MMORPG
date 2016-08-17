@@ -20,6 +20,13 @@ public class GameStateManager implements GameStateInterface
 		return character.getCurrentMap();
 	}
 	
+	@Override
+	public Object requestCharacters() 
+	{
+		return game.getCharactersOnMap(character.getCurrentMapID());
+	}
+	
 	private ServerGame game;
 	private MMOCharacter character;
+
 }

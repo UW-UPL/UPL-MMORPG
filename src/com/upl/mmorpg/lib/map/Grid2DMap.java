@@ -3,6 +3,7 @@ package com.upl.mmorpg.lib.map;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedList;
 
 import com.upl.mmorpg.game.character.MMOCharacter;
@@ -23,6 +24,7 @@ public class Grid2DMap extends Renderable implements Serializable
 		map = null;
 		loaded = false;
 		this.id = map_id;
+		characters = new LinkedList<MMOCharacter>();
 	}
 	
 	/**
@@ -54,6 +56,7 @@ public class Grid2DMap extends Renderable implements Serializable
 			}
 		
 		this.loaded = true;
+		characters = new LinkedList<MMOCharacter>();
 	}
 	
 	public void setLoaded()
@@ -167,6 +170,7 @@ public class Grid2DMap extends Renderable implements Serializable
 			rowCount = grid.rowCount;
 			colCount = grid.colCount;
 			loaded = true;
+			characters = new LinkedList<MMOCharacter>();
 			generateSquareProperties();
 		} else return false;
 		
@@ -268,6 +272,26 @@ public class Grid2DMap extends Renderable implements Serializable
 		}
 		
 		return false;
+	}
+	
+	public LinkedList<MMOCharacter> getCharacters()
+	{
+		return characters;
+	}
+	
+	public void clearCharacters()
+	{
+		characters.clear();
+	}
+	
+	public void addAllCharacters(Collection<MMOCharacter> c)
+	{
+		characters.addAll(c);
+	}
+	
+	public void setCharacters(LinkedList<MMOCharacter> characters)
+	{
+		this.characters = characters;
 	}
 	
 	protected transient int id; /**< The id number for this map (set by Game). */

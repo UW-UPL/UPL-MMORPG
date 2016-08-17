@@ -282,6 +282,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public double getAttackSpeed() { return attackSpeed; }
 	public void setAttackSpeed(double attackSpeed) { this.attackSpeed = attackSpeed; }
 	public Grid2DMap getCurrentMap() { return map; }
+	public void setCurrentMap(Grid2DMap map) { this.map = map;}
 	public int getCurrentMapID() { return map.getID(); }
 	public int getRow() { return (int)(locY + 0.5d); }
 	public int getColumn() { return (int)(locX + 0.5d); }
@@ -348,20 +349,31 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		return inventory.addItem(i);
 	}
 	
+	public void updateTransient(AssetManager assets, Grid2DMap map) throws IOException
+	{
+		animation.updateTransient(assets);
+		idle.updateTransient(game, null, this);
+		walking.updateTransient(game, null, this);
+		// follow.updateTransient(game, null, this);
+		// attack.updateTransient(game, null, this);
+		death.updateTransient(game, null, this);
+	}
+	
 	protected transient AssetManager assets;
 	protected transient Grid2DMap map;
-	protected transient AnimationManager animation;
+	
 	protected transient Game game;
 	protected transient Quest currentQuest;
 	protected transient LinkedList<Quest> quests;
 	protected transient LinkedList<CharacterEffect> effects;
 	
 	/* Generic animations */
-	protected transient IdleAnimation idle;
-	protected transient WalkingAnimation walking;
+	protected AnimationManager animation;
+	protected IdleAnimation idle;
+	protected WalkingAnimation walking;
 	protected transient FollowAnimation follow;
 	protected transient AttackAnimation attack;
-	protected transient DeathAnimation death;
+	protected DeathAnimation death;
 	
 	/* Characters that are following this character */
 	protected transient LinkedList<FollowListener> followers;

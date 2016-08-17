@@ -101,9 +101,17 @@ public abstract class Animation implements Serializable
 		return direction;
 	}
 	
+	public void updateTransient(Game game, AnimationListener listener, 
+			MMOCharacter character)
+	{
+		this.game = game;
+		this.listener = listener;
+		this.character = character;
+	}
+	
 	protected transient Game game;
 	protected transient AnimationListener listener;
-	protected AnimationManager manager;
+	protected transient AnimationManager manager;
 	protected transient MMOCharacter character;
 	
 	protected double vector_x;

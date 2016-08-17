@@ -48,11 +48,10 @@ public class DeathAnimation extends Animation
 			}
 		}
 	}
-
+	
 	@Override
 	public void directionChanged(int direction) {}
 	
-	private transient Game game;
 	private boolean died;
 	private double disappearTimer;
 	private double disappearSeconds;

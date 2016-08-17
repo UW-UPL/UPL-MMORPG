@@ -33,7 +33,7 @@ public class ServerGame extends Game implements ServerListener
 			window.setResizable(false);
 			window.setVisible(true);
 			
-			control = new MapControl(render, maps[0], true);
+			control = new MapControl(render, maps[0], false);
 			render.addMouseListener(control);
 			render.addMouseMotionListener(control);
 		}
@@ -142,7 +142,7 @@ public class ServerGame extends Game implements ServerListener
 //			new Thread(run).start();
 			
 			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
-			collector.walkTo(6, 6);
+			//collector.walkTo(6, 6);
 			Runnable run = new Runnable()
 			{
 				public void run()
@@ -154,7 +154,7 @@ public class ServerGame extends Game implements ServerListener
 							GameMap.EXAMPLE1);
 				}
 			};
-			new Thread(run).start();
+			//new Thread(run).start();
 			
 			//Goblin defender = g.createGoblin(11, 10);
 			//defender.wander(5);

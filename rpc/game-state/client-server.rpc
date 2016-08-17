@@ -1,4 +1,9 @@
 # Return value, method name, arg1, arg2, ... argn
 
+# Request the representation of the current map
 # public Grid2DMap requestCurrentMap(void);
 Object,requestCurrentMap
+
+# Request the characters on the current map
+# public LinkedList<MMOCharacter> requestCharacters(void);
+Object,requestCharacters

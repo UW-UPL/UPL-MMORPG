@@ -49,15 +49,20 @@ public class Game
 
 	public void addCharacter(MMOCharacter c, int map_id)
 	{
-		characters.add(c);
-		render.addRenderable(c);
+		if(map_id >= 0 && map_id < maps.length)
+		{
+			characters.add(c);
+			render.addRenderable(c);
+			maps[map_id].addCharacter(c);
+			c.setCurrentMap(maps[map_id]);
+		}
 	}
 
 	public void removeCharacter(MMOCharacter c)
 	{
 		characters.remove(c);
-		
 		render.removeRenderable(c);
+		c.getCurrentMap().removeCharacter(c);
 	}
 
 	public ItemList getItemsOnSquare(int row, int col, int map_id)
@@ -112,22 +117,27 @@ public class Game
 	{
 		return questEngine;
 	}
-	
+
 	public Grid2DMap getMap(int id)
 	{
 		if(id >= 0 && id < maps.length)
 			return maps[id];
 		else return null;
 	}
-	
+
+	public LinkedList<MMOCharacter> getCharactersOnMap(int mapID)
+	{
+		return maps[mapID].getCharacters();
+	}
+
 	protected RenderPanel render;
 	protected AssetManager assets;
 	protected QuestEngine questEngine;
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
-	
+
 	protected Grid2DMap maps[];
 	protected String map_paths[] = {
-		"assets/maps/example.mmomap"	
+			"assets/maps/example.mmomap"	
 	};
 }

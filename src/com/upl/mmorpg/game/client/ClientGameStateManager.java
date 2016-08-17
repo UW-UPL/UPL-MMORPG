@@ -11,17 +11,29 @@ public class ClientGameStateManager
 		this.rpc = rpc;
 	}
 
-	public Object requestCurrentMap()
-	{
-		StackBuffer stack = new StackBuffer();
+    public Object requestCurrentMap()
+    {
+            StackBuffer stack = new StackBuffer();
 
-		/* Push the function number */
-		stack.pushInt(1);
-		/* Push the arguments */
-		/* Do the network call */
-		StackBuffer res = rpc.do_call(stack, true);
-		return res.popObject();
-	}
+            /* Push the function number */
+            stack.pushInt(1);
+            /* Push the arguments */
+            /* Do the network call */
+            StackBuffer res = rpc.do_call(stack, true);
+            return res.popObject();
+    }
+
+    public Object requestCharacters()
+    {
+            StackBuffer stack = new StackBuffer();
+
+            /* Push the function number */
+            stack.pushInt(2);
+            /* Push the arguments */
+            /* Do the network call */
+            StackBuffer res = rpc.do_call(stack, true);
+            return res.popObject();
+    }
 
 	private RPCManager rpc;
 	private ClientGame game;

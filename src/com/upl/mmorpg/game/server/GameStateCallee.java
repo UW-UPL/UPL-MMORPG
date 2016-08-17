@@ -29,6 +29,18 @@ public class GameStateCallee implements RPCCallee
 		return ret_stack;
 	}
 
+	public StackBuffer __requestCharacters(StackBuffer stack)
+	{
+		/* Pop the arguments */
+
+		/* Do the function call */
+		Object result = client.requestCharacters();
+		/* Make a result stack */
+		StackBuffer ret_stack = new StackBuffer();
+		ret_stack.pushObject(result);
+		return ret_stack;
+	}
+
 	@Override
 	public StackBuffer handle_call(StackBuffer stack)
 	{
@@ -41,6 +53,9 @@ public class GameStateCallee implements RPCCallee
 		case 1: /** requestCurrentMap */
 			result = __requestCurrentMap(stack);
 			break;
+		case 2: /** requestCharacters */
+			result = __requestCharacters(stack);
+			break;
 		default:
 			invalid_rpc(func_num);
 			break;
@@ -48,6 +63,7 @@ public class GameStateCallee implements RPCCallee
 
 		return result;
 	}
+
 
 
 	private GameStateManager client;

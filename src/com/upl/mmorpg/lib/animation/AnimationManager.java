@@ -25,6 +25,8 @@ public class AnimationManager implements Serializable
 		animation_total = 0;
 		animation_speed = 0;
 		endReelNotified = false;
+		currentReelName = null;
+		this.reelsPath = null;
 		
 		map = new HashMap<String, BufferedImage[][]>();
 	}
@@ -41,8 +43,25 @@ public class AnimationManager implements Serializable
 		this.animation_loop = loop;
 		this.maxReelPos = reel[this.reelDirection].length;
 		this.endReelNotified = false;
+		this.currentReelName = reelName;
 		
 		this.currentFrame = reel[this.reelDirection][0];
+		
+		return true;
+	}
+	
+	private boolean loadReel(String reelName)
+	{
+		BufferedImage[][] reel = map.get(reelName);
+		if(reel == null) return false;
+		
+		if(this.currentReel == reel) return true;
+		this.currentReel = reel;
+		this.maxReelPos = reel[this.reelDirection].length;
+		this.endReelNotified = false;
+		this.currentReelName = reelName;
+		
+		this.currentFrame = reel[this.reelDirection][this.reelPos];
 		
 		return true;
 	}
@@ -193,6 +212,7 @@ public class AnimationManager implements Serializable
 			Log.vln("Added reel " + reelNames[i]);
 		}
 
+		this.reelsPath = path;
 		return true;
 	}
 	
@@ -231,11 +251,20 @@ public class AnimationManager implements Serializable
 			currentAnimation.animation(seconds);
 	}
 	
+	public void updateTransient(AssetManager assets) throws IOException
+	{
+		this.assets = assets;
+		this.loadReels(reelsPath);
+		this.loadReel(currentReelName);
+	}
+	
 	protected transient Animation currentAnimation;
 	
 	protected transient AssetManager assets;
 	protected transient BufferedImage currentFrame;
 	protected transient BufferedImage currentReel[][];
+	protected String currentReelName;
+	protected String reelsPath;
 	protected int reelDirection;
 	protected int reelPos;
 	protected int maxReelPos;

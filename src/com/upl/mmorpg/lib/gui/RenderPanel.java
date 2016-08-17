@@ -140,7 +140,7 @@ public class RenderPanel extends JPanel implements Runnable
 		midPane.remove(render);
 	}
 
-	public synchronized void removeAllRenderable()
+	public synchronized void removeAllRenderables()
 	{
 		midPane.clear();
 	}
@@ -156,7 +156,7 @@ public class RenderPanel extends JPanel implements Runnable
 		glassPane.remove(render);
 	}
 
-	public synchronized void removeAllGPRenderable()
+	public synchronized void removeAllGPRenderables()
 	{
 		glassPane.clear();
 	}
@@ -171,7 +171,7 @@ public class RenderPanel extends JPanel implements Runnable
 		backPane.remove(render);
 	}
 
-	public synchronized void removeAllBPRenderable()
+	public synchronized void removeAllBPRenderables()
 	{
 		backPane.clear();
 	}
