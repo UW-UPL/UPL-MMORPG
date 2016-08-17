@@ -11,16 +11,7 @@ public abstract class NonPlayerCharacter extends MMOCharacter
 			Grid2DMap map, AssetManager assets, Game game) 
 	{
 		super(x, y, width, height, map, assets, game);
-		wander = new WanderAnimation(game, animation, this, map, 
-				map.getTileSize(), null);
-	}
-
-	public NonPlayerCharacter(int row, int col, Grid2DMap map,
-			AssetManager assets, Game game) 
-	{
-		super(row, col, map, assets, game);
-		wander = new WanderAnimation(game, animation, this, map, 
-				map.getTileSize(), null);
+		wander = new WanderAnimation(game, animation, this, map, null);
 	}
 
 	@Override
@@ -33,4 +24,6 @@ public abstract class NonPlayerCharacter extends MMOCharacter
 	}
 	
 	private WanderAnimation wander;
+	
+	private static final long serialVersionUID = -1096329246846177789L;
 }

@@ -6,8 +6,9 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 public class IdleAnimation extends Animation
 {
 	public IdleAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			double tile_size, AnimationListener listener) {
-		super(game, manager, character, tile_size, listener);
+			AnimationListener listener) 
+	{
+		super(game, manager, character, listener);
 	}
 
 	@Override
@@ -29,4 +30,6 @@ public class IdleAnimation extends Animation
 
 	@Override
 	public void directionChanged(int direction) {}
+	
+	private static final long serialVersionUID = 2015342140727303213L;
 }

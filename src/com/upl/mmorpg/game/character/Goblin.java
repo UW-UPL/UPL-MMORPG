@@ -9,9 +9,10 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class Goblin extends NonPlayerCharacter
 {
-	public Goblin(int row, int col, Grid2DMap map, AssetManager assets, Game game) 
+	public Goblin(int row, int column, Grid2DMap map, AssetManager assets, Game game) 
 	{
-		super(row, col, map, assets, game);
+		super(0, 0, 1, 1, map, assets, game);
+		this.setGridPosition(row, column);
 		
 		try 
 		{
@@ -30,12 +31,9 @@ public class Goblin extends NonPlayerCharacter
 		this.attackSpeed = 3.0d;
 	}
 	
-	public static void prefetchAssets(AssetManager assets, double tile_size, Game game) 
+	public static void prefetchAssets(AssetManager assets, Game game) 
 			throws IOException
 	{
-		Grid2DMap map = new Grid2DMap(tile_size);
-		Goblin g = new Goblin(0, 0, map, assets, game);
-		g.setAnimationReels("assets/models/goblin");
 	}
 
 	@Override
@@ -43,4 +41,6 @@ public class Goblin extends NonPlayerCharacter
 	{
 		return "Goblin";
 	}
+	
+	private static final long serialVersionUID = 1203515561216565986L;
 }

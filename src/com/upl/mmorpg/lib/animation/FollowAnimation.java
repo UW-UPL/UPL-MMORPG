@@ -12,13 +12,13 @@ public class FollowAnimation extends Animation
 		implements FollowListener, AnimationListener
 {
 	public FollowAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, double tile_size, AnimationListener listener)
+			Grid2DMap map, AnimationListener listener)
 	{
-		super(game, manager, character, tile_size, listener);
+		super(game, manager, character, listener);
 
 		this.map = map;
-		walking = new WalkingAnimation(game, manager, character, tile_size, this);
-		idle = new IdleAnimation(game, manager, character, tile_size, null);
+		walking = new WalkingAnimation(game, manager, character, this);
+		idle = new IdleAnimation(game, manager, character, null);
 		isMoving = false;
 		animating = false;
 		this.following = null;
@@ -61,7 +61,7 @@ public class FollowAnimation extends Animation
 	{
 		isMoving = true;
 		GridGraph graph = new GridGraph(character.getRow(), 
-				character.getCol(), map);
+				character.getColumn(), map);
 		Path p = graph.shortestPathTo(row, col);
 		walking.setPath(p);
 	}
@@ -127,11 +127,12 @@ public class FollowAnimation extends Animation
 			}
 			
 			if(character.getRow() == nextRow 
-					&& character.getCol() == nextCol)
+					&& character.getColumn() == nextCol)
 				return;
 		}
 	}
 
+	private MMOCharacter following;
 	private WalkingAnimation walking;
 	private IdleAnimation idle;
 	private Grid2DMap map;
@@ -141,5 +142,6 @@ public class FollowAnimation extends Animation
 	private boolean animating;
 	private boolean isMoving;
 	private boolean followingIsMoving;
-	private MMOCharacter following;
+	
+	private static final long serialVersionUID = -3127413296635186049L;
 }

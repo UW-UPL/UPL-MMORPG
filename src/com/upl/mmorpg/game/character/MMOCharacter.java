@@ -3,6 +3,7 @@ package com.upl.mmorpg.game.character;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -22,23 +23,15 @@ import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.animation.effect.CharacterEffect;
 import com.upl.mmorpg.lib.animation.effect.DamageEffect;
 import com.upl.mmorpg.lib.gui.AssetManager;
+import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.quest.Quest;
 
-public abstract class MMOCharacter extends Renderable
+public abstract class MMOCharacter extends Renderable implements Serializable
 {
-	public MMOCharacter(int row, int col,
-			Grid2DMap map, AssetManager assets, Game game)
-	{
-		this(col * map.getTileSize(), row * map.getTileSize(),
-				map.getTileSize(), map.getTileSize(),
-				map, assets, game);
-		inventory = new Inventory();
-	}
-	
-	public MMOCharacter(double x, double y, double width, double height, 
+	protected MMOCharacter(double x, double y, double width, double height, 
 			Grid2DMap map, AssetManager assets, Game game)
 	{
 		super();
@@ -61,14 +54,36 @@ public abstract class MMOCharacter extends Renderable
 		
 		animation = new AnimationManager(assets);
 		attack = null;
-		walking = new WalkingAnimation(game, animation, this, map.getTileSize(), null);
-		idle = new IdleAnimation(game, animation, this, map.getTileSize(), null);
-		death = new DeathAnimation(game, animation, this, map.getTileSize(), null);
-		follow = new FollowAnimation(game, animation, this, map, 
-				map.getTileSize(), null);
+		walking = new WalkingAnimation(game, animation, this, null);
+		idle = new IdleAnimation(game, animation, this, null);
+		death = new DeathAnimation(game, animation, this, null);
+		follow = new FollowAnimation(game, animation, this, map, null);
 		followers = new LinkedList<FollowListener>();
 		effects = new LinkedList<CharacterEffect>();
 		inventory = new Inventory();
+	}
+	
+	/**
+	 * Set the global position of the character.
+	 * @param x The x position of the character.
+	 * @param y The y position of the character.
+	 */
+	public void setPosition(double x, double y)
+	{
+		this.locX = x;
+		this.locY = y;
+	}
+	
+	/**
+	 * Set the position of this character based on a row and
+	 * column.
+	 * @param row The row of the position of the character.
+	 * @param column The column of the position of the character.
+	 */
+	public void setGridPosition(int row, int column)
+	{
+		this.locX = column;
+		this.locY = row;
 	}
 	
 	/** Animation methods */
@@ -84,8 +99,7 @@ public abstract class MMOCharacter extends Renderable
 	public void die() { animation.setAnimation(death); }
 	public void attack(MMOCharacter character) 
 	{
-		attack = new PunchAnimation(game, animation, this, map,
-				map.getTileSize(), null);
+		attack = new PunchAnimation(game, animation, this, map, null);
 		attack.setAttacking(character);
 		animation.setAnimation(attack); 
 	}
@@ -107,13 +121,12 @@ public abstract class MMOCharacter extends Renderable
 	}
 	
 	@Override
-	public void render(Graphics2D g)
+	public void render(Graphics2D g, RenderPanel panel)
 	{
 		BufferedImage img = animation.getFrame();
 		if(img == null) return;
 		
-		g.drawImage(animation.getFrame(), 
-				(int)locX, (int)locY, (int)width, (int)height, null);
+		drawImage(panel, g, animation.getFrame(), locX, locY, width, height);
 	}
 	
 	@Override
@@ -149,7 +162,7 @@ public abstract class MMOCharacter extends Renderable
 			public void run()
 			{
 				int startRow = getRow();
-				int startCol = getCol();
+				int startCol = getColumn();
 				
 				GridGraph graph = new GridGraph(startRow, startCol, map);
 				Path p = graph.shortestPathTo(row, col);
@@ -171,8 +184,8 @@ public abstract class MMOCharacter extends Renderable
 	 */
 	public void walkTo(int row, int col)
 	{
-		int startRow = (int)(locY / map.getTileSize());
-		int startCol = (int)(locX / map.getTileSize());
+		int startRow = getRow();
+		int startCol = getColumn();
 		
 		GridGraph graph = new GridGraph(startRow, startCol, map);
 		Path p = graph.shortestPathTo(row, col);
@@ -188,7 +201,7 @@ public abstract class MMOCharacter extends Renderable
 	public GridPoint getBehindPoint()
 	{
 		int row = getRow();
-		int col = getCol();
+		int col = getColumn();
 		GridPoint point = null;
 		
 		switch(animation.getReelDirection())
@@ -253,8 +266,6 @@ public abstract class MMOCharacter extends Renderable
 	public void startQuest(Quest quest) { this.quests.add(quest); }
 	public void questComplete(Quest quest) { this.quests.remove(quest); }
 	public Iterator<Quest> getQuestIterator() { return quests.iterator(); }
-	public int getRow(){return (int)(locY / map.getTileSize());}
-	public int getCol(){return (int)(locX / map.getTileSize());}
 	@Override public abstract String getRenderName();
 	
 	/** Getters/setters for properties */
@@ -270,6 +281,25 @@ public abstract class MMOCharacter extends Renderable
 	public void setHealth(int health) { this.health = health; }
 	public double getAttackSpeed() { return attackSpeed; }
 	public void setAttackSpeed(double attackSpeed) { this.attackSpeed = attackSpeed; }
+	public Grid2DMap getCurrentMap() { return map; }
+	public int getRow() { return (int)(locY + 0.5d); }
+	public int getColumn() { return (int)(locX + 0.5d); }
+	
+	public void setRow(int row) 
+	{
+		this.locY = (double)row + 0.5d;
+	}
+	
+	public void setColumn(int col) 
+	{ 
+		this.locX = (double)col + 0.5d;
+	}
+	
+	public void setPosition(int row, int col)
+	{
+		this.locX = (double)col + 0.5d;
+		this.locY = (double)row + 0.5d;
+	}
 	
 	/**
 	 * Give the character some damage. This may kill the character
@@ -283,8 +313,7 @@ public abstract class MMOCharacter extends Renderable
 	public int takeDamage(int amount, MMOCharacter attacker)
 	{
 		/* Add a splat to our character */
-		DamageEffect effect = new DamageEffect(this, assets, 
-				map.getTileSize());
+		DamageEffect effect = new DamageEffect(this, assets);
 		if(amount > health)
 			amount = health;
 		health -= amount;
@@ -318,23 +347,23 @@ public abstract class MMOCharacter extends Renderable
 		return inventory.addItem(i);
 	}
 	
-	protected AssetManager assets;
-	protected Grid2DMap map;
-	protected AnimationManager animation;
-	protected Game game;
-	protected Quest currentQuest;
-	protected LinkedList<Quest> quests;
-	protected LinkedList<CharacterEffect> effects;
+	protected transient AssetManager assets;
+	protected transient Grid2DMap map;
+	protected transient AnimationManager animation;
+	protected transient Game game;
+	protected transient Quest currentQuest;
+	protected transient LinkedList<Quest> quests;
+	protected transient LinkedList<CharacterEffect> effects;
 	
 	/* Generic animations */
-	protected IdleAnimation idle;
-	protected WalkingAnimation walking;
-	protected FollowAnimation follow;
-	protected AttackAnimation attack;
-	protected DeathAnimation death;
+	protected transient IdleAnimation idle;
+	protected transient WalkingAnimation walking;
+	protected transient FollowAnimation follow;
+	protected transient AttackAnimation attack;
+	protected transient DeathAnimation death;
 	
 	/* Characters that are following this character */
-	protected LinkedList<FollowListener> followers;
+	protected transient LinkedList<FollowListener> followers;
 
 	/** Character properties (time related) */
 	protected String name; /**< The character's name */
@@ -344,4 +373,6 @@ public abstract class MMOCharacter extends Renderable
 	protected int health; /**< How much health the player has */
 	protected double attackSpeed; /**< How many attacks/second can this character do? */
 	protected Inventory inventory; /**< The character's inventory */
+	
+	private static final long serialVersionUID = 8281796539996826293L;
 }

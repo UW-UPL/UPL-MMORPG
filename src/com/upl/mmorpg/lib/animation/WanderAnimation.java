@@ -12,17 +12,17 @@ import com.upl.mmorpg.lib.map.MapSquare;
 public class WanderAnimation extends Animation implements AnimationListener
 {
 	public WanderAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, double tile_size, AnimationListener listener)
+			Grid2DMap map, AnimationListener listener)
 	{
-		super(game, manager, character, tile_size, listener);
+		super(game, manager, character, listener);
 
 		this.map = map;
-		walking = new WalkingAnimation(game, manager, character, tile_size, this);
-		idle = new IdleAnimation(game, manager, character, tile_size, this);
+		walking = new WalkingAnimation(game, manager, character, this);
+		idle = new IdleAnimation(game, manager, character, this);
 		isWalking = false;
 		animating = false;
 		this.startRow = character.getRow();
-		this.startCol = character.getCol();
+		this.startCol = character.getColumn();
 		radius = 0;
 		random = new Random(System.nanoTime());
 	}
@@ -69,7 +69,7 @@ public class WanderAnimation extends Animation implements AnimationListener
 			
 			isWalking = true;
 			GridGraph graph = new GridGraph(character.getRow(), 
-					character.getCol(), map);
+					character.getColumn(), map);
 			Path p = graph.shortestPathTo(row, col);
 			walking.setPath(p);
 			manager.setAnimation(walking);
@@ -134,5 +134,7 @@ public class WanderAnimation extends Animation implements AnimationListener
 
 	private boolean animating;
 	private boolean isWalking;
-	private Random random;
+	private transient Random random;
+	
+	private static final long serialVersionUID = 9139723565757939753L;
 }

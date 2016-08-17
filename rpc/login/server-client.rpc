@@ -1,0 +1,4 @@
+# Return value, method name, arg1, arg2, ..., argn
+
+# boolean hello()
+boolean,hello

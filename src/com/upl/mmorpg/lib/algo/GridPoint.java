@@ -1,6 +1,8 @@
 package com.upl.mmorpg.lib.algo;
 
-public final class GridPoint 
+import java.io.Serializable;
+
+public final class GridPoint implements Serializable
 {
 	public GridPoint(int row, int col)
 	{
@@ -28,4 +30,6 @@ public final class GridPoint
 	
 	private int row;
 	private int col;
+	
+	private static final long serialVersionUID = -2531817550333339245L;
 }

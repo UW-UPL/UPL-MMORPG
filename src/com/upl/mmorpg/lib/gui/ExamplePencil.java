@@ -14,13 +14,13 @@ public class ExamplePencil extends Renderable
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{
 		Iterator<Point> it = points.iterator();
 		while(it.hasNext())
 		{
 			Point p = it.next();
-			g.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
+			drawRect(panel, g, p.getX(), p.getY(), 1, 1);
 		}
 	}
 	

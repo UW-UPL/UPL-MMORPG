@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import com.upl.mmorpg.lib.gui.AssetManager;
+import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
 
 public class Item extends Renderable implements Serializable
@@ -46,12 +47,12 @@ public class Item extends Renderable implements Serializable
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{		
 		if(asset == null)
 			return;
 		
-		g.drawImage(asset, (int)locX, (int)locY, (int)width, (int)height, null);
+		drawImage(panel, g, asset, locX, locY, width, height);
 	}
 
 	@Override
@@ -66,11 +67,19 @@ public class Item extends Renderable implements Serializable
 		asset = assets.loadImage(asset_path);
 	}
 	
-	public int getId() {return id;}
-	public Item.Type getType() {return type;}
-	public String getName() {return name;}
-	public long getValue() {return value;}
-	public String getAssetPath() {return asset_path;}
+	public void setPosition(int row, int col)
+	{
+		this.locX = col;
+		this.locY = row;
+		this.width = 1;
+		this.height = 1;
+	}
+	
+	public int getId() { return id; }
+	public Item.Type getType() { return type; }
+	public String getName() { return name; }
+	public long getValue() { return value; }
+	public String getAssetPath() { return asset_path; }
 
 	private final int id; /**< The ID of the item */
 	private final Item.Type type; /**< The type of the object */

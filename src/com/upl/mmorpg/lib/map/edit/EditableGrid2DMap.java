@@ -4,28 +4,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.upl.mmorpg.lib.gui.AssetManager;
-import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.libfile.FileManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class EditableGrid2DMap extends Grid2DMap
 {
-	public EditableGrid2DMap(RenderPanel panel, double tileSize) 
+	public EditableGrid2DMap(int map_id)
 	{
-		super(panel, tileSize);
-	}
-
-	public EditableGrid2DMap(double tile_size)
-	{
-		super(tile_size);
+		super(map_id);
 	}
 	
-	public EditableGrid2DMap(String file_name, AssetManager assets, double tile_size) throws IOException
+	public EditableGrid2DMap(String file_name, AssetManager assets) throws IOException
 	{
-		super(tile_size);
+		super(0);
 		
-		if(!load(file_name, assets, tile_size))
+		if(!load(file_name, assets))
 			throw new IOException("Ilegal map format exception");
 	}
 	
@@ -60,9 +54,15 @@ public class EditableGrid2DMap extends Grid2DMap
 
 	public void export(String file_path, AssetManager assets) throws IOException
 	{
+		/* Convert this to a normal Grid2DMap */
+		Grid2DMap map = new Grid2DMap(-1);
+		for(int row = 0;row < rowCount;row++)
+			for(int col = 0;col < colCount;col++)
+				map.setSquare(row, col, ((EditableMapSquare)this.map[row][col]).export());
+		
 		FileManager file = assets.getFile(file_path, true, true, true);
 		StackBuffer buff = new StackBuffer();
-		buff.pushObject(this);
+		buff.pushObject(map);
 		byte[] arr = buff.toArray();
 		file.writeBytes(arr);
 		assets.closeFile(file);
@@ -76,12 +76,12 @@ public class EditableGrid2DMap extends Grid2DMap
 		StackBuffer buff = new StackBuffer(file);
 		file.close();
 		
-		Object load = buff.popObject();
-		if(load instanceof EditableGrid2DMap)
+		Object obj = buff.popObject();
+		
+		if(obj instanceof EditableGrid2DMap)
 		{
-			EditableGrid2DMap grid = (EditableGrid2DMap)buff.popObject();
-			if(grid == null)
-				return false;
+			EditableGrid2DMap grid = (EditableGrid2DMap)obj;
+			
 			this.map = grid.map;
 			this.rowCount = grid.rowCount;
 			this.colCount = grid.colCount;
@@ -109,8 +109,7 @@ public class EditableGrid2DMap extends Grid2DMap
 	public static int[][] getAllLandings(String file, AssetManager assets) 
 			throws IOException
 	{
-		EditableGrid2DMap map = new EditableGrid2DMap(file, assets, 1);
-		
+		EditableGrid2DMap map = new EditableGrid2DMap(file, assets);
 		
 		ArrayList<Integer> rows = new ArrayList<Integer>();
 		ArrayList<Integer> cols = new ArrayList<Integer>();

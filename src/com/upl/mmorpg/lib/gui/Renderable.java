@@ -2,6 +2,7 @@ package com.upl.mmorpg.lib.gui;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -28,6 +29,16 @@ public abstract class Renderable implements Runnable, Collidable
 		rotation = 0.0f;
 
 		animation_wait = RenderMath.calculateVSYNC(ANIMATION_SPEED);
+	}
+	
+	public boolean inGlass()
+	{
+		return inGlass;
+	}
+	
+	public void setInGlass(boolean inGlass)
+	{
+		this.inGlass = inGlass;
 	}
 	
 	public void setCollisionManager(CollisionManager collision)
@@ -101,7 +112,7 @@ public abstract class Renderable implements Runnable, Collidable
 	 * render the object in the graphics pane
 	 * @param g the object to render
 	 */
-	public abstract void render(Graphics2D g);
+	public abstract void render(Graphics2D g, RenderPanel parent);
 	
 	/**
 	 * Render any additional effects that should be above
@@ -203,6 +214,73 @@ public abstract class Renderable implements Runnable, Collidable
 		animationThread = null;
 	}
 	
+	public void drawImage(RenderPanel parent, Graphics2D g, BufferedImage img, double x, double y, 
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		g.drawImage(img, (int)(x * zoom), (int)(y * zoom), 
+				(int)(width * zoom), (int)(height * zoom), null);
+	}
+	
+	public void drawString(RenderPanel parent, Graphics2D g, String text, double x, double y)
+	{
+		double zoom = parent.getZoom();
+		if(inGlass)
+			g.drawString(text, (int)(x), (int)(y));
+		else
+			g.drawString(text, (int)(x * zoom), (int)(y * zoom));
+	}
+	
+	public void drawLine(RenderPanel parent, Graphics2D g, double x1, double y1, 
+			double x2, double y2)
+	{
+		double zoom = parent.getZoom();
+		if(inGlass)
+			g.drawLine((int)(x1), (int)(y1), (int)(x2), (int)(y2));
+		else 
+			g.drawLine((int)(x1 * zoom), (int)(y1 * zoom), (int)(x2 * zoom), (int)(y2 * zoom));
+	}
+	
+	public void drawOval(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		if(inGlass)
+			g.drawOval((int)(x), (int)(y), (int)(width), (int)(height));
+		else
+			g.drawOval((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+	}
+	
+	public void fillOval(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		if(inGlass)
+			g.fillOval((int)(x), (int)(y), (int)(width), (int)(height));
+		else
+		g.fillOval((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+	}
+	
+	public void drawRect(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		if(inGlass)
+			g.drawRect((int)(x), (int)(y), (int)(width), (int)(height));
+		else
+		g.drawRect((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+	}
+	
+	public void fillRect(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		if(inGlass)
+			g.fillRect((int)(x), (int)(y), (int)(width), (int)(height));
+		else
+		g.fillRect((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+	}
+	
 	protected CollisionManager collision_manager;
 	protected LinkedList<CollideShape> collision_shapes;
 	protected double locX;
@@ -213,6 +291,7 @@ public abstract class Renderable implements Runnable, Collidable
 
 	protected boolean showing;
 	protected boolean hasAnimation;
+	protected boolean inGlass; /**< Whether or not this renderable is in the glass pane */
 
 	private int animation_wait;
 	private Thread animationThread;

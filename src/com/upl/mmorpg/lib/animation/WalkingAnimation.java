@@ -11,10 +11,10 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class WalkingAnimation extends Animation
 {
-	public WalkingAnimation(Game game, AnimationManager animation, MMOCharacter character, 
-			double tile_size, AnimationListener listener)
+	public WalkingAnimation(Game game, AnimationManager animation, 
+			MMOCharacter character, AnimationListener listener)
 	{
-		super(game, animation, character, tile_size, listener);
+		super(game, animation, character, listener);
 		this.vector_x = 0;
 		this.vector_y = 0;
 		arrived = false;
@@ -28,8 +28,9 @@ public class WalkingAnimation extends Animation
 		interrupted = false;
 		
 		/* If we're at the first point, remove it */
-		int myRow = (int)(character.getCenterY() / tile_size);
-		int myCol = (int)(character.getCenterX() / tile_size);
+		int myRow = character.getRow();
+		int myCol = character.getColumn();
+		
 		while(this.walkingPath.getNextCol() == myCol 
 				&& this.walkingPath.getNextRow() == myRow)
 			this.walkingPath.moveForward();
@@ -68,7 +69,7 @@ public class WalkingAnimation extends Animation
 		{
 			it.next().characterMoving(character, 
 					character.getRow(), 
-					character.getCol());
+					character.getColumn());
 		}
 	}
 	
@@ -108,7 +109,7 @@ public class WalkingAnimation extends Animation
 		if(walkingPath != null)
 			graph = new GridGraph(walkingPath.getLast().getRow(), 
 				walkingPath.getLast().getCol(), map);
-		else graph = new GridGraph(character.getRow(), character.getCol(), map);
+		else graph = new GridGraph(character.getRow(), character.getColumn(), map);
 		Path newPath = graph.shortestPathTo(row, col);
 		
 		if(newPath != null)
@@ -139,11 +140,11 @@ public class WalkingAnimation extends Animation
 		if(walkingPath == null) return;
 		
 		double speed = character.getWalkingSpeed();
-		double charX = character.getX() + (speed * vector_x * seconds * tile_size);
-		double charY = character.getY() + (speed * vector_y * seconds * tile_size);
+		double charX = character.getX() + (speed * vector_x * seconds);
+		double charY = character.getY() + (speed * vector_y * seconds);
 		
-		double destX = walkingPath.getNextCol() * tile_size;
-		double destY = walkingPath.getNextRow() * tile_size;
+		double destX = walkingPath.getNextCol();
+		double destY = walkingPath.getNextRow();
 		
 		double diffX = destX - charX;
 		double diffY = destY - charY;
@@ -201,7 +202,7 @@ public class WalkingAnimation extends Animation
 				{
 					it.next().characterMoving(character, 
 							character.getRow(), 
-							character.getCol());
+							character.getColumn());
 				}
 			}
 		} else {
@@ -220,4 +221,6 @@ public class WalkingAnimation extends Animation
 	private boolean arrived;
 	private boolean interrupted;
 	private boolean smooth;
+	
+	private static final long serialVersionUID = 4015343237303860257L;
 }

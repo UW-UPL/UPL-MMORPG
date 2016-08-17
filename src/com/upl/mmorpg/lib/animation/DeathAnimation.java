@@ -6,9 +6,9 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 public class DeathAnimation extends Animation
 {
 	public DeathAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			double tile_size, AnimationListener listener) 
+			AnimationListener listener) 
 	{
-		super(game, manager, character, tile_size, listener);
+		super(game, manager, character, listener);
 		this.game = game;
 		disappearTimer = 2.0d;
 		disappearSeconds = 0.0d;
@@ -52,8 +52,10 @@ public class DeathAnimation extends Animation
 	@Override
 	public void directionChanged(int direction) {}
 	
-	private Game game;
+	private transient Game game;
 	private boolean died;
 	private double disappearTimer;
 	private double disappearSeconds;
+	
+	private static final long serialVersionUID = -3895351315046806201L;
 }

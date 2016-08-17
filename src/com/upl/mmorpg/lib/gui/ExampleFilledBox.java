@@ -15,10 +15,10 @@ public class ExampleFilledBox extends ExampleBox
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{
 		g.setColor(Color.GREEN);
-		g.fillRect((int)locX, (int)locY, (int)width, (int)height);
+		fillRect(panel, g, locX, locY, width, height);
 	}
 
 	@Override
