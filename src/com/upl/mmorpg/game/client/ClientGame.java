@@ -1,6 +1,7 @@
 package com.upl.mmorpg.game.client;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JFrame;
@@ -30,11 +31,13 @@ public class ClientGame extends Game
 		render.startRender();
 
 		gameState = new ClientGameStateManager(this, rpc);
+		rpc.setCallee(new ClientGameStateCalleeRPC(gameState));
+		
 		try
 		{
-			if(!this.updateMap())
+			if(!this.loadMap())
 				Log.e("MAP UPDATE FAILED.");
-			if(!this.updateCharacters())
+			if(!this.loadCharacters())
 				Log.e("CHARACTER UPDATE FAILED.");
 		} catch(Exception e)
 		{
@@ -42,7 +45,7 @@ public class ClientGame extends Game
 		}
 	}
 
-	private boolean updateMap() throws IOException
+	private boolean loadMap() throws IOException
 	{
 		currentMap = (Grid2DMap)gameState.requestCurrentMap();
 		currentMap.loadAllImages(assets);
@@ -58,7 +61,7 @@ public class ClientGame extends Game
 		return true;
 	}
 
-	public boolean updateCharacters()
+	public boolean loadCharacters() throws IOException
 	{
 		Object obj = gameState.requestCharacters();
 		@SuppressWarnings("unchecked")
@@ -67,8 +70,38 @@ public class ClientGame extends Game
 			return false;
 		currentMap.setCharacters(characters);
 		System.out.println("Got " + characters.size() + " characters.");
+		Iterator<MMOCharacter> it = characters.iterator();
+		while(it.hasNext())
+		{
+			MMOCharacter character = it.next();
+			character.updateTransient(assets, this, currentMap);
+			render.addRenderable(character);
+		}
 		
 		return true;
+	}
+	
+	public boolean updateCharacter(MMOCharacter character, int entity_id)
+	{
+		Iterator<MMOCharacter> it = currentMap.getCharacters().iterator();
+		while(it.hasNext())
+		{
+			MMOCharacter c = it.next();
+			if(c.getEntityId() == character.getEntityId())
+			{
+				try 
+				{
+					c.update(character);
+				} catch (IOException e) 
+				{
+					Log.e("MMOCharacter update failed!");
+					return false;
+				}
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	private ClientGameStateManager gameState;

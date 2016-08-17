@@ -120,14 +120,16 @@ public class TextView extends Renderable
 		return "TextView: " + text;
 	}
 
-	private Color color;
-	private Font font;
-	private String text;
+	private transient Color color;
+	private transient Font font;
+	private transient String text;
 	
-	private int descent;
+	private transient int descent;
 	
-	private boolean hasBackground;
-	private Color backgroundColor;
+	private transient boolean hasBackground;
+	private transient Color backgroundColor;
 	
-	private static final Font DEFAULT_FONT = new Font("Times New Roman", Font.PLAIN, 12);
+	private transient static final Font DEFAULT_FONT = new Font("Times New Roman", Font.PLAIN, 12);
+	
+	private static final long serialVersionUID = 1587792017672601571L;
 }

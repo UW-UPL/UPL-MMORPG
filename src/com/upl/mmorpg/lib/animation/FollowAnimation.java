@@ -12,13 +12,11 @@ public class FollowAnimation extends Animation
 		implements FollowListener, AnimationListener
 {
 	public FollowAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, AnimationListener listener)
+			Grid2DMap map, AnimationListener listener, int duration)
 	{
-		super(game, manager, character, listener);
+		super(game, manager, character, listener, duration);
 
 		this.map = map;
-		walking = new WalkingAnimation(game, manager, character, this);
-		idle = new IdleAnimation(game, manager, character, null);
 		isMoving = false;
 		animating = false;
 		this.following = null;
@@ -33,11 +31,7 @@ public class FollowAnimation extends Animation
 	@Override
 	public void animationInterrupted(Animation source) 
 	{
-		if(source == walking || source == idle) return;
-		
 		/* This was an external interrupt */
-		walking.animationInterrupted(source);
-		idle.animationInterrupted(source);
 		isMoving = false;
 		animating = false;
 		following.removeFollower(this);
@@ -51,43 +45,43 @@ public class FollowAnimation extends Animation
 		following.addFollower(this);
 		
 		GridPoint behind = following.getBehindPoint();
-		walkTo(behind.getRow(), behind.getCol());
+		walkTo(behind.getRow(), behind.getColumn());
 		this.nextRow = behind.getRow();
-		this.nextCol = behind.getCol();
-		walking.animationStarted();
+		this.nextCol = behind.getColumn();
+		//walking.animationStarted();
 	}
 	
 	private void walkTo(int row, int col)
 	{
 		isMoving = true;
-		GridGraph graph = new GridGraph(character.getRow(), 
-				character.getColumn(), map);
-		Path p = graph.shortestPathTo(row, col);
-		walking.setPath(p);
+		//GridGraph graph = new GridGraph(character.getRow(), 
+		//		character.getColumn(), map);
+		//Path p = graph.shortestPathTo(row, col);
+		//walking.setPath(p);
 	}
 
 	@Override
 	public void animationReelFinished() 
 	{
-		if(isMoving)
-			walking.animationReelFinished();
-		else idle.animationReelFinished();
+		//if(isMoving)
+		//	walking.animationReelFinished();
+		//else idle.animationReelFinished();
 	}
 
 	@Override
 	public void animation(double seconds) 
 	{
-		if(isMoving)
-			walking.animation(seconds);
-		else idle.animation(seconds);
+		//if(isMoving)
+		//	walking.animation(seconds);
+		//else idle.animation(seconds);
 	}
 
 	@Override
 	public void directionChanged(int direction) 
 	{
-		if(isMoving)
-			walking.directionChanged(direction);
-		else idle.directionChanged(direction);
+		//if(isMoving)
+		//	walking.directionChanged(direction);
+		//else idle.directionChanged(direction);
 	}
 	
 	@Override
@@ -99,30 +93,30 @@ public class FollowAnimation extends Animation
 		isMoving = true;
 		
 		/* Make sure not to play the end walk animation */
-		walking.setSmooth(true);
+		//walking.setSmooth(true);
 		
 		nextRow = dstRow;
 		nextCol = dstCol;
 		
-		walking.appendWaypoint(dstRow, dstCol, map);
+		//walking.appendWaypoint(dstRow, dstCol, map);
 	}
 	
 	@Override
 	public void characterArrived(MMOCharacter c) 
 	{
 		followingIsMoving = false;
-		walking.setSmooth(false);
+		//walking.setSmooth(false);
 	}
 	
 	@Override
-	public void animationFinished() 
+	public void animationFinished(Animation animation) 
 	{
 		if(animating)
 		{
 			if(!followingIsMoving)
 			{
-				walking.setSmooth(false);
-				walking.arrive();
+				//walking.setSmooth(false);
+				//walking.arrive();
 				return;
 			}
 			
@@ -133,8 +127,6 @@ public class FollowAnimation extends Animation
 	}
 
 	private MMOCharacter following;
-	private WalkingAnimation walking;
-	private IdleAnimation idle;
 	private Grid2DMap map;
 	private int nextRow;
 	private int nextCol;

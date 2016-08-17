@@ -130,8 +130,10 @@ public class ExampleBox extends Renderable
 				+ (width + locX) + ", " + (locY + height) + ")";
 	}
 
-	private Color color;
-	private CollideBox collide;
-	private double vectX;
-	private double vectY;
+	private transient Color color;
+	private transient CollideBox collide;
+	private transient double vectX;
+	private transient double vectY;
+	
+	private static final long serialVersionUID = 4556873738935567580L;
 }

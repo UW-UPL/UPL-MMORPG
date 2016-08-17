@@ -2,5 +2,5 @@ package com.upl.mmorpg.lib.animation;
 
 public interface AnimationListener 
 {
-	public void animationFinished();
+	public void animationFinished(Animation animation);
 }

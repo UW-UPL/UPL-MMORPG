@@ -10,14 +10,15 @@ import java.util.LinkedList;
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.item.Inventory;
 import com.upl.mmorpg.game.item.Item;
-import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
+import com.upl.mmorpg.lib.animation.Animation;
+import com.upl.mmorpg.lib.animation.AnimationListener;
 import com.upl.mmorpg.lib.animation.AnimationManager;
-import com.upl.mmorpg.lib.animation.AttackAnimation;
 import com.upl.mmorpg.lib.animation.DeathAnimation;
 import com.upl.mmorpg.lib.animation.FollowAnimation;
 import com.upl.mmorpg.lib.animation.IdleAnimation;
+import com.upl.mmorpg.lib.animation.PickupItem;
 import com.upl.mmorpg.lib.animation.PunchAnimation;
 import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.animation.effect.CharacterEffect;
@@ -29,10 +30,19 @@ import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.quest.Quest;
 
-public abstract class MMOCharacter extends Renderable implements Serializable
+/**
+ * Represents the base class for all characters in the game. This class
+ * should be extended by all regular and non player characters. This class
+ * should be able to be serialized with little or no updating required on
+ * the client side. All animations also need to be serializble.
+ * 
+ * @author John Detter <jdetter@wisc.edu>
+ *
+ */
+public abstract class MMOCharacter extends Renderable implements Serializable, AnimationListener
 {
 	protected MMOCharacter(double x, double y, double width, double height, 
-			Grid2DMap map, AssetManager assets, Game game)
+			Grid2DMap map, AssetManager assets, Game game, int entity_id)
 	{
 		super();
 		this.locX = x;
@@ -46,21 +56,16 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		this.game = game;
 		this.currentQuest = null;
 		this.quests = new LinkedList<Quest>();
-		
-		/* default values for character properties */
-		walkingSpeed = 1.0d;
-		
+		this.entity_id = entity_id;
 		hasAnimation = true;
 		
-		animation = new AnimationManager(assets);
-		attack = null;
-		walking = new WalkingAnimation(game, animation, this, null);
-		idle = new IdleAnimation(game, animation, this, null);
-		death = new DeathAnimation(game, animation, this, null);
-		follow = new FollowAnimation(game, animation, this, map, null);
+		animation = new AnimationManager(assets, this);
 		followers = new LinkedList<FollowListener>();
 		effects = new LinkedList<CharacterEffect>();
 		inventory = new Inventory();
+		
+		/* default values for character properties */
+		walkingSpeed = 1.0d;
 	}
 	
 	/**
@@ -87,25 +92,138 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	}
 	
 	/** Animation methods */
+	
+	/**
+	 * Walk to the given row and column.
+	 * @param row The row to go to.
+	 * @param col The column to go to.
+	 */
+	public void walkTo(int row, int col)
+	{
+		WalkingAnimation walking = new WalkingAnimation(game, animation, 
+				this, this, row, col);
+		animation.setAnimation(walking);
+	}
+	
+	/**
+	 * Add a walking animation to the queue. This can safely be added
+	 * from any thread.
+	 * @param row The row to walk to.
+	 * @param col The column to walk to.
+	 */
+	public void addWalkTo(int row, int col)
+	{
+		Log.vln("Adding walk to.");
+		WalkingAnimation walking = new WalkingAnimation(game, animation, 
+				this, this, row, col);
+		animation.addAnimation(walking);
+	}
+	
+	/**
+	 * Follow the given character.
+	 * @param character The character to follow.
+	 */
 	public void follow(MMOCharacter character)
 	{
+		FollowAnimation follow = new FollowAnimation(game, animation, this, map, null, -1);
 		follow.setFollee(character);
 		animation.setAnimation(follow);
 	}
+	
+	/**
+	 * Add a follow animation to the animation queue.
+	 * @param character The character to follow.
+	 */
+	public void addFollow(MMOCharacter character, int duration)
+	{
+		FollowAnimation follow = new FollowAnimation(game, animation, this, map, null, duration);
+		follow.setFollee(character);
+		animation.addAnimation(follow);
+	}
+	
 	public void addFollower(FollowListener follow) { followers.add(follow); }
 	public void removeFollower(FollowListener follow) { followers.remove(follow); }
 	public Iterator<FollowListener> getFollowers() { return followers.iterator(); }
-	public void idle() { animation.setAnimation(idle); }
-	public void die() { animation.setAnimation(death); }
+	
+	/**
+	 * Add an idle animation to the queue for the given duration. A duration of -1 specifies
+	 * to idle forever.
+	 * @param duration The duration to idle for, in milliseconds.
+	 */
+	public void addIdle(int duration)
+	{
+		IdleAnimation idle = new IdleAnimation(game, animation, this, null, duration);
+		animation.addAnimation(idle); 
+	}
+	
+	/**
+	 * Idle this character forever (until next animation is sets).
+	 */
+	public void idle() 
+	{ 
+		IdleAnimation idle = new IdleAnimation(game, animation, this, null, -1);
+		animation.setAnimation(idle); 
+	}
+	
+	/**
+	 * Add a death animation to the animation queue.
+	 */
+	public void addDie()
+	{
+		DeathAnimation death = new DeathAnimation(game, animation, this, null);
+		animation.addAnimation(death); 
+	}
+	
+	/**
+	 * Kill the character immediately
+	 */
+	public void die() 
+	{ 
+		DeathAnimation death = new DeathAnimation(game, animation, this, null);
+		animation.setAnimation(death); 
+	}
+	
+	/**
+	 * Animate the current character attacking the given character.
+	 * @param character The character to attack.
+	 */
 	public void attack(MMOCharacter character) 
 	{
-		attack = new PunchAnimation(game, animation, this, map, null);
+		PunchAnimation attack = new PunchAnimation(game, animation, this, map, null);
 		attack.setAttacking(character);
 		animation.setAnimation(attack); 
 	}
-	public void interruptAttack()
+	
+	/**
+	 * Pick up an item on the map immediately.
+	 * @param row The row the item is in.
+	 * @param col The column the item is in.
+	 * @param item The item to pick up.
+	 */
+	public void pickupItem(int row, int col, Item item)
 	{
-		attack.interruptAttack();
+		PickupItem item_animation = new PickupItem(game, animation, this, null, item);
+		if(getRow() != row || getColumn() != col)
+		{
+			walkTo(row, col);
+			animation.addAnimation(item_animation);
+		} else animation.setAnimation(item_animation);
+	}
+	
+	/**
+	 * Add a pickup item animation to the animation queue.
+	 * @param row The row the item is in.
+	 * @param col The column the item is in.
+	 * @param item The item to pick up.
+	 */
+	public void addPickupItem(int row, int col, Item item)
+	{
+		PickupItem item_animation = new PickupItem(game, animation, this, null, item);
+		if(getRow() != row || getColumn() != col)
+		{
+			addWalkTo(row, col);
+			animation.addAnimation(item_animation);
+		} else animation.addAnimation(item_animation);
 	}
 	
 	@Override
@@ -124,7 +242,11 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public void render(Graphics2D g, RenderPanel panel)
 	{
 		BufferedImage img = animation.getFrame();
-		if(img == null) return;
+		if(img == null) 
+		{
+			Log.e("MMOCharacter frame is null!s");
+			return;
+		}
 		
 		drawImage(panel, g, animation.getFrame(), locX, locY, width, height);
 	}
@@ -146,52 +268,6 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	protected void setAnimationReels(String path) throws IOException
 	{
 		animation.loadReels(path);
-	}
-	
-	/**
-	 * Walk to the given row and column. Safe to call from a rendering or
-	 * the main thread.
-	 * @param row The row to go to.
-	 * @param col The column to go to.
-	 */
-	public void background_walkTo(final int row, final int col)
-	{
-		Runnable run = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				int startRow = getRow();
-				int startCol = getColumn();
-				
-				GridGraph graph = new GridGraph(startRow, startCol, map);
-				Path p = graph.shortestPathTo(row, col);
-				System.out.println("startRow: " + startRow + "  startCol: " + startCol);
-				
-				walking.setPath(p);
-				animation.setAnimation(walking);
-			}
-		};
-		new Thread(run).start();
-	}
-
-	/**
-	 * Walk to the given row and column. DO NOT call this from a rendering
-	 * thread. Instead call background_walkTo, which uses a seperate thread
-	 * to do the shortest path computation.
-	 * @param row The row to go to.
-	 * @param col The column to go to.
-	 */
-	public void walkTo(int row, int col)
-	{
-		int startRow = getRow();
-		int startCol = getColumn();
-		
-		GridGraph graph = new GridGraph(startRow, startCol, map);
-		Path p = graph.shortestPathTo(row, col);
-		
-		walking.setPath(p);
-		animation.setAnimation(walking);
 	}
 	
 	/**
@@ -242,7 +318,8 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	 */
 	public Path getPath()
 	{
-		return walking.getPath();
+		//return walking.getPath();
+		return null;
 	}
 	
 	/** Quest methods */
@@ -267,6 +344,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public void questComplete(Quest quest) { this.quests.remove(quest); }
 	public Iterator<Quest> getQuestIterator() { return quests.iterator(); }
 	@Override public abstract String getRenderName();
+	public void animationFinished(Animation animation){}
 	
 	/** Getters/setters for properties */
 	public void addEffect(CharacterEffect effect) { effects.add(effect); }
@@ -286,17 +364,33 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public int getCurrentMapID() { return map.getID(); }
 	public int getRow() { return (int)(locY + 0.5d); }
 	public int getColumn() { return (int)(locX + 0.5d); }
+	public int getEntityId() { return entity_id;}
 	
+	/**
+	 * Place the character in a specific row on the map. The
+	 * column on the map remains unchanged.
+	 * @param row The row in which to place the character.
+	 */
 	public void setRow(int row) 
 	{
 		this.locY = (double)row + 0.5d;
 	}
 	
+	/**
+	 * Place the character in a specific character. The row
+	 * remains unchanged.
+	 * @param col The column in which to place the character.
+	 */
 	public void setColumn(int col) 
 	{ 
 		this.locX = (double)col + 0.5d;
 	}
 	
+	/**
+	 * Put the character into the given row and column on the map.
+	 * @param row The row to place the character.
+	 * @param col The column to place the character.
+	 */
 	public void setPosition(int row, int col)
 	{
 		this.locX = (double)col + 0.5d;
@@ -338,50 +432,82 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		if(health <= 0)
 		{
 			this.die();
-			attacker.interruptAttack();
+			// attacker.interruptAttack();
 		}
 		
 		return amount;
 	}
 	
+	/**
+	 * Add the given item to the character's inventory. Returns
+	 * whether or not there was room in the inventory to place
+	 * the item.
+	 * @param i The item to give to the player.
+	 * @return Whether or not the item could be placed into the character's inventory.
+	 */
 	public boolean receiveItem(Item i)
 	{
 		return inventory.addItem(i);
 	}
 	
-	public void updateTransient(AssetManager assets, Grid2DMap map) throws IOException
+	/**
+	 * Update any transient elements that didn't make it across the network.
+	 * @param assets The asset manager to use for loading assets.
+	 * @param game The game that we are playing in.
+	 * @param map The map that this character is on.
+	 * @throws IOException Any exceptions raised from reading in assets.
+	 */
+	public void updateTransient(AssetManager assets, Game game, Grid2DMap map) throws IOException
 	{
-		animation.updateTransient(assets);
-		idle.updateTransient(game, null, this);
-		walking.updateTransient(game, null, this);
-		// follow.updateTransient(game, null, this);
-		// attack.updateTransient(game, null, this);
-		death.updateTransient(game, null, this);
+		this.assets = assets;
+		this.game = game;
+		this.map = map;
+		animation.updateTransient(assets, game, this);
+		
+		effects = new LinkedList<CharacterEffect>();
+		quests = new LinkedList<Quest>();
+		followers = new LinkedList<FollowListener>();
+		currentQuest = null;
 	}
 	
-	protected transient AssetManager assets;
-	protected transient Grid2DMap map;
+	/**
+	 * Update the current character with the properties of the given character.
+	 * @param character The new character properties.
+	 * @throws IOException If there was an exception raised during asset load time.
+	 */
+	public void update(MMOCharacter character) throws IOException
+	{
+		/* Update animations */
+		this.animation = character.animation;
+		animation.updateTransient(assets, game, this);
+		
+		/* Update properties */
+		this.walkingSpeed = character.walkingSpeed;
+		this.animation = character.animation;
+		this.maxHealth = character.maxHealth;
+		this.attackSpeed = character.attackSpeed;
+		this.inventory = character.inventory;
+	}
 	
-	protected transient Game game;
+	protected transient AssetManager assets; /**< The asset manager to use for loading assets. */
+	protected transient Grid2DMap map; /**< The map the character is currently playing on. */
+	protected transient Game game; /**< The game the player is currently playing in. */
+	
 	protected transient Quest currentQuest;
 	protected transient LinkedList<Quest> quests;
 	protected transient LinkedList<CharacterEffect> effects;
 	
 	/* Generic animations */
 	protected AnimationManager animation;
-	protected IdleAnimation idle;
-	protected WalkingAnimation walking;
-	protected transient FollowAnimation follow;
-	protected transient AttackAnimation attack;
-	protected DeathAnimation death;
 	
 	/* Characters that are following this character */
 	protected transient LinkedList<FollowListener> followers;
 
 	/** Character properties (time related) */
+	protected int entity_id; /**< The unique number for this character */
 	protected String name; /**< The character's name */
-	protected double walkingSpeed; /**< Horizontal/Vertical tiles per second */
 	
+	protected double walkingSpeed; /**< Horizontal/Vertical tiles per second */
 	protected int maxHealth; /**< How much health the player can hold */
 	protected int health; /**< How much health the player has */
 	protected double attackSpeed; /**< How many attacks/second can this character do? */

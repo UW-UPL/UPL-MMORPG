@@ -8,15 +8,12 @@ public class DeathAnimation extends Animation
 	public DeathAnimation(Game game, AnimationManager manager, MMOCharacter character,
 			AnimationListener listener) 
 	{
-		super(game, manager, character, listener);
+		super(game, manager, character, listener, 2000);
 		this.game = game;
-		disappearTimer = 2.0d;
-		disappearSeconds = 0.0d;
-		died = false;
 	}
 
 	@Override
-	public void animationInterrupted(Animation source) {}
+	public void animationInterrupted(Animation animation) {}
 
 	@Override
 	public void animationStarted() 
@@ -29,32 +26,15 @@ public class DeathAnimation extends Animation
 	@Override
 	public void animationReelFinished() 
 	{
-		died = true;
+		game.removeCharacter(character);
+		game.getQuestEngine().died(character);
 	}
 
 	@Override
-	public void animation(double seconds) 
-	{
-		if(died)
-		{
-			disappearSeconds += seconds;
-			if(disappearSeconds >= disappearTimer)
-			{
-				died = false;
-				game.removeCharacter(character);
-				
-				/* Let the quest engine know that this character died */
-				game.getQuestEngine().died(character);
-			}
-		}
-	}
+	public void animation(double seconds)  {}
 	
 	@Override
 	public void directionChanged(int direction) {}
-	
-	private boolean died;
-	private double disappearTimer;
-	private double disappearSeconds;
 	
 	private static final long serialVersionUID = -3895351315046806201L;
 }

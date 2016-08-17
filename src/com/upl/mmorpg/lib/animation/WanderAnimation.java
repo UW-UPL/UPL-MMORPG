@@ -4,21 +4,17 @@ import java.util.Random;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
-import com.upl.mmorpg.lib.algo.GridGraph;
-import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.map.MapSquare;
 
 public class WanderAnimation extends Animation implements AnimationListener
 {
 	public WanderAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, AnimationListener listener)
+			Grid2DMap map, AnimationListener listener, int duration)
 	{
-		super(game, manager, character, listener);
+		super(game, manager, character, listener, duration);
 
 		this.map = map;
-		walking = new WalkingAnimation(game, manager, character, this);
-		idle = new IdleAnimation(game, manager, character, this);
 		isWalking = false;
 		animating = false;
 		this.startRow = character.getRow();
@@ -31,11 +27,11 @@ public class WanderAnimation extends Animation implements AnimationListener
 	@Override
 	public void animationInterrupted(Animation source) 
 	{
-		if(source == walking || source == idle) return;
+		//if(source == walking || source == idle) return;
 		
 		/* This was an external interrupt */
-		walking.animationInterrupted(source);
-		idle.animationInterrupted(source);
+		//walking.animationInterrupted(source);
+		//idle.animationInterrupted(source);
 		isWalking = false;
 		animating = false;
 	}
@@ -69,45 +65,45 @@ public class WanderAnimation extends Animation implements AnimationListener
 			if(square == null || !square.isPassable()) continue;
 			
 			isWalking = true;
-			GridGraph graph = new GridGraph(character.getRow(), 
-					character.getColumn(), map);
-			Path p = graph.shortestPathTo(row, col);
-			walking.setPath(p);
-			manager.setAnimation(walking);
+			//GridGraph graph = new GridGraph(character.getRow(), 
+			//		character.getColumn(), map);
+			//Path p = graph.shortestPathTo(row, col);
+			//walking.setPath(p);
+			//manager.setAnimation(walking);
 		}
 	}
 
 	@Override
 	public void animationReelFinished() 
 	{
-		if(isWalking)
-			walking.animationReelFinished();
-		else idle.animationReelFinished();
+		//if(isWalking)
+		//	walking.animationReelFinished();
+		//else idle.animationReelFinished();
 	}
 
 	@Override
 	public void animation(double seconds) 
 	{
-		if(isWalking)
-			walking.animation(seconds);
-		else idle.animation(seconds);
+		//if(isWalking)
+		//	walking.animation(seconds);
+		//else idle.animation(seconds);
 	}
 
 	@Override
 	public void directionChanged(int direction) 
 	{
-		if(isWalking)
-			walking.directionChanged(direction);
-		else idle.directionChanged(direction);
+		//if(isWalking)
+		//	walking.directionChanged(direction);
+		//else idle.directionChanged(direction);
 	}
 
 	@Override
-	public void animationFinished() 
+	public void animationFinished(Animation animation) 
 	{
 		if(isWalking)
 		{
 			isWalking = false;
-			manager.setAnimation(idle);
+			//manager.setAnimation(idle);
 			/* Idle for a bit and then wander more */
 			Runnable run = new Runnable()
 			{
@@ -128,19 +124,17 @@ public class WanderAnimation extends Animation implements AnimationListener
 
 	public void updateTransient(Game game, MMOCharacter character)
 	{
-		super.updateTransient(game, null, character);
+		//super.updateTransient(game, null, character);
 		random = new Random(seed);
 		map = character.getCurrentMap();
 		
-		walking.updateTransient(game, this, character);
-		idle.updateTransient(game, this, character);
+	//	walking.updateTransient(game, this, character);
+		//idle.updateTransient(game, this, character);
 	}
 	
 	private long seed;
 	private transient Random random;
 	private transient Grid2DMap map;
-	private WalkingAnimation walking;
-	private IdleAnimation idle;
 	private int radius;
 	private int startRow;
 	private int startCol;

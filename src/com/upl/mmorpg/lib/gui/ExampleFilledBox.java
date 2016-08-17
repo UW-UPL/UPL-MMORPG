@@ -32,4 +32,6 @@ public class ExampleFilledBox extends ExampleBox
 	{
 		return "ExampleFilledBox";
 	}
+	
+	private static final long serialVersionUID = -3948672684967632088L;
 }

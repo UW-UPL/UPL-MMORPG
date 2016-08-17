@@ -27,6 +27,7 @@ public class Game
 		maps = new Grid2DMap[map_paths.length];
 		for(int x = 0;x < maps.length;x++)
 			maps[x] = new Grid2DMap(x);
+		this.nextEntityNumber = 0;
 	}
 
 	public void loadAssets() throws IOException
@@ -73,8 +74,9 @@ public class Game
 		return square.getItems();
 	}
 
-	public synchronized boolean pickupItem(MMOCharacter character, Item item, int map_id)
+	public synchronized boolean pickupItem(MMOCharacter character, Item item)
 	{
+		int map_id = character.getCurrentMapID();
 		int row = character.getRow();
 		int col = character.getColumn();
 
@@ -103,7 +105,7 @@ public class Game
 
 	public Goblin createGoblin(int row, int col, int map_id)
 	{
-		Goblin g = new Goblin(row, col, maps[map_id], assets, this);
+		Goblin g = new Goblin(row, col, maps[map_id], assets, this, getEntityNumber());
 		addCharacter(g, map_id);
 		return g;
 	}
@@ -129,12 +131,20 @@ public class Game
 	{
 		return maps[mapID].getCharacters();
 	}
+	
+	protected int getEntityNumber()
+	{
+		return nextEntityNumber++;
+	}
+	
+	public void characterUpdated(MMOCharacter c) {}
 
 	protected RenderPanel render;
 	protected AssetManager assets;
 	protected QuestEngine questEngine;
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
+	protected int nextEntityNumber;
 
 	protected Grid2DMap maps[];
 	protected String map_paths[] = {

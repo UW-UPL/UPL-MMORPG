@@ -136,10 +136,11 @@ public class ExampleCircle extends Renderable
 				+ (width + locX) + ", " + (locY + height) + ")";
 	}
 
-	private Color color;
-	private CollideCircle collide;
-	private double vectX;
-	private double vectY;
+	private transient Color color;
+	private transient CollideCircle collide;
+	private transient double vectX;
+	private transient double vectY;
+	private transient double radius;
 	
-	private double radius;
+	private static final long serialVersionUID = -518345372873078336L;
 }

@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
+import com.upl.mmorpg.game.Game;
+import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderMath;
 import com.upl.mmorpg.lib.libfile.FileManager;
@@ -14,19 +18,20 @@ import com.upl.mmorpg.lib.liblog.Log;
 
 public class AnimationManager implements Serializable
 {
-	public AnimationManager(AssetManager assets)
+	public AnimationManager(AssetManager assets, MMOCharacter character)
 	{
 		this.assets = assets;
+		this.character = character;
 		currentReel = null;
 		reelPos = -1;
 		reelDirection = FRONT;
-		currentAnimation = null;
 		currentFrame = null;
 		animation_total = 0;
 		animation_speed = 0;
 		endReelNotified = false;
 		currentReelName = null;
 		this.reelsPath = null;
+		animationQueue = new LinkedList<Animation>();
 		
 		map = new HashMap<String, BufferedImage[][]>();
 	}
@@ -55,13 +60,12 @@ public class AnimationManager implements Serializable
 		BufferedImage[][] reel = map.get(reelName);
 		if(reel == null) return false;
 		
-		if(this.currentReel == reel) return true;
-		this.currentReel = reel;
-		this.maxReelPos = reel[this.reelDirection].length;
-		this.endReelNotified = false;
-		this.currentReelName = reelName;
+		currentReel = reel;
+		maxReelPos = reel[reelDirection].length;
+		endReelNotified = false;
+		currentReelName = reelName;
 		
-		this.currentFrame = reel[this.reelDirection][this.reelPos];
+		currentFrame = reel[reelDirection][reelPos];
 		
 		return true;
 	}
@@ -73,14 +77,55 @@ public class AnimationManager implements Serializable
 		return reel[0].length;
 	}
 
-	public synchronized void setAnimation(Animation animation)
+	public synchronized void addAnimation(Animation animation)
 	{
-		if(this.currentAnimation != null)
-			currentAnimation.animationInterrupted(animation);
-		this.currentAnimation = animation;
-		this.endReelNotified = false;
+		if(animationQueue.isEmpty())
+			setAnimation(animation);
+		else animationQueue.add(animation);
+		Log.vln("Animation " + animation + " added to animation manager");
+	}
+	
+	public void clearAnimations()
+	{
+		if(animationQueue.isEmpty())
+			return;
+		
+		/* notify the current animation that they're being interrupted */
+		Animation currentAnimation = animationQueue.getFirst();
+		currentAnimation.animationInterrupted(null);
+		animationQueue.clear();
+		endReelNotified = false;
+		setAnimationFrame(0);
+		Log.vln("Cleared animations in animation manager.");
+	}
+	
+	public boolean nextAnimation()
+	{
+		if(animationQueue.isEmpty())
+			return false;
+		
+		Animation animation = animationQueue.removeFirst();
+		animation.animationInterrupted(null);
+		if(!animationQueue.isEmpty())
+		{
+			Animation next = animationQueue.getFirst();
+			next.animationStarted();
+		} else {
+			/* The default animation is to idle */
+			character.idle();
+		}
+		
+		return true;
+	}
+	
+	public void setAnimation(Animation animation)
+	{
+		Log.vln("New animation set: " + animation);
+		animationQueue.clear();
+		animationQueue.add(animation);
 		animation.animationStarted();
-		this.setAnimationFrame(0);
+		Log.vln("animationStarted called.");
+		endReelNotified = false;
 	}
 	
 	public synchronized void setAnimationFrame(int frame)
@@ -218,6 +263,11 @@ public class AnimationManager implements Serializable
 	
 	public void animation(double seconds)
 	{
+		if(animationQueue.isEmpty())
+			return;
+		
+		Animation currentAnimation = animationQueue.getFirst();
+		
 		if(animation_speed <= 0)
 			return;
 		
@@ -248,39 +298,53 @@ public class AnimationManager implements Serializable
 		}
 		
 		if(currentAnimation != null)
-			currentAnimation.animation(seconds);
+			currentAnimation.doAnimation(seconds);
 	}
 	
-	public void updateTransient(AssetManager assets) throws IOException
+	public void updateTransient(AssetManager assets, Game game, MMOCharacter character) throws IOException
 	{
 		this.assets = assets;
-		this.loadReels(reelsPath);
-		this.loadReel(currentReelName);
+		this.character = character;
+		map = new HashMap<String, BufferedImage[][]>();
+		if(!loadReels(reelsPath))
+			Log.v("FAILED TO LOAD REELS: " + reelsPath);
+		if(!loadReel(currentReelName))
+			Log.v("FAILED TO LOAD REEL: " + currentReelName);
+		Log.vln("Character has " + animationQueue.size() + " animations.");
+		Iterator<Animation> it = animationQueue.iterator();
+		while(it.hasNext())
+		{
+			Animation animation = it.next();
+			animation.updateTransient(game, null, character, this);
+		}
+		
 	}
 	
-	protected transient Animation currentAnimation;
-	
-	protected transient AssetManager assets;
-	protected transient BufferedImage currentFrame;
-	protected transient BufferedImage currentReel[][];
-	protected String currentReelName;
-	protected String reelsPath;
-	protected int reelDirection;
-	protected int reelPos;
-	protected int maxReelPos;
-	protected boolean endReelNotified;
+	protected transient MMOCharacter character; /**< The character we are managing. */
+	protected transient AssetManager assets; /**< The asset manager to load assets from */
+	protected transient BufferedImage currentFrame; /**< The current reel we are rendering */
+	protected transient BufferedImage currentReel[][]; /**< Assets for the current reel that is playing */
+	protected LinkedList<Animation> animationQueue; /**< The animation queue */
+	protected String currentReelName; /**< The path of the current reel. */
+	protected String reelsPath; /**< Where did we load our reels from? */
+	protected int reelDirection; /**< Which direction the character is looking */
+	protected int reelPos; /**< The current frame number */
+	protected int maxReelPos; /**< The number of the last animation frame */
+	protected boolean endReelNotified; /**< Whether or not the current animation has been notified */
 
-	protected boolean animation_loop;
-	protected double animation_speed;
-	protected double animation_total;
+	protected boolean animation_loop; /**< Whether or not to loop the reel */
+	protected double animation_speed; /**< The amount of seconds in between frame numbers */
+	protected double animation_total; /**< The amount of time spent on the current frame. */
 
 	protected transient HashMap<String, BufferedImage[][]> map;
 
+	/** Array for converting a direction to the resulting string (debug) */
 	public static final String directions_str[] = {
 			"front", "front_left", "front_right", "right", 
 			"back", "back_right", "back_left", "left"
 			};
 	
+	/** Direction definitions */
 	public static final int FRONT = 0;
 	public static final int FRONT_LEFT = 1;
 	public static final int FRONT_RIGHT = 2;

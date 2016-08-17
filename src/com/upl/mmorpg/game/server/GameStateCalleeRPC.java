@@ -4,9 +4,9 @@ import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCCallee;
 import com.upl.mmorpg.lib.util.StackBuffer;
 
-public class GameStateCallee implements RPCCallee
+public class GameStateCalleeRPC implements RPCCallee
 {
-	public GameStateCallee(GameStateManager client)
+	public GameStateCalleeRPC(GameStateManager client)
 	{
 		this.client = client;
 	}
@@ -63,8 +63,6 @@ public class GameStateCallee implements RPCCallee
 
 		return result;
 	}
-
-
-
+	
 	private GameStateManager client;
 }

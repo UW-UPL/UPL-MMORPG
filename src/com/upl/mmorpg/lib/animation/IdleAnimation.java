@@ -2,17 +2,27 @@ package com.upl.mmorpg.lib.animation;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.lib.liblog.Log;
+
+/**
+ * Animation of the character idling. A timeout value can be set, which
+ * after the given amount of milliseconds, the animation will end. A
+ * timeout value of -1 can be passed, which means idle forever.
+ * 
+ * @author John Detter <jdetter@wisc.edu>
+ *
+ */
 
 public class IdleAnimation extends Animation
 {
 	public IdleAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			AnimationListener listener) 
+			AnimationListener listener, int duration) 
 	{
-		super(game, manager, character, listener);
+		super(game, manager, character, listener, duration);
 	}
 
 	@Override
-	public void animationInterrupted(Animation source) {}
+	public void animationInterrupted(Animation animation) {}
 
 	@Override
 	public void animationStarted() 
@@ -23,10 +33,17 @@ public class IdleAnimation extends Animation
 	}
 
 	@Override
-	public void animationReelFinished() {}
+	public void animationReelFinished() 
+	{
+		Log.e("Idle animation reel should never finish!!!");
+	}
 
 	@Override
-	public void animation(double seconds) {}
+	public void animation(double seconds) 
+	{
+		if(length > 0 && seconds_passed >= length)
+			manager.nextAnimation();
+	}
 
 	@Override
 	public void directionChanged(int direction) {}

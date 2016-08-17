@@ -10,18 +10,16 @@ public abstract class AttackAnimation extends FollowAnimation
 			MMOCharacter character, Grid2DMap map,
 			AnimationListener listener) 
 	{
-		super(game, manager, character, map, listener);
+		super(game, manager, character, map, listener, -1);
 		animating = false;
 		lastAttack = 0.0d;
-		
-		idle = new IdleAnimation(game, manager, character, listener);
 	}
 	
 	@Override
-	public void animationFinished()
+	public void animationFinished(Animation animation)
 	{
-		super.animationFinished();
-		this.lookTowards(attacking.getRow(), attacking.getColumn());
+		super.animationFinished(animation);
+		//this.lookTowards(attacking.getRow(), attacking.getColumn());
 	}
 
 	public void setAttacking(MMOCharacter attacking)
@@ -48,14 +46,14 @@ public abstract class AttackAnimation extends FollowAnimation
 		super.animationStarted();
 		animating = true;
 		lastAttack = 0.0d;
-		idle.animationStarted();
+		//idle.animationStarted();
 	}
 
 	@Override
 	public void animationReelFinished() 
 	{
 		super.animationReelFinished();
-		idle.animationStarted();
+		//idle.animationStarted();
 	}
 
 	@Override
@@ -85,8 +83,6 @@ public abstract class AttackAnimation extends FollowAnimation
 	private boolean animating;
 	private double lastAttack;
 	private transient MMOCharacter attacking;
-	
-	private IdleAnimation idle;
 	
 	private static final long serialVersionUID = -1742965394212302361L;
 }

@@ -384,6 +384,7 @@ public class RenderPanel extends JPanel implements Runnable
 
 	private class FPSMeasure extends TextView implements Runnable
 	{
+		
 		public FPSMeasure(RenderPanel panel)
 		{
 			super("FPS: XX");
@@ -449,8 +450,10 @@ public class RenderPanel extends JPanel implements Runnable
 			this.setY(this.getHeight());
 		}
 
-		private Thread framesThread; /* Thread for measuring fps */
-		private boolean measuring; /* whether or not we are generating stats */
-		private RenderPanel panel;
+		private transient Thread framesThread; /* Thread for measuring fps */
+		private transient boolean measuring; /* whether or not we are generating stats */
+		private transient RenderPanel panel;
+		
+		private static final long serialVersionUID = -1570266011398908831L;
 	}
 }

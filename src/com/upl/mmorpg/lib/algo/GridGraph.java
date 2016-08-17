@@ -71,7 +71,7 @@ public class GridGraph
 				break;
 			currPath = paths.dequeueLowestPriority();
 			currentNode = graph[currPath.getLast().getRow()]
-					[currPath.getLast().getCol()];
+					[currPath.getLast().getColumn()];
 			curr_dist = currentNode.value;
 			
 			double x1 = currentNode.col;

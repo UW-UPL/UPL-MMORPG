@@ -20,7 +20,7 @@ public class Path implements Serializable
 	
 	private void addPoint(GridPoint point)
 	{
-		path.add(new GridPoint(point.getRow(), point.getCol()));
+		path.add(new GridPoint(point.getRow(), point.getColumn()));
 	}
 	
 	public void catPath(Path path)
@@ -57,9 +57,9 @@ public class Path implements Serializable
 			GridPoint nextPoint = it.next();
 			
 			double x1 = currPoint.getRow();
-			double y1 = currPoint.getCol();
+			double y1 = currPoint.getColumn();
 			double x2 = nextPoint.getRow();
-			double y2 = nextPoint.getCol();
+			double y2 = nextPoint.getColumn();
 			
 			length += RenderMath.pointDistance(x1, y1, x2, y2);
 			currPoint = nextPoint;
@@ -75,7 +75,7 @@ public class Path implements Serializable
 	
 	public int getNextCol()
 	{
-		return path.getFirst().getCol();
+		return path.getFirst().getColumn();
 	}
 	
 	public Path copy()
@@ -93,7 +93,7 @@ public class Path implements Serializable
 		{
 			GridPoint point = it.next();
 			point.setRow(point.getRow() + row);
-			point.setCol(point.getCol() + col);
+			point.setColumn(point.getColumn() + col);
 		}
 	}
 	
@@ -104,7 +104,7 @@ public class Path implements Serializable
 		while(it.hasNext())
 		{
 			GridPoint point = it.next();
-			System.out.println(x + ": " + point.getRow() + "," + point.getCol());
+			System.out.println(x + ": " + point.getRow() + "," + point.getColumn());
 			x++;
 		}
 	}

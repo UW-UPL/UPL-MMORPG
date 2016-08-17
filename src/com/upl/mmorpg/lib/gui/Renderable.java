@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -13,22 +14,18 @@ import com.upl.mmorpg.lib.collision.CollideCircle;
 import com.upl.mmorpg.lib.collision.CollideShape;
 import com.upl.mmorpg.lib.collision.CollisionManager;
 
-public abstract class Renderable implements Runnable, Collidable
+public abstract class Renderable implements Serializable, Collidable
 {
 	public Renderable()
 	{
 		collision_shapes = new LinkedList<CollideShape>();
 		hasAnimation = false;
-		animating = false;
-		animationThread = null;
 		showing = false;
 		locX = 0;
 		locY = 0;
 		width = 0;
 		height = 0;
 		rotation = 0.0f;
-
-		animation_wait = RenderMath.calculateVSYNC(ANIMATION_SPEED);
 	}
 	
 	public boolean inGlass()
@@ -181,39 +178,8 @@ public abstract class Renderable implements Runnable, Collidable
 		locY = y - (height / 2);
 	}
 
-	@Override
-	public void run()
-	{
-		while(animating)
-		{
-			try
-			{
-				Thread.sleep(animation_wait);
-			}catch(Exception e){}
-			if(!animating) break;
-
-			animation(animation_wait);
-		}
-	}
-
 	protected void animation(double seconds_change) {}
 
-	public void stopAnimation()
-	{
-		animating = false;
-		try
-		{
-			animationThread.interrupt();
-		}catch(Exception e){}
-
-		try
-		{
-			animationThread.join(1000);
-		}catch(Exception e){}
-
-		animationThread = null;
-	}
-	
 	public void drawImage(RenderPanel parent, Graphics2D g, BufferedImage img, double x, double y, 
 			double width, double height)
 	{
@@ -281,8 +247,8 @@ public abstract class Renderable implements Runnable, Collidable
 		g.fillRect((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
 	}
 	
-	protected CollisionManager collision_manager;
-	protected LinkedList<CollideShape> collision_shapes;
+	protected transient CollisionManager collision_manager;
+	protected transient LinkedList<CollideShape> collision_shapes;
 	protected double locX;
 	protected double locY;
 	protected double width;
@@ -293,9 +259,5 @@ public abstract class Renderable implements Runnable, Collidable
 	protected boolean hasAnimation;
 	protected boolean inGlass; /**< Whether or not this renderable is in the glass pane */
 
-	private int animation_wait;
-	private Thread animationThread;
-	private boolean animating;
-
-	private static final int ANIMATION_SPEED = 60;
+	private static final long serialVersionUID = 3852771086756115110L;
 }

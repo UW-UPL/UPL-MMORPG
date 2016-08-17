@@ -25,7 +25,8 @@ public class LoginManager implements LoginInterface
 		Log.vnetln(username + " has logged in.");
 		
 		MMOCharacter character = game.createGoblin(12, 12, GameMap.EXAMPLE1);
-		new GameStateManager(game, character, rpc);
+		GameStateManager gameState = new GameStateManager(game, character, rpc);
+		game.addClient(gameState);
 		
 		return true;
 	}
