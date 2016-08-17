@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.Goblin;
+import com.upl.mmorpg.game.client.MapControl;
 import com.upl.mmorpg.game.server.login.LoginManager;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.liblog.Log;
@@ -82,7 +83,12 @@ public class ServerGame extends Game implements ServerListener
 	{
 		try 
 		{
-			RPCManager rpc = new RPCManager(socket, cid, new LoginServerCallee(new LoginManager(this)));
+			
+			RPCManager rpc = new RPCManager(socket, cid);
+			LoginManager login = new LoginManager(this, rpc);
+			LoginServerCallee callee = new LoginServerCallee(login);
+			rpc.setCallee(callee);
+			
 			rpcs.add(rpc);
 			Log.vnet("Client accepted.");
 		} catch (IOException e) 

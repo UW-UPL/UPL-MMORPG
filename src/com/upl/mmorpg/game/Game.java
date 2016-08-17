@@ -113,6 +113,13 @@ public class Game
 		return questEngine;
 	}
 	
+	public Grid2DMap getMap(int id)
+	{
+		if(id >= 0 && id < maps.length)
+			return maps[id];
+		else return null;
+	}
+	
 	protected RenderPanel render;
 	protected AssetManager assets;
 	protected QuestEngine questEngine;

@@ -282,6 +282,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	public double getAttackSpeed() { return attackSpeed; }
 	public void setAttackSpeed(double attackSpeed) { this.attackSpeed = attackSpeed; }
 	public Grid2DMap getCurrentMap() { return map; }
+	public int getCurrentMapID() { return map.getID(); }
 	public int getRow() { return (int)(locY + 0.5d); }
 	public int getColumn() { return (int)(locX + 0.5d); }
 	

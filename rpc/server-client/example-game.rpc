@@ -1,4 +1,0 @@
-# Return Value, Method name, arg1, arg2, ...
-
-# public boolean receive_message(String sender, String message);
-boolean,receive_message,String,String

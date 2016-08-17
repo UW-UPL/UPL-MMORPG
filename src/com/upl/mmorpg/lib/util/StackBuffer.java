@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
@@ -151,7 +150,7 @@ public class StackBuffer
 			pushDouble(arr[x]);
 	}
 	
-	public void pushObject(Serializable obj)
+	public void pushObject(Object obj)
 	{
 		ByteArrayOutputStream bos = null;
 		ObjectOutputStream oos = null;

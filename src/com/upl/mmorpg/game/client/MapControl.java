@@ -1,4 +1,4 @@
-package com.upl.mmorpg.game.server;
+package com.upl.mmorpg.game.client;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;

@@ -1,0 +1,4 @@
+# Return value, method name, arg1, arg2, ... argn
+
+# public Grid2DMap requestCurrentMap(void);
+Object,requestCurrentMap
