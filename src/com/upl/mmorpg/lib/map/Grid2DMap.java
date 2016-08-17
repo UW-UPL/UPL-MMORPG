@@ -180,14 +180,6 @@ public class Grid2DMap extends Renderable implements Serializable
 		return map[row][col];
 	}
 	
-	public double getWidth() {
-		return tileSize * colCount;
-	}
-	
-	public double getHeight() {
-		return tileSize * rowCount;
-	}
-	
 	/**
 	 * Regenerates the properties of all of the map squares. This should be
 	 * called after the tile size is changed.
