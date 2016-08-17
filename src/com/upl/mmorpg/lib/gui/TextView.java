@@ -95,17 +95,17 @@ public class TextView extends Renderable
 	}
 	
 	@Override
-	public void render(Graphics2D g, RenderPanel panel, double zoom) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{
 		if(hasBackground)
 		{
 			g.setColor(backgroundColor);
-			g.fillRect((int)(locX * zoom), (int)(locY * zoom), (int)(width * zoom), (int)(height * zoom));
+			fillRect(panel, g, locX, locY, width, height);
 		}
 		
 		g.setFont(font);
 		g.setColor(color);
-		g.drawString(text, (float)(locX * zoom), (float)((locY * zoom) + height - descent));
+		drawString(panel, g, text, locX, locY + height - descent);
 	}
 
 	@Override

@@ -14,30 +14,6 @@ import com.upl.mmorpg.lib.gui.Renderable;
 
 public class MapSquare extends Renderable implements Serializable
 {
-	protected MapSquare()
-	{
-		row = 0;
-		col = 0;
-		locX = 0;
-		locY = 0;
-		width = 0;
-		height = 0;
-		destroyed = false;
-		destructible = false;
-		image_name = null;
-		overlay_name = null;
-		destroyed_overlay = null;
-		overlay = null;
-		passThrough = true;
-		passThroughWhenDestroyed = true;
-		
-		isMapLink = false;
-		linked_map = null;
-		link_row = -1;
-		link_col = -1;
-		list = new ItemList(1);
-	}
-	
 	public MapSquare(int row, int col, String image_name, 
 			String overlay_name, String destroyed_overlay_name)
 	{
@@ -89,23 +65,20 @@ public class MapSquare extends Renderable implements Serializable
 	}
 
 	@Override
-	public void render(Graphics2D g, RenderPanel panel, double zoom) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{
 		if(image != null)
-			g.drawImage(image, (int)(locX * zoom), (int)(locY * zoom), 
-					(int)(width * zoom), (int)(height * zoom), null);
+			drawImage(panel, g, image, locX, locY, width, height);
 
 		if(overlay != null && !destroyed)
-			g.drawImage(overlay, (int)(locX * zoom), (int)(locY * zoom), 
-					(int)(width * zoom), (int)(height * zoom), null);
+			drawImage(panel, g, overlay, locX, locY, width, height);
 
 		if(destroyed && destroyed_overlay != null)
-			g.drawImage(destroyed_overlay, (int)(locX * zoom), (int)(locY * zoom), 
-					(int)(width * zoom), (int)(height * zoom), null);
+			drawImage(panel, g, destroyed_overlay, locX, locY, width, height);
 		
 		Iterator<Item> it = list.iterator();
 		while(it.hasNext())
-			it.next().render(g, panel, zoom);
+			it.next().render(g, panel);
 	}
 
 	@Override

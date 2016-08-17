@@ -54,9 +54,15 @@ public class EditableGrid2DMap extends Grid2DMap
 
 	public void export(String file_path, AssetManager assets) throws IOException
 	{
+		/* Convert this to a normal Grid2DMap */
+		Grid2DMap map = new Grid2DMap(-1);
+		for(int row = 0;row < rowCount;row++)
+			for(int col = 0;col < colCount;col++)
+				map.setSquare(row, col, ((EditableMapSquare)this.map[row][col]).export());
+		
 		FileManager file = assets.getFile(file_path, true, true, true);
 		StackBuffer buff = new StackBuffer();
-		buff.pushObject(this);
+		buff.pushObject(map);
 		byte[] arr = buff.toArray();
 		file.writeBytes(arr);
 		assets.closeFile(file);
@@ -70,12 +76,12 @@ public class EditableGrid2DMap extends Grid2DMap
 		StackBuffer buff = new StackBuffer(file);
 		file.close();
 		
-		Object load = buff.popObject();
-		if(load instanceof EditableGrid2DMap)
+		Object obj = buff.popObject();
+		
+		if(obj instanceof EditableGrid2DMap)
 		{
-			EditableGrid2DMap grid = (EditableGrid2DMap)buff.popObject();
-			if(grid == null)
-				return false;
+			EditableGrid2DMap grid = (EditableGrid2DMap)obj;
+			
 			this.map = grid.map;
 			this.rowCount = grid.rowCount;
 			this.colCount = grid.colCount;

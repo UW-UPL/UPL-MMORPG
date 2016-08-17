@@ -39,19 +39,18 @@ public class Grid2DMap extends Renderable implements Serializable
 	}
 	
 	@Override
-	public void render(Graphics2D g, RenderPanel panel, double zoom) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{
 		if(!loaded || map == null) return;
 		
-		/* Only draw the tiles that are on the screen */
-		double startX = panel.getGlobalViewX() - zoom;
-		double startY = panel.getGlobalViewY() - zoom;
+		double zoom = panel.getZoom();
+		
+		int startRow = (int)(panel.getViewY() / zoom);
+		int startCol = (int)(panel.getViewX() / zoom);
 		
 		int displayCols = (int)(panel.getWidth() / zoom) + 2;
-		int displayRows = (int)(panel.getHeight() / zoom) + 3;
+		int displayRows = (int)(panel.getHeight() / zoom) + 2;
 		
-		int startRow = (int)(startY / zoom);
-		int startCol = (int)(startX / zoom);
 		
 		for(int rows = 0;rows < displayRows;rows++)
 		{
@@ -63,10 +62,13 @@ public class Grid2DMap extends Renderable implements Serializable
 				if(row < 0 || row >= rowCount || col < 0 || col >= colCount)
 					continue;
 				if(map[row][col] != null)
-					map[row][col].render(g, panel, zoom);
+					map[row][col].render(g, panel);
 			}
 		}
 	}
+	
+	public int getRows() { return rowCount; }
+	public int getColumns() { return colCount; }
 
 	@Override
 	public String getRenderName() 

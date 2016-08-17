@@ -176,7 +176,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		/* Initialize the render panel */
 		render = new RenderPanel(true, true, false);
 		/* Create an empty map (not loaded) */
-		map = new EditableGrid2DMap(TILE_SIZE, -1);
+		map = new EditableGrid2DMap(-1);
 		render.addBPRenderable(map);
 		
 		/* This holds the panel that renders the map and the panel that renders the tools */
@@ -585,9 +585,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			
 			if((square = map.getSquare(row, col)) == null)
 			{
-				square = new EditableMapSquare(
-						col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE,
-						texture_file, null, null);
+				square = new EditableMapSquare(row, col, texture_file, null, null);
 				set = true;
 			} else {
 				square.setImage(texture_file);
@@ -637,9 +635,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 			
 			if((square = map.getSquare(row, col)) == null)
 			{
-				square = new EditableMapSquare(
-						col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE,
-						null, null, null);
+				square = new EditableMapSquare(row, col, null, null, null);
 				set = true;
 			} else {
 				square.setOverlay(texture_file);
@@ -683,9 +679,7 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 					
 					if((square = map.getSquare(row, col)) == null)
 					{
-						square = new EditableMapSquare(
-								col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE,
-								null, null, null);
+						square = new EditableMapSquare(row, col, null, null, null);
 						set = true;
 					}
 					

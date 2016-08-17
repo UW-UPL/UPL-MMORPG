@@ -19,7 +19,6 @@ public class RenderPanel extends JPanel implements Runnable
 	public RenderPanel(boolean vsync, boolean showfps, boolean headless)
 	{
 		this.headless = headless;
-		this.addGuideLines();
 		
 		timer = new DynamicRenderTimer(FRAMES_PER_SECOND, this);
 
@@ -30,6 +29,7 @@ public class RenderPanel extends JPanel implements Runnable
 		backPane = new LinkedList<Renderable>();
 		midPane = new LinkedList<Renderable>();
 		glassPane = new LinkedList<Renderable>();
+		this.addGuideLines();
 
 		/* Initilize collision manager */
 		collision_manager = new CollisionManager();
@@ -223,7 +223,7 @@ public class RenderPanel extends JPanel implements Runnable
 			Log.vrndln("Rendering component: " + render.getRenderName());
 			if(render.hasAnimation)
 				render.animation(seconds);
-			render.render(g, this, zoom);
+			render.render(g, this);
 		}
 	}
 	
@@ -390,7 +390,7 @@ public class RenderPanel extends JPanel implements Runnable
 		}
 
 		@Override
-		public void render(Graphics2D g, RenderPanel panel, double zoom) 
+		public void render(Graphics2D g, RenderPanel panel) 
 		{
 			g.setColor(Color.red);
 			g.drawString(getText(), (float)locX, (float)locY);

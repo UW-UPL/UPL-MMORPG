@@ -47,13 +47,12 @@ public class Item extends Renderable implements Serializable
 	}
 	
 	@Override
-	public void render(Graphics2D g, RenderPanel panel, double zoom) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{		
 		if(asset == null)
 			return;
 		
-		g.drawImage(asset, (int)(locX * zoom), (int)(locY * zoom), 
-				(int)(width * zoom), (int)(height * zoom), null);
+		drawImage(panel, g, asset, locX, locY, width, height);
 	}
 
 	@Override

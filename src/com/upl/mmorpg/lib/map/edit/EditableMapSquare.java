@@ -19,32 +19,41 @@ public class EditableMapSquare extends MapSquare
 	}
 	
 	@Override
-	public void render(Graphics2D g, RenderPanel panel, double zoom) 
+	public void render(Graphics2D g, RenderPanel panel) 
 	{
-		super.render(g, panel, zoom);
+		super.render(g, panel);
+		
+		double line_width = 1.0d / 8.0d;
 		if(!this.passThrough)
 		{
 			g.setColor(Color.BLUE);
-			g.drawRect((int)(locX * zoom), (int)(locY * zoom), (int)(width - 1), (int)height - 1);
-			g.drawRect((int)locX + 1, (int)locY + 1, (int)width - 3, (int)height - 3);
+			
+			fillRect(panel, g, locX, locY, line_width, height);
+			fillRect(panel, g, locX, locY, width, line_width);
+			fillRect(panel, g, locX + width - line_width, locY, line_width, height);
+			fillRect(panel, g, locX, locY + height - line_width, width, line_width);
 		}
 		
 		if(this.destructible)
 		{
 			g.setColor(Color.RED);
-			g.drawRect((int)locX + 2, (int)locY + 2, (int)width - 5, (int)height - 5);
-			g.drawRect((int)locX + 3, (int)locY + 3, (int)width - 7, (int)height - 7);
+			double offset = line_width;
+			fillRect(panel, g, locX + offset, locY + offset, line_width, height - (offset * 2));
+			fillRect(panel, g, locX + offset, locY + offset, width - (offset * 2), line_width);
+			fillRect(panel, g, locX + width - line_width - offset, locY + offset, line_width, height - (offset * 2));
+			fillRect(panel, g, locX + offset, locY + height - line_width - offset, width - (offset * 2), line_width);
 		}
 		
 		if(this.isLinkLanding)
-		{
-			g.drawImage(linkLandingImage, (int)locX, (int)locY, (int)width, (int)height, null);
-		}
+			drawImage(panel, g, linkLandingImage, locX, locY, width, height);
 		
 		if(this.isMapLink)
-		{
-			g.drawImage(mapLinkImage, (int)locX, (int)locY, (int)width, (int)height, null);
-		}
+			drawImage(panel, g, mapLinkImage, locX, locY, width, height);
+	}
+	
+	public MapSquare export()
+	{
+		return new MapSquare(row, col, image_name, overlay_name, destroyed_overlay_name);
 	}
 	
 	@Override

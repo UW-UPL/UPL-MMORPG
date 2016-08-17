@@ -121,14 +121,12 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	}
 	
 	@Override
-	public void render(Graphics2D g, RenderPanel panel, double zoom)
+	public void render(Graphics2D g, RenderPanel panel)
 	{
 		BufferedImage img = animation.getFrame();
 		if(img == null) return;
 		
-		g.drawImage(animation.getFrame(), 
-				(int)(locX * zoom), (int)(locY * zoom), 
-				(int)(width * zoom), (int)(height * zoom), null);
+		drawImage(panel, g, animation.getFrame(), locX, locY, width, height);
 	}
 	
 	@Override
@@ -302,7 +300,6 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		this.locX = (double)col + 0.5d;
 		this.locY = (double)row + 0.5d;
 	}
-	
 	
 	/**
 	 * Give the character some damage. This may kill the character

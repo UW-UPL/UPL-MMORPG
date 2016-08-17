@@ -11,7 +11,7 @@ public class Goblin extends NonPlayerCharacter
 {
 	public Goblin(int row, int column, Grid2DMap map, AssetManager assets, Game game) 
 	{
-		super(0, 0, 0, 0, map, assets, game);
+		super(0, 0, 1, 1, map, assets, game);
 		this.setGridPosition(row, column);
 		
 		try 

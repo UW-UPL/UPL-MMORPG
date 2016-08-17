@@ -2,6 +2,7 @@ package com.upl.mmorpg.lib.gui;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -101,7 +102,7 @@ public abstract class Renderable implements Runnable, Collidable
 	 * render the object in the graphics pane
 	 * @param g the object to render
 	 */
-	public abstract void render(Graphics2D g, RenderPanel parent, double zoom);
+	public abstract void render(Graphics2D g, RenderPanel parent);
 	
 	/**
 	 * Render any additional effects that should be above
@@ -201,6 +202,55 @@ public abstract class Renderable implements Runnable, Collidable
 		}catch(Exception e){}
 
 		animationThread = null;
+	}
+	
+	public void drawImage(RenderPanel parent, Graphics2D g, BufferedImage img, double x, double y, 
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		g.drawImage(img, (int)(x * zoom), (int)(y * zoom), 
+				(int)(width * zoom), (int)(height * zoom), null);
+	}
+	
+	public void drawString(RenderPanel parent, Graphics2D g, String text, double x, double y)
+	{
+		double zoom = parent.getZoom();
+		g.drawString(text, (int)(x * zoom), (int)(y * zoom));
+	}
+	
+	public void drawLine(RenderPanel parent, Graphics2D g, double x1, double y1, 
+			double x2, double y2)
+	{
+		double zoom = parent.getZoom();
+		g.drawLine((int)(x1 * zoom), (int)(y1 * zoom), (int)(x2 * zoom), (int)(y2 * zoom));
+	}
+	
+	public void drawOval(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		g.drawOval((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+	}
+	
+	public void fillOval(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		g.fillOval((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+	}
+	
+	public void drawRect(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		g.drawRect((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
+	}
+	
+	public void fillRect(RenderPanel parent, Graphics2D g, double x, double y,
+			double width, double height)
+	{
+		double zoom = parent.getZoom();
+		g.fillRect((int)(x * zoom), (int)(y * zoom), (int)(width * zoom), (int)(height * zoom));
 	}
 	
 	protected CollisionManager collision_manager;
