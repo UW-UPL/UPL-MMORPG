@@ -7,9 +7,9 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.lib.quest.Quest;
 
-public class PickedUp extends QuestAction
+public class PickedUpItem extends QuestAction
 {
-	public PickedUp(Game game, MMOCharacter character, Item item)
+	public PickedUpItem(Game game, MMOCharacter character, Item item)
 	{
 		super(game);
 		this.character = character;
@@ -25,7 +25,7 @@ public class PickedUp extends QuestAction
 			MMOCharacter c = it.next();
 			Iterator<Quest> q = c.getQuestIterator();
 			while(q.hasNext())
-				q.next().pickedUp(character, item);
+				q.next().pickedUpItem(character, item);
 		}
 	}
 	

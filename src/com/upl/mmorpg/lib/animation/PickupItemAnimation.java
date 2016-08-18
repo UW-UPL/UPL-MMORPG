@@ -12,9 +12,9 @@ import com.upl.mmorpg.game.item.Item;
  * @author John Detter <jdetter@wisc.edu>
  *
  */
-public class PickupItem extends Animation
+public class PickupItemAnimation extends Animation
 {
-	public PickupItem(Game game, AnimationManager manager, MMOCharacter character, AnimationListener listener, Item item) 
+	public PickupItemAnimation(Game game, AnimationManager manager, MMOCharacter character, AnimationListener listener, Item item) 
 	{
 		super(game, manager, character, listener, 1);
 		this.item = item;

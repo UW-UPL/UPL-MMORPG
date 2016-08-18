@@ -57,7 +57,7 @@ public class GameStateManager implements GameStateInterface
 		rpc.do_call(stack, false);
 	}
 
-	public void itemDropped(int arg0, int arg1, Object arg2)
+	public void itemDropped(int arg0, int arg1, Object arg2, Object arg3)
 	{
 		StackBuffer stack = new StackBuffer();
 
@@ -67,22 +67,23 @@ public class GameStateManager implements GameStateInterface
 		stack.pushInt(arg0);
 		stack.pushInt(arg1);
 		stack.pushObject(arg2);
+		stack.pushObject(arg3);
 		/* Do the network call */
 		rpc.do_call(stack, false);
 	}
 
-    public void itemPickedUp(Object arg0, Object arg1)
-    {
-            StackBuffer stack = new StackBuffer();
+	public void itemPickedUp(Object arg0, Object arg1)
+	{
+		StackBuffer stack = new StackBuffer();
 
-            /* Push the function number */
-            stack.pushInt(4);
-            /* Push the arguments */
-            stack.pushObject(arg0);
-            stack.pushObject(arg1);
-            /* Do the network call */
-            rpc.do_call(stack, false);
-    }
+		/* Push the function number */
+		stack.pushInt(4);
+		/* Push the arguments */
+		stack.pushObject(arg0);
+		stack.pushObject(arg1);
+		/* Do the network call */
+		rpc.do_call(stack, false);
+	}
 
 	public int getCurrentMapID()
 	{

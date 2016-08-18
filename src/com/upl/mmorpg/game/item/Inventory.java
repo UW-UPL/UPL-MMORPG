@@ -77,17 +77,26 @@ public class Inventory extends ItemList
 		return super.add(item);
 	}
 	
-	public int removeItemStack(ItemStack stack)
+	private int removeItemStack(ItemStack stack)
 	{
 		for(int x = 0;x < stack.getCount();x++)
-			if(!removeItem(new Item(stack)))
+			if(!remove(new Item(stack)))
 				return x;
 		
 		return stack.getCount();
 	}
 	
-	public boolean removeItem(Item item)
+	@Override
+	public boolean remove(Object obj)
 	{
+		if(!(obj instanceof Item || obj instanceof ItemStack))
+			return false;
+		
+		if(obj instanceof ItemStack)
+			return removeItemStack((ItemStack)obj) > 0;
+		
+		Item item = (Item)obj;
+		
 		Iterator<Item> it = iterator();
 		
 		ItemStack istack = null;

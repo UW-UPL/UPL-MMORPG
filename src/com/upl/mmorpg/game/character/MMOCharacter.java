@@ -17,9 +17,10 @@ import com.upl.mmorpg.lib.animation.Animation;
 import com.upl.mmorpg.lib.animation.AnimationListener;
 import com.upl.mmorpg.lib.animation.AnimationManager;
 import com.upl.mmorpg.lib.animation.DeathAnimation;
+import com.upl.mmorpg.lib.animation.DropItemAnimation;
 import com.upl.mmorpg.lib.animation.FollowAnimation;
 import com.upl.mmorpg.lib.animation.IdleAnimation;
-import com.upl.mmorpg.lib.animation.PickupItem;
+import com.upl.mmorpg.lib.animation.PickupItemAnimation;
 import com.upl.mmorpg.lib.animation.PunchAnimation;
 import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.animation.effect.CharacterEffect;
@@ -203,7 +204,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void pickupItem(int row, int col, Item item)
 	{
-		PickupItem item_animation = new PickupItem(game, animation, this, null, item);
+		PickupItemAnimation item_animation = new PickupItemAnimation(game, animation, this, null, item);
 		if(getRow() != row || getColumn() != col)
 		{
 			walkTo(row, col);
@@ -219,12 +220,44 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void addPickupItem(int row, int col, Item item)
 	{
-		PickupItem item_animation = new PickupItem(game, animation, this, null, item);
+		PickupItemAnimation item_animation = new PickupItemAnimation(game, animation, this, null, item);
 		if(getRow() != row || getColumn() != col)
 		{
 			addWalkTo(row, col);
 			animation.addAnimation(item_animation);
 		} else animation.addAnimation(item_animation);
+	}
+	
+	/**
+	 * Animate the character dropping the item on the map.
+	 * @param row The row on the map to drop the item.
+	 * @param col The column on the map to drop the item.
+	 * @param item The item to drop on the map.
+	 */
+	public void dropItem(int row, int col, Item item)
+	{
+		DropItemAnimation drop_animation = new DropItemAnimation(game, animation, this, null, item);
+		if(getRow() != row || getColumn() != col)
+		{
+			walkTo(row, col);
+			animation.addAnimation(drop_animation);
+		} else animation.setAnimation(drop_animation);
+	}
+	
+	/**
+	 * Animate the character dropping the item on the map.
+	 * @param row The row on the map to drop the item.
+	 * @param col The column on the map to drop the item.
+	 * @param item The item to drop on the map.
+	 */
+	public void addDropItem(int row, int col, Item item)
+	{
+		DropItemAnimation drop_animation = new DropItemAnimation(game, animation, this, null, item);
+		if(getRow() != row || getColumn() != col)
+		{
+			addWalkTo(row, col);
+			animation.addAnimation(drop_animation);
+		} else animation.addAnimation(drop_animation);
 	}
 	
 	@Override
@@ -450,6 +483,16 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	public boolean receiveItem(Item i)
 	{
 		return inventory.addItem(i);
+	}
+	
+	/**
+	 * Take the item out of the player's inventory.
+	 * @param i The item to take away from the player.
+	 * @return Whether or not the item could be taken out of the player's inventory.
+	 */
+	public boolean dropItem(Item i)
+	{
+		return inventory.remove(i);
 	}
 	
 	/**

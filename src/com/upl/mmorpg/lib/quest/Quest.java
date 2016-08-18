@@ -11,5 +11,6 @@ public interface Quest extends Serializable
 	public void killed(MMOCharacter attacker, MMOCharacter victim);
 	public void damaged(MMOCharacter attacker, MMOCharacter victim, int damage);
 	public void movedTo(MMOCharacter character, int row, int col);
-	public void pickedUp(MMOCharacter character, Item i);
+	public void pickedUpItem(MMOCharacter character, Item i);
+	public void droppedItem(MMOCharacter character, Item i);
 }

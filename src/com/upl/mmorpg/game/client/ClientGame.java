@@ -54,9 +54,19 @@ public class ClientGame extends Game
 	 * @param col The column in which the item was dropped.
 	 * @param item The item that was dropped.
 	 */
-	public void itemDropped(int row, int col, Item item)
+	public boolean itemDropped(int row, int col, Item item, MMOCharacter character)
 	{
+		/* Take the item away from the player */
+		if(!character.getInventory().remove(item))
+		{
+			Log.e("Item couldn't be dropped by player " + character);
+			return false;
+		}
+		
+		/* Add the item to the map */
 		currentMap.itemDropped(row, col, item);
+		
+		return true;
 	}
 	
 	/**

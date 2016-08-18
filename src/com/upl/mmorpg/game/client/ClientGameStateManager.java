@@ -68,12 +68,20 @@ public class ClientGameStateManager implements GameStateInterface
 	}
 	
 	@Override
-	public void itemDropped(int row, int col, Object obj) 
+	public void itemDropped(int row, int col, Object obj, Object obj2) 
 	{
-		if(obj instanceof Item)
+		if(obj instanceof Item && obj2 instanceof CharacterUUID)
 		{
 			Item i = (Item)obj;
-			game.itemDropped(row, col, i);
+			CharacterUUID uuid = (CharacterUUID)obj2;
+			MMOCharacter character = game.getCharacter(uuid);
+			if(character == null)
+			{
+				Log.e("Couldn't find character: " + uuid);
+				return;
+			}
+			
+			game.itemDropped(row, col, i, character);
 		}
 	}
 

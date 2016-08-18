@@ -43,9 +43,10 @@ public class ClientGameStateCalleeRPC implements RPCCallee
 		int arg0 = stack.popInt();
 		int arg1 = stack.popInt();
 		Object arg2 = stack.popObject();
+		Object arg3 = stack.popObject();
 
 		/* Do the function call */
-		client.itemDropped(arg0, arg1, arg2);
+		client.itemDropped(arg0, arg1, arg2, arg3);
 	}
 
 	public void __itemPickedUp(StackBuffer stack)

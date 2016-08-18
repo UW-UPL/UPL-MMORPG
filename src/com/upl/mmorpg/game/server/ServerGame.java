@@ -130,6 +130,23 @@ public class ServerGame extends Game implements ServerListener
 
 		return result;
 	}
+	
+	@Override
+	public synchronized boolean dropItem(MMOCharacter character, Item item)
+	{
+		boolean result = super.dropItem(character, item);
+		
+		if(result)
+		{
+			for(GameStateManager client : clients)
+			{
+				if(client.getCurrentMapID() == character.getCurrentMapID())
+					client.itemDropped(character.getRow(), character.getColumn(), item, character.getUUID());
+			}
+		}
+		
+		return result;
+	}
 
 	@Override
 	public boolean addCharacter(MMOCharacter c, int map_id)
@@ -184,6 +201,18 @@ public class ServerGame extends Game implements ServerListener
 			//			new Thread(run).start();
 
 			/******** Item pickup example */
+//			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
+//			collector.walkTo(6, 6);
+//			Runnable run = new Runnable()
+//			{
+//				public void run()
+//				{
+//					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+//				}
+//			};
+//			new Thread(run).start();
+			
+			/******** Item pickup and drop example */
 			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
 			collector.walkTo(6, 6);
 			Runnable run = new Runnable()
@@ -191,6 +220,9 @@ public class ServerGame extends Game implements ServerListener
 				public void run()
 				{
 					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+					collector.addIdle(3000);
+					collector.addDropItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+					g.characterUpdated(collector);
 				}
 			};
 			new Thread(run).start();

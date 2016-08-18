@@ -12,6 +12,7 @@ import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
+import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.map.MapSquare;
 import com.upl.mmorpg.lib.quest.QuestEngine;
@@ -145,6 +146,41 @@ public class Game
 				return true;
 			}
 		}
+
+		return false;
+	}
+	
+	/**
+	 * Drop an item onto the map.
+	 * @param character The character that is dropping the item.
+	 * @param item The item to drop on the square.
+	 * @return Whether or not the item could be picked up.
+	 */
+	public synchronized boolean dropItem(MMOCharacter character, Item item)
+	{
+		int map_id = character.getCurrentMapID();
+		int row = character.getRow();
+		int col = character.getColumn();
+
+		/* Get the square the character is currently on */
+		MapSquare square = maps[map_id].getSquare(row, col);
+
+		/* Are they on a valid square? */
+		if(square == null)
+			return false;
+
+		/* Is this item on the square? */
+		if(character.getInventory().contains(item))
+		{
+			/* Does this character have room for this item? */
+			if(character.dropItem(item))
+			{
+				square.getItems().add(item);
+				/* Let everyone know someone picked up an item */
+				questEngine.dropped(character, item);
+				return true;
+			} else Log.e("Character couldn't drop that item!");
+		} else Log.e("Character doesn't have that item!");
 
 		return false;
 	}
