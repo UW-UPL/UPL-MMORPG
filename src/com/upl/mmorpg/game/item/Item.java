@@ -5,15 +5,28 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
 
+/**
+ * This is the base class for all items in the game.
+ * 
+ * @author John Detter <jdetter@wisc.edu>
+ *
+ */
+
 public class Item extends Renderable implements Serializable
 {
+	/**
+	 * Copy an item exactly (includes exact UUID).
+	 * @param i The item to make an exact copy of.
+	 */
 	public Item(Item i)
 	{
 		id = i.id;
+		uuid = i.uuid;
 		type = i.type;
 		name = i.name;
 		asset_path = i.asset_path;
@@ -21,9 +34,18 @@ public class Item extends Renderable implements Serializable
 		asset = i.asset;
 	}
 	
+	/**
+	 * Generate an item from the given properties.
+	 * @param id The id of the item.
+	 * @param type The type of item.
+	 * @param name The name of the item.
+	 * @param asset_path The path to the asset for this item.
+	 * @param value The game value of the item.
+	 */
 	public Item(int id, Item.Type type, String name, String asset_path, long value)
 	{
 		this.id = id;
+		this.uuid = ItemUUID.generate();
 		this.type = type;
 		this.name = name;
 		this.asset_path = asset_path;
@@ -67,6 +89,11 @@ public class Item extends Renderable implements Serializable
 		asset = assets.loadImage(asset_path);
 	}
 	
+	/**
+	 * Set the position of this item on the map. 
+	 * @param row The row of the item.
+	 * @param col The column of the item.
+	 */
 	public void setPosition(int row, int col)
 	{
 		this.locX = col;
@@ -80,8 +107,10 @@ public class Item extends Renderable implements Serializable
 	public String getName() { return name; }
 	public long getValue() { return value; }
 	public String getAssetPath() { return asset_path; }
+	public ItemUUID getUUID() { return uuid; }
 
 	private final int id; /**< The ID of the item */
+	private final ItemUUID uuid; /**< The UUID for this item */
 	private final Item.Type type; /**< The type of the object */
 	private final String name; /**< The name of the item. */
 	private final String asset_path; /**< The path of the image asset */

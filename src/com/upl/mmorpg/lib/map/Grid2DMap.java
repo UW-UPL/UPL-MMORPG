@@ -4,9 +4,12 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
@@ -25,6 +28,7 @@ public class Grid2DMap extends Renderable implements Serializable
 		loaded = false;
 		this.id = map_id;
 		characters = new LinkedList<MMOCharacter>();
+		items = new LinkedList<Item>();
 	}
 	
 	/**
@@ -40,6 +44,10 @@ public class Grid2DMap extends Renderable implements Serializable
 			throw new IOException("Ilegal map format exception");
 	}
 	
+	/**
+	 * Make a copy of a Grid2DMap.
+	 * @param map The map to copy.
+	 */
 	public Grid2DMap(Grid2DMap map)
 	{
 		this.map = new MapSquare[map.getRows()][map.getColumns()];
@@ -57,8 +65,16 @@ public class Grid2DMap extends Renderable implements Serializable
 		
 		this.loaded = true;
 		characters = new LinkedList<MMOCharacter>();
+		items = new LinkedList<Item>();
+		findAllItems();
+		generateSquareProperties();
 	}
 	
+	/**
+	 * Let this map know that it has been loaded. This is only
+	 * used when the map is tranferred over the network and the
+	 * loaded state is not preserved.
+	 */
 	public void setLoaded()
 	{
 		this.loaded = true;
@@ -76,7 +92,6 @@ public class Grid2DMap extends Renderable implements Serializable
 		
 		int displayCols = (int)(panel.getWidth() / zoom) + 2;
 		int displayRows = (int)(panel.getHeight() / zoom) + 2;
-		
 		
 		for(int rows = 0;rows < displayRows;rows++)
 		{
@@ -172,6 +187,7 @@ public class Grid2DMap extends Renderable implements Serializable
 			loaded = true;
 			characters = new LinkedList<MMOCharacter>();
 			generateSquareProperties();
+			findAllItems();
 		} else return false;
 		
 		return true;
@@ -257,12 +273,10 @@ public class Grid2DMap extends Renderable implements Serializable
 			for(int row = 0;row < this.rowCount;row++)
 				for(int col = 0;col < this.colCount;col++)
 				{
-					System.out.println("ROW: " + row + " COL: " + col);;
 					MapSquare square = map.getSquare(row, col);
 					if((this.map[row][col] == null)
 							!= (square == null))
 						return false;
-					System.out.println("Both either null or non null");;
 					if(square != null)
 						if(!square.equals(this.map[row][col]))
 							return false;
@@ -274,29 +288,142 @@ public class Grid2DMap extends Renderable implements Serializable
 		return false;
 	}
 	
+	/**
+	 * Returns the list of all characters on the map.
+	 * @return The list of characters on the map.
+	 */
 	public LinkedList<MMOCharacter> getCharacters()
 	{
 		return characters;
 	}
 	
+	/**
+	 * Remove all characters from the map.
+	 */
 	public void clearCharacters()
 	{
 		characters.clear();
 	}
 	
+	/**
+	 * Add all of the given characters to this map.
+	 * @param c The Collection of characters to add to this map.
+	 */
 	public void addAllCharacters(Collection<MMOCharacter> c)
 	{
 		characters.addAll(c);
 	}
 	
+	/**
+	 * Set the list of characters on the map.
+	 * @param characters The characters that should be on the map.
+	 */
 	public void setCharacters(LinkedList<MMOCharacter> characters)
 	{
 		this.characters = characters;
 	}
 	
+	/**
+	 * Populate the internal item list with all of the items
+	 * on the map.
+	 * @return Whether or not items were found.
+	 */
+	public boolean findAllItems()
+	{
+		items.clear();
+		boolean added = false;
+		for(int row = 0;row < rowCount;row++)
+		{
+			for(int col = 0;col < colCount;col++)
+			{
+				items.addAll(map[row][col].getItems());
+				added = true;
+			}
+		}
+		
+		return added;
+	}
+	
+	/**
+	 * Returns the list of items on the map.
+	 * @return The list of items on the map.
+	 */
+	public LinkedList<Item> getItems()
+	{
+		return items;
+	}
+	
+	/**
+	 * Convert the item from a uuid into the item object.
+	 * @param uuid The uuid of the item to search for.
+	 * @return The item, if it exists, null if it doesn't
+	 */
+	public Item getItem(ItemUUID uuid)
+	{
+		Iterator<Item> it = items.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			if(i.getUUID().equals(uuid))
+				return i;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Drop an item onto the map.
+	 * @param item The item to drop.
+	 * @param row The row in which to drop the item.
+	 * @param col The column in which to drop the item.
+	 * @return Whether or not the item could be added to the map square.
+	 */
+	public boolean itemDropped(Item item, int row, int col)
+	{
+		if(row < rowCount && row >= 0
+				&& col >= 0 && col < colCount)
+		{
+			MapSquare square = map[row][col];
+			if(square != null)
+			{
+				if(square.itemDropped(item))
+				{
+					items.add(item);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Pickup an item from the map.
+	 * @param item The UUID of the item to pick up.
+	 * @return The item, null if there is no such item on the map.
+	 */
+	public Item pickupItem(ItemUUID item)
+	{
+		for(int row = 0;row < rowCount;row++)
+		{
+			for(int col = 0;col < colCount;col++)
+			{
+				Item i = map[row][col].removeItem(item);
+				if(i != null)
+				{
+					items.remove(i);
+					return i;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	protected transient int id; /**< The id number for this map (set by Game). */
 	protected transient boolean loaded; /**< Whether or not the assets have been loaded for this map. */
 	protected transient LinkedList<MMOCharacter> characters; /**< The characters that are on this map */
+	protected transient LinkedList<Item> items; /**< The items on the map */
 	
 	protected int rowCount; /**< How many rows are in this map */
 	protected int colCount; /**< How many columns are in this map. s*/

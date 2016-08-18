@@ -56,6 +56,8 @@ public class ClientGame extends Game
 		System.out.println("COLUMNS: " + currentMap.getColumns());
 		if(currentMap == null)
 			return false;
+		currentMap.findAllItems();
+		System.out.println("This map contains " + currentMap.getItems().size() + " items.");
 		render.removeAllRenderables();
 		render.addRenderable(currentMap);
 

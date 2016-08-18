@@ -9,6 +9,7 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.item.ItemList;
 import com.upl.mmorpg.game.uuid.CharacterUUID;
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -17,6 +18,13 @@ import com.upl.mmorpg.lib.quest.QuestEngine;
 
 public class Game 
 {
+	/**
+	 * Create a new UPL-MMORPG game.
+	 * @param assets The asset manager to use.
+	 * @param headless Whether or not a render window will be used.
+	 * @param fps Whether or not to display frames per second (non headless only).
+	 * @param vsync Whether or not to sync the framerate to the screen (non headless only).
+	 */
 	public Game(AssetManager assets, boolean headless, boolean fps, boolean vsync) 
 	{
 		this.assets = assets;
@@ -30,12 +38,20 @@ public class Game
 			maps[x] = new Grid2DMap(x);
 	}
 
+	/**
+	 * Load all of the game assets we expect to use.
+	 * @throws IOException If the assets cannot be found.
+	 */
 	public void loadAssets() throws IOException
 	{
 		/* Supported Characters */
 		Goblin.prefetchAssets(assets, this);
 	}
 
+	/**
+	 * Load all of the maps as assets.
+	 * @throws IOException If one or more maps cannot be found.
+	 */
 	public void loadMaps() throws IOException
 	{
 		if(maps == null) return;
@@ -48,6 +64,11 @@ public class Game
 		}
 	}
 
+	/**
+	 * Add a new character to a map.
+	 * @param c The character to add to the map.
+	 * @param map_id The id of the map in which to add the character.
+	 */
 	public void addCharacter(MMOCharacter c, int map_id)
 	{
 		if(map_id >= 0 && map_id < maps.length)
@@ -59,13 +80,27 @@ public class Game
 		}
 	}
 
+	/**
+	 * Remove a character from the game.
+	 * @param c The character to remove.
+	 */
 	public void removeCharacter(MMOCharacter c)
 	{
 		characters.remove(c);
 		render.removeRenderable(c);
+		
+		/* remove the character from their map. */
 		c.getCurrentMap().removeCharacter(c);
+		c.setCurrentMap(null);
 	}
 
+	/**
+	 * Returns the list of items that are on a given square.
+	 * @param row The row of the square.
+	 * @param col The column of the square.
+	 * @param map_id The id of the map to search on.
+	 * @return The list of items on that square, if the square is not null.
+	 */
 	public ItemList getItemsOnSquare(int row, int col, int map_id)
 	{
 		MapSquare square = maps[map_id].getSquare(row, col);
@@ -74,6 +109,12 @@ public class Game
 		return square.getItems();
 	}
 
+	/**
+	 * Pickup an item from the map.
+	 * @param character The character to receive the item.
+	 * @param item The item within the square the character is standing on.
+	 * @return Whether or not the item could be picked up.
+	 */
 	public synchronized boolean pickupItem(MMOCharacter character, Item item)
 	{
 		int map_id = character.getCurrentMapID();
@@ -88,12 +129,12 @@ public class Game
 			return false;
 
 		/* Is this item on the square? */
-		if(square.getItems().containsItem(item))
+		if(square.getItems().contains(item))
 		{
 			/* Does this character have room for this item? */
 			if(character.receiveItem(item))
 			{
-				square.getItems().removeItem(item);
+				square.getItems().remove(item);
 				/* Let everyone know someone picked up an item */
 				questEngine.pickedUp(character, item);
 				return true;
@@ -102,7 +143,54 @@ public class Game
 
 		return false;
 	}
+	
+	/**
+	 * Convert a CharacterUUID into the character it represents.
+	 * @param uuid The UUID of the character to search for.
+	 * @return The MMOCharacter, if it exists, null otherwise.
+	 */
+	public MMOCharacter getCharacter(CharacterUUID uuid)
+	{
+		Iterator<MMOCharacter> it = characters.iterator();
+		while(it.hasNext())
+		{
+			MMOCharacter c = it.next();
+			if(c.getUUID().equals(uuid))
+				return c;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Convert an ItemUUID into the item it represents.
+	 * @param uuid The UUID to search for.
+	 * @return The item, if it exists, null otherwise.
+	 */
+	public Item getItem(ItemUUID uuid)
+	{
+		for(int x = 0;x < maps.length;x++)
+		{
+			Iterator<Item> it = maps[x].getItems().iterator();
+			
+			while(it.hasNext())
+			{
+				Item i = it.next();
+				if(i.getUUID().equals(uuid))
+					return i;
+			}
+		}
+		
+		return null;
+	}
 
+	/**
+	 * Put a goblin character onto the map/
+	 * @param row The row in which to place the goblin.
+	 * @param col The column in which to place the goblin.
+	 * @param map_id The id of the map in which the goblin should be placed.
+	 * @return The newly created goblin character.
+	 */
 	public Goblin createGoblin(int row, int col, int map_id)
 	{
 		Goblin g = new Goblin(row, col, maps[map_id], assets, this, CharacterUUID.generate());
@@ -110,16 +198,29 @@ public class Game
 		return g;
 	}
 
+	/**
+	 * Returns an iterator for the list of characters in this game.
+	 * @return An iterator for the list of characters in this game.
+	 */
 	public Iterator<MMOCharacter> characterIterator()
 	{
 		return characters.iterator();
 	}
 
+	/**
+	 * Returns the quest engine for this game.
+	 * @return The quest engine for this game.
+	 */
 	public QuestEngine getQuestEngine()
 	{
 		return questEngine;
 	}
 
+	/**
+	 * Returns the map object given a map id.
+	 * @param id The id of the map.
+	 * @return The map object.
+	 */
 	public Grid2DMap getMap(int id)
 	{
 		if(id >= 0 && id < maps.length)
@@ -127,20 +228,31 @@ public class Game
 		else return null;
 	}
 
+	/**
+	 * Get all characters on a specific map.
+	 * @param mapID The id of the map that contains the requested characters.
+	 * @return The characters on the given map.
+	 */
 	public LinkedList<MMOCharacter> getCharactersOnMap(int mapID)
 	{
 		return maps[mapID].getCharacters();
 	}
 	
+	/**
+	 * A character's properties have changed.
+	 * @param c The character that has properties that have changed.
+	 */
 	public void characterUpdated(MMOCharacter c) {}
 
-	protected RenderPanel render;
-	protected AssetManager assets;
-	protected QuestEngine questEngine;
-	protected boolean headless;
-	protected LinkedList<MMOCharacter> characters;
+	protected RenderPanel render; /**< The render panel used for rendering animation and graphics. */
+	protected AssetManager assets; /**< The asset manager to use for loading assets. */
+	protected QuestEngine questEngine; /**< This game's quest engine. */
+	protected boolean headless; /**< Whether or not we are displaying graphics. */
+	protected LinkedList<MMOCharacter> characters; /**< The characters on the map. */
 
-	protected Grid2DMap maps[];
+	protected Grid2DMap maps[]; /**< The currently loaded maps. */
+	
+	/* The list of maps to load when the game starts. */
 	protected String map_paths[] = {
 			"assets/maps/example.mmomap"	
 	};

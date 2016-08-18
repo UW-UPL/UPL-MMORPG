@@ -74,7 +74,7 @@ public class Inventory extends ItemList
 		}
 
 		/* Just try to use the parent addItem */
-		return super.addItem(item);
+		return super.add(item);
 	}
 	
 	public int removeItemStack(ItemStack stack)
