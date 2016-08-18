@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.item.Inventory;
 import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.animation.Animation;
@@ -42,7 +43,7 @@ import com.upl.mmorpg.lib.quest.Quest;
 public abstract class MMOCharacter extends Renderable implements Serializable, AnimationListener
 {
 	protected MMOCharacter(double x, double y, double width, double height, 
-			Grid2DMap map, AssetManager assets, Game game, int entity_id)
+			Grid2DMap map, AssetManager assets, Game game, CharacterUUID uuid)
 	{
 		super();
 		this.locX = x;
@@ -56,11 +57,11 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 		this.game = game;
 		this.currentQuest = null;
 		this.quests = new LinkedList<Quest>();
-		this.entity_id = entity_id;
+		this.uuid = uuid;
 		hasAnimation = true;
 		
 		animation = new AnimationManager(assets, this);
-		followers = new LinkedList<FollowListener>();
+		followers = new LinkedList<CharacterUUID>();
 		effects = new LinkedList<CharacterEffect>();
 		inventory = new Inventory();
 		
@@ -141,9 +142,9 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 		animation.addAnimation(follow);
 	}
 	
-	public void addFollower(FollowListener follow) { followers.add(follow); }
-	public void removeFollower(FollowListener follow) { followers.remove(follow); }
-	public Iterator<FollowListener> getFollowers() { return followers.iterator(); }
+	public void addFollower(CharacterUUID follow) { followers.add(follow); }
+	public void removeFollower(CharacterUUID follow) { followers.remove(follow); }
+	public Iterator<CharacterUUID> getFollowers() { return followers.iterator(); }
 	
 	/**
 	 * Add an idle animation to the queue for the given duration. A duration of -1 specifies
@@ -364,7 +365,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	public int getCurrentMapID() { return map.getID(); }
 	public int getRow() { return (int)(locY + 0.5d); }
 	public int getColumn() { return (int)(locX + 0.5d); }
-	public int getEntityId() { return entity_id;}
+	public CharacterUUID getUUID() { return uuid; }
 	
 	/**
 	 * Place the character in a specific row on the map. The
@@ -466,7 +467,6 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 		
 		effects = new LinkedList<CharacterEffect>();
 		quests = new LinkedList<Quest>();
-		followers = new LinkedList<FollowListener>();
 		currentQuest = null;
 	}
 	
@@ -501,10 +501,10 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	protected AnimationManager animation;
 	
 	/* Characters that are following this character */
-	protected transient LinkedList<FollowListener> followers;
+	protected LinkedList<CharacterUUID> followers;
 
 	/** Character properties (time related) */
-	protected int entity_id; /**< The unique number for this character */
+	protected CharacterUUID uuid; /**< The unique identity number for this character  */
 	protected String name; /**< The character's name */
 	
 	protected double walkingSpeed; /**< Horizontal/Vertical tiles per second */

@@ -7,6 +7,6 @@ public interface GameStateInterface
 	public Object requestCharacters();
 	
 	/* Server -> Client */
-    public void updateCharacter(int arg0, Object arg1);
+    public void updateCharacter(Object arg0, Object arg1);
     public void updateMap(int arg0, Object arg1);
 }

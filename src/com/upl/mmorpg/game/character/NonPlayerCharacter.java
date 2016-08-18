@@ -1,6 +1,7 @@
 package com.upl.mmorpg.game.character;
 
 import com.upl.mmorpg.game.Game;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.animation.WanderAnimation;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -8,7 +9,7 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 public abstract class NonPlayerCharacter extends MMOCharacter 
 {
 	public NonPlayerCharacter(double x, double y, double width, double height,
-			Grid2DMap map, AssetManager assets, Game game, int entity_id) 
+			Grid2DMap map, AssetManager assets, Game game, CharacterUUID entity_id) 
 	{
 		super(x, y, width, height, map, assets, game, entity_id);
 	}

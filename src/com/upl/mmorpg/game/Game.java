@@ -8,6 +8,7 @@ import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.item.ItemList;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -27,7 +28,6 @@ public class Game
 		maps = new Grid2DMap[map_paths.length];
 		for(int x = 0;x < maps.length;x++)
 			maps[x] = new Grid2DMap(x);
-		this.nextEntityNumber = 0;
 	}
 
 	public void loadAssets() throws IOException
@@ -105,7 +105,7 @@ public class Game
 
 	public Goblin createGoblin(int row, int col, int map_id)
 	{
-		Goblin g = new Goblin(row, col, maps[map_id], assets, this, getEntityNumber());
+		Goblin g = new Goblin(row, col, maps[map_id], assets, this, CharacterUUID.generate());
 		addCharacter(g, map_id);
 		return g;
 	}
@@ -132,11 +132,6 @@ public class Game
 		return maps[mapID].getCharacters();
 	}
 	
-	protected int getEntityNumber()
-	{
-		return nextEntityNumber++;
-	}
-	
 	public void characterUpdated(MMOCharacter c) {}
 
 	protected RenderPanel render;
@@ -144,7 +139,6 @@ public class Game
 	protected QuestEngine questEngine;
 	protected boolean headless;
 	protected LinkedList<MMOCharacter> characters;
-	protected int nextEntityNumber;
 
 	protected Grid2DMap maps[];
 	protected String map_paths[] = {

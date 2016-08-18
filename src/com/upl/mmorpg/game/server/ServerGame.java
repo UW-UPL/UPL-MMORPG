@@ -106,7 +106,7 @@ public class ServerGame extends Game implements ServerListener
 		for(GameStateManager client : clients)
 		{
 			if(client.getCurrentMapID() == c.getCurrentMapID())
-				client.updateCharacter(c.getEntityId(), c);
+				client.updateCharacter(c.getUUID(), c);
 		}
 	}
 	
@@ -208,7 +208,7 @@ public class ServerGame extends Game implements ServerListener
 						Thread.sleep(5000);
 						walker.walkTo(6, 6);
 						Item i = g.getItemsOnSquare(6, 6, 0).iterator().next();
-						g.pickupItem(walker, i, 0);
+						walker.pickupItem(6, 6, i);
 						g.characterUpdated(walker);
 					} catch(Exception e){}
 				}

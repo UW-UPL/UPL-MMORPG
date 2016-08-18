@@ -3,9 +3,7 @@ package com.upl.mmorpg.lib.animation;
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.FollowListener;
 import com.upl.mmorpg.game.character.MMOCharacter;
-import com.upl.mmorpg.lib.algo.GridGraph;
-import com.upl.mmorpg.lib.algo.GridPoint;
-import com.upl.mmorpg.lib.algo.Path;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class FollowAnimation extends Animation 
@@ -25,7 +23,7 @@ public class FollowAnimation extends Animation
 	
 	public void setFollee(MMOCharacter following)
 	{
-		this.following = following;
+		//this.following = following;
 	}
 
 	@Override
@@ -34,7 +32,7 @@ public class FollowAnimation extends Animation
 		/* This was an external interrupt */
 		isMoving = false;
 		animating = false;
-		following.removeFollower(this);
+		//following.removeFollower(this);
 	}
 	
 	@Override
@@ -42,12 +40,12 @@ public class FollowAnimation extends Animation
 	{
 		isMoving = false;
 		animating = true;
-		following.addFollower(this);
+		//following.addFollower(this);
 		
-		GridPoint behind = following.getBehindPoint();
-		walkTo(behind.getRow(), behind.getColumn());
-		this.nextRow = behind.getRow();
-		this.nextCol = behind.getColumn();
+		//GridPoint behind = following.getBehindPoint();
+		//walkTo(behind.getRow(), behind.getColumn());
+		//this.nextRow = behind.getRow();
+		//this.nextCol = behind.getColumn();
 		//walking.animationStarted();
 	}
 	
@@ -126,7 +124,7 @@ public class FollowAnimation extends Animation
 		}
 	}
 
-	private MMOCharacter following;
+	private CharacterUUID following;
 	private Grid2DMap map;
 	private int nextRow;
 	private int nextCol;

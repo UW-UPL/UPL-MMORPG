@@ -41,5 +41,5 @@ public class PickupItem extends Animation
 	
 	private static final long serialVersionUID = -4243819479990411151L;
 	
-	private Item item;
+	private transient Item item;
 }

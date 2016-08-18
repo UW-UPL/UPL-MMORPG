@@ -2,6 +2,7 @@ package com.upl.mmorpg.game.client;
 
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.server.GameStateInterface;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
 import com.upl.mmorpg.lib.util.StackBuffer;
@@ -41,12 +42,13 @@ public class ClientGameStateManager implements GameStateInterface
     
     /** Callee methods */
 	@Override
-	public void updateCharacter(int entity_id, Object obj) 
+	public void updateCharacter(Object uuid, Object obj) 
 	{
-		if(obj instanceof MMOCharacter)
+		if(obj instanceof MMOCharacter && uuid instanceof CharacterUUID)
 		{
 			MMOCharacter character = (MMOCharacter)obj;
-			if(!game.updateCharacter(character, entity_id))
+			CharacterUUID cuuid = (CharacterUUID)uuid;
+			if(!game.updateCharacter(cuuid, character))
 				Log.e("Updating character failed!!");
 			else Log.vln("Update character: " + character.getName());
 		} else Log.e("Update character but wasn't sent character!");

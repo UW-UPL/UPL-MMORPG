@@ -31,14 +31,14 @@ public class GameStateManager implements GameStateInterface
 	}
 	
 	/** Caller methods */
-    public void updateCharacter(int arg0, Object arg1)
+    public void updateCharacter(Object arg0, Object arg1)
     {
             StackBuffer stack = new StackBuffer();
 
             /* Push the function number */
             stack.pushInt(1);
             /* Push the arguments */
-            stack.pushInt(arg0);
+            stack.pushObject(arg0);
             stack.pushObject(arg1);
             /* Do the network call */
             rpc.do_call(stack, false);

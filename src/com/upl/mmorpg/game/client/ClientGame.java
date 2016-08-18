@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
@@ -32,7 +33,7 @@ public class ClientGame extends Game
 
 		gameState = new ClientGameStateManager(this, rpc);
 		rpc.setCallee(new ClientGameStateCalleeRPC(gameState));
-		
+
 		try
 		{
 			if(!this.loadMap())
@@ -57,7 +58,7 @@ public class ClientGame extends Game
 			return false;
 		render.removeAllRenderables();
 		render.addRenderable(currentMap);
-		
+
 		return true;
 	}
 
@@ -77,17 +78,17 @@ public class ClientGame extends Game
 			character.updateTransient(assets, this, currentMap);
 			render.addRenderable(character);
 		}
-		
+
 		return true;
 	}
-	
-	public boolean updateCharacter(MMOCharacter character, int entity_id)
+
+	public boolean updateCharacter(CharacterUUID uuid, MMOCharacter character)
 	{
 		Iterator<MMOCharacter> it = currentMap.getCharacters().iterator();
 		while(it.hasNext())
 		{
 			MMOCharacter c = it.next();
-			if(c.getEntityId() == character.getEntityId())
+			if(c.getUUID().equals(character.getUUID()))
 			{
 				try 
 				{
@@ -100,7 +101,7 @@ public class ClientGame extends Game
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 

@@ -3,8 +3,8 @@ package com.upl.mmorpg.lib.animation;
 import java.util.Iterator;
 
 import com.upl.mmorpg.game.Game;
-import com.upl.mmorpg.game.character.FollowListener;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.liblog.Log;
@@ -94,12 +94,12 @@ public class WalkingAnimation extends Animation
 		manager.setReelDirection(dir);
 		this.generateVectors(dir);
 
-		Iterator<FollowListener> it = character.getFollowers();
+		Iterator<CharacterUUID> it = character.getFollowers();
 		while(it.hasNext())
 		{
-			it.next().characterMoving(character, 
-					character.getRow(), 
-					character.getColumn());
+			//it.next().characterMoving(character, 
+					//character.getRow(), 
+					//character.getColumn());
 		}
 	}
 
@@ -221,9 +221,9 @@ public class WalkingAnimation extends Animation
 					arrive();
 					arrived = true;
 
-					Iterator<FollowListener> it = character.getFollowers();
-					while(it.hasNext())
-						it.next().characterArrived(character); 
+					//Iterator<FollowListener> it = character.getFollowers();
+					//while(it.hasNext())
+						//it.next().characterArrived(character); 
 				}
 
 				/* Let the listener know we got to the dest */
@@ -236,13 +236,13 @@ public class WalkingAnimation extends Animation
 				manager.setReelDirection(dir);
 				this.generateVectors(dir);
 
-				Iterator<FollowListener> it = character.getFollowers();
-				while(it.hasNext())
-				{
-					it.next().characterMoving(character, 
-							character.getRow(), 
-							character.getColumn());
-				}
+				//Iterator<FollowListener> it = character.getFollowers();
+				//while(it.hasNext())
+				//{
+					//it.next().characterMoving(character, 
+							//character.getRow(), 
+							//character.getColumn());
+				//}
 			}
 		} else {
 			character.setX(charX);

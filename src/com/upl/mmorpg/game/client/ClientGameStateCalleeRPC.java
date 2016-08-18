@@ -17,48 +17,48 @@ public class ClientGameStateCalleeRPC implements RPCCallee
 		Log.e("Invalid RPC used!");
 	}
 
-	public void __updateCharacter(StackBuffer stack)
-	{
-		/* Pop the arguments */
-		int arg0 = stack.popInt();
-		Object arg1 = stack.popObject();
+    public void __updateCharacter(StackBuffer stack)
+    {
+            /* Pop the arguments */
+            Object arg0 = stack.popObject();
+            Object arg1 = stack.popObject();
 
-		/* Do the function call */
-		client.updateCharacter(arg0, arg1);
-	}
+            /* Do the function call */
+            client.updateCharacter(arg0, arg1);
+    }
 
-	public void __updateMap(StackBuffer stack)
-	{
-		/* Pop the arguments */
-		int arg0 = stack.popInt();
-		Object arg1 = stack.popObject();
+    public void __updateMap(StackBuffer stack)
+    {
+            /* Pop the arguments */
+            int arg0 = stack.popInt();
+            Object arg1 = stack.popObject();
 
-		/* Do the function call */
-		client.updateMap(arg0, arg1);
-	}
+            /* Do the function call */
+            client.updateMap(arg0, arg1);
+    }
 
-	@Override
-	public StackBuffer handle_call(StackBuffer stack)
-	{
-		/* Get the function number */
-		int func_num = stack.popInt();
-		/* We are expecting a result stack buffer */
-		StackBuffer result = null;
-		switch(func_num)
-		{
-		case 1: /** updateCharacter */
-			__updateCharacter(stack);
-			break;
-		case 2: /** updateMap */
-			__updateMap(stack);
-			break;
-		default:
-			invalid_rpc(func_num);
-			break;
-		};
+    @Override
+    public StackBuffer handle_call(StackBuffer stack)
+    {
+            /* Get the function number */
+            int func_num = stack.popInt();
+            /* We are expecting a result stack buffer */
+            StackBuffer result = null;
+            switch(func_num)
+            {
+                    case 1: /** updateCharacter */
+                            __updateCharacter(stack);
+                            break;
+                    case 2: /** updateMap */
+                            __updateMap(stack);
+                            break;
+                    default:
+                            invalid_rpc(func_num);
+                            break;
+            };
 
-		return result;
-	}
+            return result;
+    }
 	
 	private ClientGameStateManager client;
 }

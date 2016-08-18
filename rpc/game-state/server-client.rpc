@@ -1,8 +1,8 @@
 # Return value, method name, arg1, arg2, ... argn
 
 # Update a character on the current map
-# public void updateCharacter(int entity_number, MMOCharacter character)
-void,updateCharacter,int,Object
+# public void updateCharacter(CharacterUUID uuid, MMOCharacter character)
+void,updateCharacter,Object,Object
 
 # Update the map
 # public void updateMap(int map_id, Grid2DMap map)
