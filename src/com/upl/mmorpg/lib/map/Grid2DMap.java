@@ -14,6 +14,7 @@ import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
 import com.upl.mmorpg.lib.libfile.FileManager;
+import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.util.StackBuffer;
 
 public class Grid2DMap extends Renderable implements Serializable
@@ -246,6 +247,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	public void addCharacter(MMOCharacter character)
 	{
 		characters.add(character);
+		Log.vln("Character " + character.getName() + " added to map " + id);
 	}
 	
 	/**
@@ -255,7 +257,9 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public boolean removeCharacter(MMOCharacter character)
 	{
-		return characters.remove(character);
+		boolean result = characters.remove(character);
+		Log.vln("Character " + character.getName() + " removed from map " + id + "? " + result);
+		return result;
 	}
 	
 	@Override
@@ -300,6 +304,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public void clearCharacters()
 	{
+		Log.vln("Characters on map " + id + " cleared.");
 		characters.clear();
 	}
 	
@@ -309,6 +314,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public void addAllCharacters(Collection<MMOCharacter> c)
 	{
+		Log.vln("Characters have been added to map " + id);
 		characters.addAll(c);
 	}
 	
@@ -318,6 +324,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public void setCharacters(LinkedList<MMOCharacter> characters)
 	{
+		Log.vln("Characters have been added to map " + id);
 		this.characters = characters;
 	}
 	
@@ -328,8 +335,6 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public boolean findAllItems()
 	{
-		if(items == null)
-			items = new LinkedList<Item>();
 		items.clear();
 		boolean added = false;
 		for(int row = 0;row < rowCount;row++)
@@ -339,6 +344,14 @@ public class Grid2DMap extends Renderable implements Serializable
 				items.addAll(map[row][col].getItems());
 				added = true;
 			}
+		}
+		
+		Log.vln("Found items on map " + id + ":");
+		Iterator<Item> it = items.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			Log.vln("\t" + i.getUUID() + ": " + i.getName());
 		}
 		
 		return added;
@@ -380,6 +393,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public boolean itemDropped(int row, int col, Item item)
 	{
+		Log.vln("Item dropped onto map: " + item.getUUID() + ": " + item.getName());
 		if(row < rowCount && row >= 0
 				&& col >= 0 && col < colCount)
 		{
@@ -402,17 +416,19 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * @param item The UUID of the item to pick up.
 	 * @return The item, null if there is no such item on the map.
 	 */
-	public Item pickupItem(ItemUUID item)
+	public Item pickupItem(ItemUUID uuid)
 	{
 		for(int row = 0;row < rowCount;row++)
 		{
 			for(int col = 0;col < colCount;col++)
 			{
-				Item i = map[row][col].removeItem(item);
-				if(i != null)
+				Item item = map[row][col].removeItem(uuid);
+				
+				if(item != null)
 				{
-					items.remove(i);
-					return i;
+					Log.vln("Item picked up from map: " + item.getUUID() + ": " + item.getName());
+					items.remove(item);
+					return item;
 				}
 			}
 		}
@@ -426,6 +442,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public boolean update(Grid2DMap map)
 	{
+		Log.vln("Map " + id + " is updating is properties.");
 		/* Assume both maps must have the same dimensions */
 		if(map.rowCount != rowCount || map.colCount != colCount)
 			return false;
@@ -438,6 +455,31 @@ public class Grid2DMap extends Renderable implements Serializable
 		findAllItems();
 		generateSquareProperties();
 		return true;
+	}
+	
+	public void updateTransient(int id, boolean loaded)
+	{
+		this.id = id;
+		this.loaded = loaded;
+		/* Characters are added later */
+		characters = new LinkedList<MMOCharacter>();
+		/* item list can be reconstructed */
+		items = new LinkedList<Item>();
+		this.findAllItems();
+	}
+	
+	/**
+	 * Output the items that are on the map (debug)
+	 */
+	public void dumpItems()
+	{
+		Log.vln("Items on map " + id);
+		Iterator<Item> it = items.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			Log.vln("\t" + i.getUUID() + ": " + i.getName());
+		}
 	}
 	
 	protected transient int id; /**< The id number for this map (set by Game). */

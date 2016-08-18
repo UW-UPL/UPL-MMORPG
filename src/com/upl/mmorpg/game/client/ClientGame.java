@@ -52,9 +52,16 @@ public class ClientGame extends Game
 		{
 			public void run()
 			{
-				character.walkTo(8, 8);
+				Item i = ClientGame.this.currentMap.getItems().iterator().next();
+				if(i == null)
+				{
+					Log.e("Where is this item??");
+					return;
+				}
+
+				character.pickupItem(6, 6, i);
 				character.addIdle(5000);
-				character.addWalkTo(20, 20);
+				character.addDropItem(6, 6, i);
 				gameState.updateCharacter(character);
 			}
 		};
@@ -105,8 +112,8 @@ public class ClientGame extends Game
 	private boolean loadMap() throws IOException
 	{
 		currentMap = (Grid2DMap)gameState.requestCurrentMap();
+		currentMap.updateTransient(0, true);
 		currentMap.loadAllImages(assets);
-		currentMap.setLoaded();
 		currentMap.generateSquareProperties();
 		System.out.println("ROWS: " + currentMap.getRows());
 		System.out.println("COLUMNS: " + currentMap.getColumns());
@@ -212,7 +219,7 @@ public class ClientGame extends Game
 
 		return true;
 	}
-	
+
 	/**
 	 * Assign the character we are in control of.
 	 * @param character The character we are in control of.
@@ -231,11 +238,31 @@ public class ClientGame extends Game
 		return character;
 	}
 
-	/** Methods that are server specific that we want to cancel out */
 	@Override
-	public synchronized boolean pickupItem(MMOCharacter character, Item item) { return true; }
+	public synchronized boolean pickupItem(MMOCharacter character, Item item) 
+	{ 
+		/* unless this is us, we don't care */
+		if(character == this.character)
+			gameState.requestPickUpItem(this.character.getRow(), this.character.getColumn(), item.getUUID());
+
+		return true;
+	}
+
 	@Override
-	public synchronized boolean dropItem(MMOCharacter character, Item item) { return true; }
+	public synchronized boolean dropItem(MMOCharacter character, Item item) 
+	{ 
+		/* unless this is us, we don't care */
+		if(character == this.character)
+			gameState.requestdropItem(character.getRow(), character.getColumn(), item.getUUID());
+
+		return true; 
+	}
+
+	@Override public Grid2DMap getMap(int id){ return currentMap; }
+	@Override public int getMapCount() { return 1; }
+	
+	@Override
+	public void characterUpdated(MMOCharacter c, boolean exclude) {}
 
 	private ClientGameStateManager gameState;
 	private JFrame window;

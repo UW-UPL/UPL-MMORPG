@@ -3,6 +3,7 @@ package com.upl.mmorpg.lib.animation;
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.liblog.Log;
 
 /**
@@ -18,7 +19,7 @@ public class DropItemAnimation extends Animation
 	public DropItemAnimation(Game game, AnimationManager manager, MMOCharacter character, AnimationListener listener, Item item) 
 	{
 		super(game, manager, character, listener, 1);
-		this.item = item;
+		this.item = item.getUUID();
 	}
 
 	@Override
@@ -27,7 +28,14 @@ public class DropItemAnimation extends Animation
 	@Override
 	public void animationStarted() 
 	{
-		if(!game.dropItem(character, item))
+		Item i = game.getItem(item);
+		if(i == null)
+		{
+			Log.e("Where is item (DropItemAnimation): " + item);
+			return;
+		}
+		
+		if(!game.dropItem(character, i))
 			Log.e("Failed to drop item!");
 		manager.nextAnimation();
 	}
@@ -43,5 +51,5 @@ public class DropItemAnimation extends Animation
 	
 	private static final long serialVersionUID = -4243819479990411151L;
 	
-	private transient Item item;
+	private ItemUUID item;
 }

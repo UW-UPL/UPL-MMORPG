@@ -66,6 +66,28 @@ public class GameStateCalleeRPC implements RPCCallee
 		return ret_stack;
 	}
 
+	public void __requestdropItem(StackBuffer stack)
+	{
+		/* Pop the arguments */
+		int arg0 = stack.popInt();
+		int arg1 = stack.popInt();
+		Object arg2 = stack.popObject();
+
+		/* Do the function call */
+		client.requestdropItem(arg0, arg1, arg2);
+	}
+
+	public void __requestPickUpItem(StackBuffer stack)
+	{
+		/* Pop the arguments */
+		int arg0 = stack.popInt();
+		int arg1 = stack.popInt();
+		Object arg2 = stack.popObject();
+
+		/* Do the function call */
+		client.requestPickUpItem(arg0, arg1, arg2);
+	}
+
 	@Override
 	public StackBuffer handle_call(StackBuffer stack)
 	{
@@ -86,6 +108,12 @@ public class GameStateCalleeRPC implements RPCCallee
 			break;
 		case 4: /** updateCharacter */
 			result = __updateCharacter(stack);
+			break;
+		case 5: /** requestdropItem */
+			__requestdropItem(stack);
+			break;
+		case 6: /** requestPickUpItem */
+			__requestPickUpItem(stack);
 			break;
 		default:
 			invalid_rpc(func_num);

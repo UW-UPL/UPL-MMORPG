@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
-import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.server.login.LoginManager;
@@ -18,7 +17,6 @@ import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.libnet.Server;
 import com.upl.mmorpg.lib.libnet.ServerListener;
 import com.upl.mmorpg.lib.librpc.RPCManager;
-import com.upl.mmorpg.lib.map.GameMap;
 
 public class ServerGame extends Game implements ServerListener
 {
@@ -35,7 +33,7 @@ public class ServerGame extends Game implements ServerListener
 			window.setResizable(false);
 			window.setVisible(true);
 
-			control = new MapControl(render, maps[0], false);
+			control = new MapControl(render, getMap(0), false);
 			render.addMouseListener(control);
 			render.addMouseMotionListener(control);
 		}
@@ -78,7 +76,7 @@ public class ServerGame extends Game implements ServerListener
 	{
 		super.loadMaps();
 		if(!headless)
-			render.addBPRenderable(maps[0]);
+			render.addBPRenderable(getMap(0));
 	}
 
 	@Override
@@ -217,18 +215,18 @@ public class ServerGame extends Game implements ServerListener
 //			new Thread(run).start();
 			
 			/******** Item pickup and drop example */
-			final Goblin collector = g.createGoblin(14, 6, GameMap.EXAMPLE1);
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
-					collector.addIdle(3000);
-					collector.addDropItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
-					g.characterUpdated(collector, false);
-				}
-			};
-			new Thread(run).start();
+//			final Goblin collector = g.createGoblin(14, 6, GameMap.EXAMPLE1);
+//			Runnable run = new Runnable()
+//			{
+//				public void run()
+//				{
+//					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+//					collector.addIdle(3000);
+//					collector.addDropItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+//					g.characterUpdated(collector, false);
+//				}
+//			};
+//			new Thread(run).start();
 
 
 			/******** Defender/attacker example */

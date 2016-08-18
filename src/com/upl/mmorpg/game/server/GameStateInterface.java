@@ -7,6 +7,8 @@ public interface GameStateInterface
 	public Object requestCharacters();
 	public Object requestPlayerUUID();
 	public boolean updateCharacter(Object arg0);
+	public void requestdropItem(int arg0, int arg1, Object arg2);
+	public void requestPickUpItem(int arg0, int arg1, Object arg2);
 
 	/* Server -> Client */
 	public void updateCharacter(Object arg0, Object arg1);

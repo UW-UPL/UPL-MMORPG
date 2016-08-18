@@ -17,7 +17,7 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.map.MapSquare;
 import com.upl.mmorpg.lib.quest.QuestEngine;
 
-public class Game 
+public abstract class Game 
 {
 	/**
 	 * Create a new UPL-MMORPG game.
@@ -55,13 +55,11 @@ public class Game
 	 */
 	public void loadMaps() throws IOException
 	{
-		if(maps == null) return;
-
-		for(int x = 0;x < maps.length;x++)
+		for(int x = 0;x < getMapCount();x++)
 		{
-			if(!maps[x].load(map_paths[x], assets))
+			if(!getMap(x).load(map_paths[x], assets))
 				throw new IOException("Map format exception");
-			maps[x].loadAllImages(assets);
+			getMap(x).loadAllImages(assets);
 		}
 	}
 
@@ -73,12 +71,12 @@ public class Game
 	 */
 	public boolean addCharacter(MMOCharacter c, int map_id)
 	{
-		if(map_id >= 0 && map_id < maps.length)
+		if(map_id >= 0 && map_id < getMapCount())
 		{
 			characters.add(c);
 			render.addRenderable(c);
-			maps[map_id].addCharacter(c);
-			c.setCurrentMap(maps[map_id]);
+			getMap(map_id).addCharacter(c);
+			c.setCurrentMap(getMap(map_id));
 
 			return true;
 		}
@@ -101,6 +99,33 @@ public class Game
 	}
 
 	/**
+	 * Convert an ItemUUID into the item it represents.
+	 * @param uuid The UUID to search for.
+	 * @return The item, if it exists, null otherwise.
+	 */
+	public Item getItem(ItemUUID uuid)
+	{
+		Item i = getItemOnMap(uuid);
+		if(i != null) return i;
+
+		/* Does a character have this item? */
+		Iterator<MMOCharacter> it = characters.iterator();
+		while(it.hasNext())
+		{
+			MMOCharacter character = it.next();
+			Item item = character.getInventory().containsUUID(uuid);
+
+			if(item != null)
+			{
+				Log.vln("Character " + character + " had the item we were searching for.");
+				return item;
+			}
+		}
+
+		return null;
+	}
+	
+	/**
 	 * Returns the list of items that are on a given square.
 	 * @param row The row of the square.
 	 * @param col The column of the square.
@@ -109,10 +134,33 @@ public class Game
 	 */
 	public ItemList getItemsOnSquare(int row, int col, int map_id)
 	{
-		MapSquare square = maps[map_id].getSquare(row, col);
+		MapSquare square = getMap(map_id).getSquare(row, col);
 		if(square == null)
 			return null;
 		return square.getItems();
+	}
+	
+	/**
+	 * Search only maps for the item.
+	 * @param uuid The UUID of the item to search for.
+	 * @return The item, if it is on the map, null otherwise.
+	 */
+	public Item getItemOnMap(ItemUUID uuid)
+	{
+		for(int x = 0;x < getMapCount();x++)
+		{
+			Grid2DMap map = getMap(x);
+			Iterator<Item> item_it = map.getItems().iterator();
+
+			while(item_it.hasNext())
+			{
+				Item i = item_it.next();
+				if(i.getUUID().equals(uuid))
+					return i;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -128,7 +176,7 @@ public class Game
 		int col = character.getColumn();
 
 		/* Get the square the character is currently on */
-		MapSquare square = maps[map_id].getSquare(row, col);
+		MapSquare square = getMap(map_id).getSquare(row, col);
 
 		/* Are they on a valid square? */
 		if(square == null)
@@ -158,12 +206,12 @@ public class Game
 	 */
 	public synchronized boolean dropItem(MMOCharacter character, Item item)
 	{
-		int map_id = character.getCurrentMapID();
+		Grid2DMap map = getMap(character.getCurrentMapID());
 		int row = character.getRow();
 		int col = character.getColumn();
 
 		/* Get the square the character is currently on */
-		MapSquare square = maps[map_id].getSquare(row, col);
+		MapSquare square = map.getSquare(row, col);
 
 		/* Are they on a valid square? */
 		if(square == null)
@@ -205,63 +253,22 @@ public class Game
 	}
 
 	/**
-	 * Convert an ItemUUID into the item it represents.
-	 * @param uuid The UUID to search for.
-	 * @return The item, if it exists, null otherwise.
-	 */
-	public Item getItem(ItemUUID uuid)
-	{
-		for(int x = 0;x < maps.length;x++)
-		{
-			Iterator<Item> it = maps[x].getItems().iterator();
-
-			while(it.hasNext())
-			{
-				Item i = it.next();
-				if(i.getUUID().equals(uuid))
-					return i;
-			}
-		}
-		
-		/* Does a character have this item? */
-		Iterator<MMOCharacter> it = characters.iterator();
-		while(it.hasNext())
-		{
-			MMOCharacter character = it.next();
-			Item item = character.getInventory().containsUUID(uuid);
-			
-			if(item != null)
-			{
-				Log.vln("Character " + character + " had the item we were searching for.");
-				return item;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Put a goblin character onto the map/
-	 * @param row The row in which to place the goblin.
-	 * @param col The column in which to place the goblin.
-	 * @param map_id The id of the map in which the goblin should be placed.
-	 * @return The newly created goblin character.
-	 */
-	public Goblin createGoblin(int row, int col, int map_id)
-	{
-		Goblin g = new Goblin(row, col, maps[map_id], assets, this, CharacterUUID.generate());
-		if(!addCharacter(g, map_id))
-			Log.e("Failed to add goblin to map!!");
-		return g;
-	}
-
-	/**
 	 * Returns an iterator for the list of characters in this game.
 	 * @return An iterator for the list of characters in this game.
 	 */
 	public Iterator<MMOCharacter> characterIterator()
 	{
 		return characters.iterator();
+	}
+	
+	/**
+	 * Get all characters on a specific map.
+	 * @param mapID The id of the map that contains the requested characters.
+	 * @return The characters on the given map.
+	 */
+	public LinkedList<MMOCharacter> getCharactersOnMap(int mapID)
+	{
+		return getMap(mapID).getCharacters();
 	}
 
 	/**
@@ -286,13 +293,27 @@ public class Game
 	}
 
 	/**
-	 * Get all characters on a specific map.
-	 * @param mapID The id of the map that contains the requested characters.
-	 * @return The characters on the given map.
+	 * Returns the amount of maps in the game.
+	 * @return The amount of maps in the game.
 	 */
-	public LinkedList<MMOCharacter> getCharactersOnMap(int mapID)
+	public int getMapCount()
 	{
-		return maps[mapID].getCharacters();
+		return maps.length;
+	}
+
+	/**
+	 * Put a goblin character onto the map/
+	 * @param row The row in which to place the goblin.
+	 * @param col The column in which to place the goblin.
+	 * @param map_id The id of the map in which the goblin should be placed.
+	 * @return The newly created goblin character.
+	 */
+	public Goblin createGoblin(int row, int col, int map_id)
+	{
+		Goblin g = new Goblin(row, col, getMap(map_id), assets, this, CharacterUUID.generate());
+		if(!addCharacter(g, map_id))
+			Log.e("Failed to add goblin to map!!");
+		return g;
 	}
 
 	/**
@@ -300,7 +321,7 @@ public class Game
 	 * @param c The character that was updated.
 	 * @param exclude Whether or not to exclude updating the character's owner.
 	 */
-	public void characterUpdated(MMOCharacter c, boolean exclude) {}
+	public abstract void characterUpdated(MMOCharacter c, boolean exclude);
 
 	protected RenderPanel render; /**< The render panel used for rendering animation and graphics. */
 	protected AssetManager assets; /**< The asset manager to use for loading assets. */
@@ -308,7 +329,8 @@ public class Game
 	protected boolean headless; /**< Whether or not we are displaying graphics. */
 	protected LinkedList<MMOCharacter> characters; /**< The characters on the map. */
 
-	protected Grid2DMap maps[]; /**< The currently loaded maps. */
+	/** FITFALL NOTICE: do not touch maps[] directly, use getMap() and getMapCount(). */
+	private Grid2DMap maps[]; /**< The currently loaded maps. */
 
 	/* The list of maps to load when the game starts. */
 	protected String map_paths[] = {

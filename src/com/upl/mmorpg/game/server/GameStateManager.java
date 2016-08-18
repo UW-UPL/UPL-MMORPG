@@ -3,7 +3,9 @@ package com.upl.mmorpg.game.server;
 import java.io.IOException;
 
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.uuid.CharacterUUID;
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -139,9 +141,42 @@ public class GameStateManager implements GameStateInterface
 	{
 		return character;
 	}
+	
+	@Override
+	public void requestdropItem(int row, int col, Object obj) 
+	{
+		if(obj instanceof ItemUUID)
+		{
+			ItemUUID uuid = (ItemUUID)obj;
+			Item item = game.getItem(uuid);
+			if(item == null)
+			{
+				Log.e("I don't know where this item is: " + uuid);
+				return;
+			}
+			
+			game.dropItem(character, item);
+		}
+	}
+
+	@Override
+	public void requestPickUpItem(int row, int col, Object obj) 
+	{
+		if(obj instanceof ItemUUID)
+		{
+			ItemUUID uuid = (ItemUUID)obj;
+			Item item = game.getItem(uuid);
+			if(item == null)
+			{
+				Log.e("I don't know where this item is: " + uuid);
+				return;
+			}
+			
+			game.pickupItem(character, item);
+		}
+	}
 
 	private ServerGame game;
 	private MMOCharacter character;
 	private RPCManager rpc;
-
 }

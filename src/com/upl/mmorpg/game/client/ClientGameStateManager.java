@@ -68,6 +68,33 @@ public class ClientGameStateManager implements GameStateInterface
 		return res.popBoolean();
 	}
 
+	public void requestdropItem(int arg0, int arg1, Object arg2)
+	{
+		StackBuffer stack = new StackBuffer();
+
+		/* Push the function number */
+		stack.pushInt(5);
+		/* Push the arguments */
+		stack.pushInt(arg0);
+		stack.pushInt(arg1);
+		stack.pushObject(arg2);
+		/* Do the network call */
+		rpc.do_call(stack, false);
+	}
+
+	public void requestPickUpItem(int arg0, int arg1, Object arg2)
+	{
+		StackBuffer stack = new StackBuffer();
+
+		/* Push the function number */
+		stack.pushInt(6);
+		/* Push the arguments */
+		stack.pushInt(arg0);
+		stack.pushInt(arg1);
+		stack.pushObject(arg2);
+		/* Do the network call */
+		rpc.do_call(stack, false);
+	}
 
 	/** Callee methods */
 	@Override
@@ -107,7 +134,7 @@ public class ClientGameStateManager implements GameStateInterface
 				Log.e("Couldn't find character: " + uuid);
 				return;
 			}
-			
+
 			Item item = game.getItem(i);
 			if(item == null)
 			{
@@ -130,6 +157,12 @@ public class ClientGameStateManager implements GameStateInterface
 			if(game.getCharacter(uuid) == null)
 			{
 				Log.e("I have no idea who character " + uuid + " is.");
+				return;
+			}
+			
+			if(game.getItem(i) == null)
+			{
+				Log.e("I have no idea where item " + i + " is.");
 				return;
 			}
 

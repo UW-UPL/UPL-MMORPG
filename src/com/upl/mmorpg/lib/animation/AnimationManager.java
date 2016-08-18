@@ -82,7 +82,7 @@ public class AnimationManager implements Serializable
 		if(animationQueue.isEmpty())
 			setAnimation(animation);
 		else animationQueue.add(animation);
-		Log.vln("Animation " + animation + " added to animation manager");
+		Log.vvln("Animation " + animation + " added to animation manager");
 	}
 	
 	public void clearAnimations()
@@ -96,7 +96,7 @@ public class AnimationManager implements Serializable
 		animationQueue.clear();
 		endReelNotified = false;
 		setAnimationFrame(0);
-		Log.vln("Cleared animations in animation manager.");
+		Log.vvln("Cleared animations in animation manager.");
 	}
 	
 	public boolean nextAnimation()
@@ -124,7 +124,7 @@ public class AnimationManager implements Serializable
 		animationQueue.clear();
 		animationQueue.add(animation);
 		animation.animationStarted();
-		Log.vln("animationStarted called.");
+		Log.vvln("animationStarted called.");
 		endReelNotified = false;
 	}
 	
@@ -191,7 +191,7 @@ public class AnimationManager implements Serializable
 			{
 				if(!exists[x])
 				{
-					Log.vln("Reel " + reelNames[i] + " could not be imported: missing a directory.");
+					Log.e("Reel " + reelNames[i] + " could not be imported: missing a directory.");
 					break;
 				}
 			}
@@ -204,14 +204,14 @@ public class AnimationManager implements Serializable
 			String example_reels[] = FileManager.getFiles(test_dir);
 			if(example_reels == null)
 			{
-				Log.vln("Reel " + reelNames[i] + " could not be imported: couldn't stat directory.");
+				Log.e("Reel " + reelNames[i] + " could not be imported: couldn't stat directory.");
 				continue;
 			}
 			
 			int reelCount = example_reels.length;
 			if(reelCount > 1000)
 			{
-				Log.vln("Reel " + reelNames[i] + " could not be imported: too many reels! (MAX 1000)");
+				Log.e("Reel " + reelNames[i] + " could not be imported: too many reels! (MAX 1000)");
 				continue;
 			}
 			
@@ -229,7 +229,7 @@ public class AnimationManager implements Serializable
 				
 				if(reel.length != reelCount)
 				{
-					Log.vln("Reel " + reelNames[i] + " could not be imported: reel counts don't match" 
+					Log.e("Reel " + reelNames[i] + " could not be imported: reel counts don't match" 
 							+ " direction: " + direction + " length: " + reel.length);
 					break;
 				}
@@ -244,7 +244,7 @@ public class AnimationManager implements Serializable
 				for(int y = 0;y < reels[0].length;y++)
 				{
 					direction_reel[y] = assets.loadImage(dir + reel[y]);
-					if(x == 0) Log.vln("\t" + reel[y]);
+					if(x == 0) Log.vvln("\t" + reel[y]);
 				}
 				
 				/* Set the reel for this direction */
@@ -254,7 +254,7 @@ public class AnimationManager implements Serializable
 			if(x != 8) continue;
 			
 			map.put(reelNames[i], reels);
-			Log.vln("Added reel " + reelNames[i]);
+			Log.vvln("Added reel " + reelNames[i]);
 		}
 
 		this.reelsPath = path;
@@ -307,10 +307,10 @@ public class AnimationManager implements Serializable
 		this.character = character;
 		map = new HashMap<String, BufferedImage[][]>();
 		if(!loadReels(reelsPath))
-			Log.v("FAILED TO LOAD REELS: " + reelsPath);
+			Log.e("FAILED TO LOAD REELS: " + reelsPath);
 		if(!loadReel(currentReelName))
-			Log.v("FAILED TO LOAD REEL: " + currentReelName);
-		Log.vln("Character has " + animationQueue.size() + " animations.");
+			Log.e("FAILED TO LOAD REEL: " + currentReelName);
+		Log.vvln("Character has " + animationQueue.size() + " animations.");
 		Iterator<Animation> it = animationQueue.iterator();
 		while(it.hasNext())
 		{

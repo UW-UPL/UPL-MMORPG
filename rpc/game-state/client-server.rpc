@@ -14,3 +14,11 @@ Object,requestPlayerUUID
 
 # Send the server an update for this character
 boolean,updateCharacter,Object
+
+# Let the server know we want to drop an item
+# public boolean droppedItem(int row, int col, ItemUUID item)
+void,requestdropItem,int,int,Object
+
+# Let the server know we want to pick up an item
+# public boolean pickedUpItem(int row, int col, ItemUUID item)
+void,requestPickUpItem,int,int,Object

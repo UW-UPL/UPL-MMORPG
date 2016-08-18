@@ -3,6 +3,8 @@ package com.upl.mmorpg.lib.animation;
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
+import com.upl.mmorpg.game.uuid.ItemUUID;
+import com.upl.mmorpg.lib.liblog.Log;
 
 /**
  * Animation for picking up an item on the map. It is assumed that by
@@ -17,7 +19,7 @@ public class PickupItemAnimation extends Animation
 	public PickupItemAnimation(Game game, AnimationManager manager, MMOCharacter character, AnimationListener listener, Item item) 
 	{
 		super(game, manager, character, listener, 1);
-		this.item = item;
+		this.item = item.getUUID();
 	}
 
 	@Override
@@ -26,7 +28,16 @@ public class PickupItemAnimation extends Animation
 	@Override
 	public void animationStarted() 
 	{
-		game.pickupItem(character, item);
+		Item i = game.getItem(item);
+		if(i == null)
+		{
+			Log.e("Where is item (PickupItemAnimation): " + item);
+			game.getMap(0).dumpItems();
+			return;
+		}
+		
+		if(!game.pickupItem(character, i))
+			Log.e("Failed to pick up item!");
 		manager.nextAnimation();
 	}
 
@@ -41,5 +52,5 @@ public class PickupItemAnimation extends Animation
 	
 	private static final long serialVersionUID = -4243819479990411151L;
 	
-	private transient Item item;
+	private ItemUUID item;
 }
