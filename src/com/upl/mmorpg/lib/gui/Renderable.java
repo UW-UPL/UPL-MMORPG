@@ -21,11 +21,17 @@ public abstract class Renderable implements Serializable, Collidable
 		collision_shapes = new LinkedList<CollideShape>();
 		hasAnimation = false;
 		showing = false;
+		renderable = true;
 		locX = 0;
 		locY = 0;
 		width = 0;
 		height = 0;
 		rotation = 0.0f;
+	}
+	
+	public boolean isRenderable()
+	{
+		return renderable;
 	}
 	
 	public boolean inGlass()
@@ -257,6 +263,7 @@ public abstract class Renderable implements Serializable, Collidable
 
 	protected boolean showing;
 	protected boolean hasAnimation;
+	protected boolean renderable; /**< Whether or not this renderable is ready to render */
 	protected boolean inGlass; /**< Whether or not this renderable is in the glass pane */
 
 	private static final long serialVersionUID = 3852771086756115110L;

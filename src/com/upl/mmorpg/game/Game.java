@@ -250,7 +250,8 @@ public class Game
 	public Goblin createGoblin(int row, int col, int map_id)
 	{
 		Goblin g = new Goblin(row, col, maps[map_id], assets, this, CharacterUUID.generate());
-		addCharacter(g, map_id);
+		if(!addCharacter(g, map_id))
+			Log.e("Failed to add goblin to map!!");
 		return g;
 	}
 
@@ -295,10 +296,11 @@ public class Game
 	}
 
 	/**
-	 * A character's properties have changed.
-	 * @param c The character that has properties that have changed.
+	 * Notify all of the players that a character has been updated.
+	 * @param c The character that was updated.
+	 * @param exclude Whether or not to exclude updating the character's owner.
 	 */
-	public void characterUpdated(MMOCharacter c) {}
+	public void characterUpdated(MMOCharacter c, boolean exclude) {}
 
 	protected RenderPanel render; /**< The render panel used for rendering animation and graphics. */
 	protected AssetManager assets; /**< The asset manager to use for loading assets. */

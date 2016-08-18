@@ -3,6 +3,7 @@ package com.upl.mmorpg.game.server;
 import java.io.IOException;
 
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -50,7 +51,9 @@ public class GameStateManager implements GameStateInterface
 				try 
 				{
 					this.character.update(character);
-					game.characterUpdated(character);
+					
+					/* propegate this update */
+					game.characterUpdated(this.character, false);
 					return true;
 				} catch (IOException e) 
 				{
@@ -125,6 +128,16 @@ public class GameStateManager implements GameStateInterface
 	public Grid2DMap getCurrentMap()
 	{
 		return character.getCurrentMap();
+	}
+	
+	public CharacterUUID getPlayerUUID()
+	{
+		return character.getUUID();
+	}
+	
+	public MMOCharacter getPlayer()
+	{
+		return character;
 	}
 
 	private ServerGame game;

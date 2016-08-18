@@ -233,7 +233,8 @@ public class RenderPanel extends JPanel implements Runnable
 			Log.vrndln("Rendering component: " + render.getRenderName());
 			if(render.hasAnimation)
 				render.animation(seconds);
-			render.render(g, this);
+			if(render.renderable)
+				render.render(g, this);
 		}
 	}
 

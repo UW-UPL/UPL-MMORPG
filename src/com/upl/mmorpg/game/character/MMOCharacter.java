@@ -521,6 +521,10 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void update(MMOCharacter character) throws IOException
 	{
+		/* Temporarily disable rendering */
+		renderable = false;
+		hasAnimation = false;
+		
 		/* Update animations */
 		this.animation = character.animation;
 		animation.updateTransient(assets, game, this);
@@ -531,6 +535,10 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 		this.maxHealth = character.maxHealth;
 		this.attackSpeed = character.attackSpeed;
 		this.inventory = character.inventory;
+		
+		/* reenable rendering */
+		renderable = true;
+		hasAnimation = true;
 	}
 	
 	protected transient AssetManager assets; /**< The asset manager to use for loading assets. */

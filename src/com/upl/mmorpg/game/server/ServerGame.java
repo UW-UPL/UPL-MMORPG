@@ -100,7 +100,7 @@ public class ServerGame extends Game implements ServerListener
 	}
 
 	@Override
-	public void characterUpdated(MMOCharacter c)
+	public void characterUpdated(MMOCharacter c, boolean exclude)
 	{
 		/**
 		 * Notify only the clients who care about this
@@ -109,7 +109,11 @@ public class ServerGame extends Game implements ServerListener
 		for(GameStateManager client : clients)
 		{
 			if(client.getCurrentMapID() == c.getCurrentMapID())
+			{
+				if(exclude && client.getPlayerUUID().equals(c.getUUID()))
+					continue;
 				client.updateCharacter(c.getUUID(), c);
+			}
 		}
 	}
 
@@ -152,7 +156,7 @@ public class ServerGame extends Game implements ServerListener
 	public boolean addCharacter(MMOCharacter c, int map_id)
 	{
 		boolean result = super.addCharacter(c, map_id);
-		this.characterUpdated(c);
+		characterUpdated(c, true);
 		Log.vln("A new character has been added to the game on map " + map_id);
 		return result;
 	}
@@ -221,7 +225,7 @@ public class ServerGame extends Game implements ServerListener
 					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
 					collector.addIdle(3000);
 					collector.addDropItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
-					g.characterUpdated(collector);
+					g.characterUpdated(collector, false);
 				}
 			};
 			new Thread(run).start();

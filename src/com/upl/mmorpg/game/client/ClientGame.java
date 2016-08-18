@@ -47,10 +47,20 @@ public class ClientGame extends Game
 		{
 			Log.wtf("Client Initialization Failed!!", e);
 		}
-		
-		
+
+		Runnable run = new Runnable()
+		{
+			public void run()
+			{
+				character.walkTo(8, 8);
+				character.addIdle(5000);
+				character.addWalkTo(20, 20);
+				gameState.updateCharacter(character);
+			}
+		};
+		new Thread(run).start();
 	}
-	
+
 	/**
 	 * An item was dropped on the map.
 	 * @param row The row in which the item was dropped.
@@ -65,13 +75,13 @@ public class ClientGame extends Game
 			Log.e("Item couldn't be dropped by player " + character);
 			return false;
 		}
-		
+
 		/* Add the item to the map */
 		currentMap.itemDropped(row, col, item);
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * An item was picked up by a player.
 	 * @param item The item that was picked up.
@@ -83,7 +93,7 @@ public class ClientGame extends Game
 		Item i = currentMap.pickupItem(item);
 		if(i == null)
 			return false;
-		
+
 		return recipient.getInventory().add(i);
 	}
 
@@ -133,7 +143,7 @@ public class ClientGame extends Game
 			character.updateTransient(assets, this, currentMap);
 			render.addRenderable(character);
 		}
-		
+
 		obj = gameState.requestPlayerUUID();
 		if(obj instanceof CharacterUUID)
 		{
@@ -144,13 +154,13 @@ public class ClientGame extends Game
 				Log.e("Failed to locate our player: " + uuid);
 				return false;
 			}
-			
+
 			render.follow(character);
 		} else Log.e("requestPlayerUUID return failure! " + obj);
 
 		return true;
 	}
-	
+
 	/**
 	 * Update the map properties. This includes items.
 	 * @param map The new map properties.
@@ -186,7 +196,7 @@ public class ClientGame extends Game
 				return true;
 			}
 		}
-		
+
 		/* This is a new character, just add it to the map */
 		try 
 		{
@@ -195,7 +205,7 @@ public class ClientGame extends Game
 			Log.wtf("Couldn't update character transient!", e);
 			return false;
 		}
-		
+
 		characters.add(character);
 		currentMap.addCharacter(character);
 		render.addRenderable(character);
@@ -211,7 +221,7 @@ public class ClientGame extends Game
 	{
 		this.character = character;
 	}
-	
+
 	/**
 	 * Returns the character that we have control of.
 	 * @return The character we have control of.
@@ -220,7 +230,7 @@ public class ClientGame extends Game
 	{
 		return character;
 	}
-	
+
 	/** Methods that are server specific that we want to cancel out */
 	@Override
 	public synchronized boolean pickupItem(MMOCharacter character, Item item) { return true; }
