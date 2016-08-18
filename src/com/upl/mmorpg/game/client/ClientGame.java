@@ -38,9 +38,9 @@ public class ClientGame extends Game
 
 		try
 		{
-			if(!this.loadMap())
+			if(!loadMap())
 				Log.e("MAP UPDATE FAILED.");
-			if(!this.loadCharacters())
+			if(!loadCharacters())
 				Log.e("CHARACTER UPDATE FAILED.");
 		} catch(Exception e)
 		{

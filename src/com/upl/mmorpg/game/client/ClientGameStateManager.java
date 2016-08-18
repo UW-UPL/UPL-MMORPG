@@ -46,14 +46,15 @@ public class ClientGameStateManager implements GameStateInterface
 	@Override
 	public void updateCharacter(Object uuid, Object obj) 
 	{
-		if(obj instanceof MMOCharacter && uuid instanceof CharacterUUID)
+		if(uuid instanceof CharacterUUID && obj instanceof MMOCharacter)
 		{
-			MMOCharacter character = (MMOCharacter)obj;
 			CharacterUUID cuuid = (CharacterUUID)uuid;
+			MMOCharacter character = (MMOCharacter)obj;
 			if(!game.updateCharacter(cuuid, character))
 				Log.e("Updating character failed!!");
 			else Log.vln("Update character: " + character.getName());
-		} else Log.e("Update character but wasn't sent character!");
+		} else Log.e("Update character but wasn't sent character  uuid: " 
+			+ uuid + " character: " + obj);
 	}
 
 	@Override

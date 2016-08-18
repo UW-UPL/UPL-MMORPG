@@ -178,9 +178,7 @@ public class Grid2DMap extends Renderable implements Serializable
 		
 		if(load instanceof Grid2DMap)
 		{
-			Grid2DMap grid = (Grid2DMap)buff.popObject();
-			if(grid == null)
-				return false;
+			Grid2DMap grid = (Grid2DMap)load;
 			map = grid.map;
 			rowCount = grid.rowCount;
 			colCount = grid.colCount;
@@ -330,6 +328,8 @@ public class Grid2DMap extends Renderable implements Serializable
 	 */
 	public boolean findAllItems()
 	{
+		if(items == null)
+			items = new LinkedList<Item>();
 		items.clear();
 		boolean added = false;
 		for(int row = 0;row < rowCount;row++)

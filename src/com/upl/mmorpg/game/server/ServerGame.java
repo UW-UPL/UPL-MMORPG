@@ -86,7 +86,6 @@ public class ServerGame extends Game implements ServerListener
 	{
 		try 
 		{
-
 			RPCManager rpc = new RPCManager(socket, cid);
 			LoginManager login = new LoginManager(this, rpc);
 			LoginServerCallee callee = new LoginServerCallee(login);
@@ -103,6 +102,10 @@ public class ServerGame extends Game implements ServerListener
 	@Override
 	public void characterUpdated(MMOCharacter c)
 	{
+		/**
+		 * Notify only the clients who care about this
+		 * character getting updated.
+		 */
 		for(GameStateManager client : clients)
 		{
 			if(client.getCurrentMapID() == c.getCurrentMapID())
@@ -119,6 +122,15 @@ public class ServerGame extends Game implements ServerListener
 			
 		}
 		
+		return result;
+	}
+	
+	@Override
+	public boolean addCharacter(MMOCharacter c, int map_id)
+	{
+		boolean result = super.addCharacter(c, map_id);
+		this.characterUpdated(c);
+		Log.vln("A new character has been added to the game on map " + map_id);
 		return result;
 	}
 	
@@ -148,15 +160,8 @@ public class ServerGame extends Game implements ServerListener
 			}
 			g.loadAssets();
 			g.loadMaps();
-			//			for(int row = 7;row < 13;row++)
-			//			{
-			//				for(int col = 9;col < 15;col++)
-			//				{
-			//					Goblin gob1 = g.createGoblin(row, col);
-			//					gob1.wander(5);
-			//				}
-			//			}
-
+			
+			/******** Wander example */
 			//			final Goblin wanderer = g.createGoblin(11, 11);
 			//			final Goblin follower = g.createGoblin(11, 20);
 			//			follower.follow(wanderer);
@@ -172,6 +177,7 @@ public class ServerGame extends Game implements ServerListener
 			//			};
 			//			new Thread(run).start();
 
+			/******** Item pickup example */
 			//final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
 			//collector.walkTo(6, 6);
 			//Runnable run = new Runnable()
@@ -187,6 +193,8 @@ public class ServerGame extends Game implements ServerListener
 			//};
 			//new Thread(run).start();
 
+			
+			/******** Defender/attacker example */
 			//Goblin defender = g.createGoblin(11, 10);
 			//defender.wander(5);
 			//Goblin attacker = g.createGoblin(11, 11);
@@ -202,7 +210,9 @@ public class ServerGame extends Game implements ServerListener
 			//			};
 			//			new Thread(run).start();
 
-			Goblin walker = g.createGoblin(8, 8, 0);
+			/******** Walker example */
+			
+			//Goblin walker = g.createGoblin(8, 8, 0);
 			//walker.walkTo(12, 12);
 			//walker.addIdle(3000);
 			//walker.addWalkTo(10, 10);
@@ -210,6 +220,24 @@ public class ServerGame extends Game implements ServerListener
 			//walker.addWalkTo(20, 20);
 			//g.characterUpdated(walker);
 
+			//Runnable run = new Runnable()
+			//{
+				//@Override
+				//public void run()
+				//{
+					//try
+					//{
+						//Thread.sleep(5000);
+						//walker.walkTo(6, 6);
+						//Item i = g.getItemsOnSquare(6, 6, 0).iterator().next();
+						//walker.pickupItem(6, 6, i);
+						//g.characterUpdated(walker);
+					//} catch(Exception e){}
+				//}
+			//};
+			//new Thread(run).start();
+			
+			/******** Post-login spawn example */
 			Runnable run = new Runnable()
 			{
 				@Override
@@ -218,10 +246,11 @@ public class ServerGame extends Game implements ServerListener
 					try
 					{
 						Thread.sleep(5000);
-						walker.walkTo(6, 6);
-						Item i = g.getItemsOnSquare(6, 6, 0).iterator().next();
-						walker.pickupItem(6, 6, i);
-						g.characterUpdated(walker);
+						Goblin wanderer = g.createGoblin(10, 10, 0);
+						wanderer.walkTo(8, 8);
+						wanderer.addWalkTo(20, 20);
+						wanderer.addWalkTo(8, 8);
+						g.characterUpdated(wanderer);
 					} catch(Exception e){}
 				}
 			};

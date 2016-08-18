@@ -68,8 +68,9 @@ public class Game
 	 * Add a new character to a map.
 	 * @param c The character to add to the map.
 	 * @param map_id The id of the map in which to add the character.
+	 * @return Whether or not the character could be added to the map.
 	 */
-	public void addCharacter(MMOCharacter c, int map_id)
+	public boolean addCharacter(MMOCharacter c, int map_id)
 	{
 		if(map_id >= 0 && map_id < maps.length)
 		{
@@ -77,7 +78,11 @@ public class Game
 			render.addRenderable(c);
 			maps[map_id].addCharacter(c);
 			c.setCurrentMap(maps[map_id]);
+			
+			return true;
 		}
+		
+		return false;
 	}
 
 	/**
