@@ -189,6 +189,8 @@ public class ClientGame extends Game
 	/** Methods that are server specific that we want to cancel out */
 	@Override
 	public synchronized boolean pickupItem(MMOCharacter character, Item item) { return true; }
+	@Override
+	public synchronized boolean dropItem(MMOCharacter character, Item item) { return true; }
 
 	private ClientGameStateManager gameState;
 	private JFrame window;

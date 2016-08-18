@@ -79,10 +79,10 @@ public class Game
 			render.addRenderable(c);
 			maps[map_id].addCharacter(c);
 			c.setCurrentMap(maps[map_id]);
-			
+
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -94,7 +94,7 @@ public class Game
 	{
 		characters.remove(c);
 		render.removeRenderable(c);
-		
+
 		/* remove the character from their map. */
 		c.getCurrentMap().removeCharacter(c);
 		c.setCurrentMap(null);
@@ -149,7 +149,7 @@ public class Game
 
 		return false;
 	}
-	
+
 	/**
 	 * Drop an item onto the map.
 	 * @param character The character that is dropping the item.
@@ -167,24 +167,25 @@ public class Game
 
 		/* Are they on a valid square? */
 		if(square == null)
-			return false;
-
-		/* Is this item on the square? */
-		if(character.getInventory().contains(item))
 		{
-			/* Does this character have room for this item? */
-			if(character.dropItem(item))
+			Log.e("Character is on invalid square!");
+			return false;
+		}
+
+		/* Can we drop this item? */
+		if(character.dropItem(item))
+		{
+			if(character.getCurrentMap().itemDropped(row, col, item))
 			{
-				square.getItems().add(item);
-				/* Let everyone know someone picked up an item */
+				/* Let everyone know someone dropped an item */
 				questEngine.dropped(character, item);
-				return true;
-			} else Log.e("Character couldn't drop that item!");
-		} else Log.e("Character doesn't have that item!");
+			} else Log.e("Map square couldn't accept the dropped item!");
+			return true;
+		} else Log.e("Character couldn't drop that item!");
 
 		return false;
 	}
-	
+
 	/**
 	 * Convert a CharacterUUID into the character it represents.
 	 * @param uuid The UUID of the character to search for.
@@ -199,10 +200,10 @@ public class Game
 			if(c.getUUID().equals(uuid))
 				return c;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Convert an ItemUUID into the item it represents.
 	 * @param uuid The UUID to search for.
@@ -213,7 +214,7 @@ public class Game
 		for(int x = 0;x < maps.length;x++)
 		{
 			Iterator<Item> it = maps[x].getItems().iterator();
-			
+
 			while(it.hasNext())
 			{
 				Item i = it.next();
@@ -221,7 +222,7 @@ public class Game
 					return i;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -278,7 +279,7 @@ public class Game
 	{
 		return maps[mapID].getCharacters();
 	}
-	
+
 	/**
 	 * A character's properties have changed.
 	 * @param c The character that has properties that have changed.
@@ -292,7 +293,7 @@ public class Game
 	protected LinkedList<MMOCharacter> characters; /**< The characters on the map. */
 
 	protected Grid2DMap maps[]; /**< The currently loaded maps. */
-	
+
 	/* The list of maps to load when the game starts. */
 	protected String map_paths[] = {
 			"assets/maps/example.mmomap"	

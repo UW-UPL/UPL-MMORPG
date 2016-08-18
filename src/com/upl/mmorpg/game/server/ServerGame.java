@@ -141,7 +141,8 @@ public class ServerGame extends Game implements ServerListener
 			for(GameStateManager client : clients)
 			{
 				if(client.getCurrentMapID() == character.getCurrentMapID())
-					client.itemDropped(character.getRow(), character.getColumn(), item, character.getUUID());
+					client.itemDropped(character.getRow(), character.getColumn(), 
+							item.getUUID(), character.getUUID());
 			}
 		}
 		
@@ -213,8 +214,7 @@ public class ServerGame extends Game implements ServerListener
 //			new Thread(run).start();
 			
 			/******** Item pickup and drop example */
-			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
-			collector.walkTo(6, 6);
+			final Goblin collector = g.createGoblin(10, 6, GameMap.EXAMPLE1);
 			Runnable run = new Runnable()
 			{
 				public void run()

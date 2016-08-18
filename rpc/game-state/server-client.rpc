@@ -8,7 +8,7 @@ void,updateCharacter,Object,Object
 # public void updateMap(int map_id, Grid2DMap map)
 void,updateMap,int,Object
 
-# public void itemDropped(int row, int col, Item item, CharacterUUID character)
+# public void itemDropped(int row, int col, ItemUUID item, CharacterUUID character)
 void,itemDropped,int,int,Object,Object
 # public void itemDropped(Item item, CharacterUUID recipient)
 void,itemPickedUp,Object,Object

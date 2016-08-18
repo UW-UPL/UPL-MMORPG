@@ -68,6 +68,17 @@ public class WalkingAnimation extends Animation
 	public void animationStarted() 
 	{
 		/**
+		 * Do we even need to go anywhere?
+		 */
+		if(character.getRow() == destRow && character.getColumn() == destCol)
+		{
+			/* Skip this animation */
+			Log.vln("Character has skipped walking animation.");
+			manager.nextAnimation();
+			return;
+		}
+		
+		/**
 		 * Do we need to calculate the walking path?
 		 */
 		if(walkingPath == null) 

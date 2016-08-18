@@ -4,6 +4,7 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.server.GameStateInterface;
 import com.upl.mmorpg.game.uuid.CharacterUUID;
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
@@ -70,9 +71,9 @@ public class ClientGameStateManager implements GameStateInterface
 	@Override
 	public void itemDropped(int row, int col, Object obj, Object obj2) 
 	{
-		if(obj instanceof Item && obj2 instanceof CharacterUUID)
+		if(obj instanceof ItemUUID && obj2 instanceof CharacterUUID)
 		{
-			Item i = (Item)obj;
+			ItemUUID i = (ItemUUID)obj;
 			CharacterUUID uuid = (CharacterUUID)obj2;
 			MMOCharacter character = game.getCharacter(uuid);
 			if(character == null)
@@ -80,17 +81,23 @@ public class ClientGameStateManager implements GameStateInterface
 				Log.e("Couldn't find character: " + uuid);
 				return;
 			}
+			Item item = game.getItem(i);
+			if(item == null)
+			{
+				Log.e("Couldn't find item: " + i);
+				return;
+			}
 			
-			game.itemDropped(row, col, i, character);
+			game.itemDropped(row, col, item, character);
 		}
 	}
 
 	@Override
 	public void itemPickedUp(Object obj, Object obj2) 
 	{
-		if(obj instanceof Item && obj2 instanceof CharacterUUID)
+		if(obj instanceof ItemUUID && obj2 instanceof CharacterUUID)
 		{
-			Item i = (Item)obj;
+			ItemUUID i = (ItemUUID)obj;
 			CharacterUUID uuid = (CharacterUUID)obj2;
 			
 			if(game.getCharacter(uuid) == null)
@@ -99,7 +106,7 @@ public class ClientGameStateManager implements GameStateInterface
 				return;
 			}
 			
-			if(!game.itemPickedUp(i.getUUID(), game.getCharacter(uuid)))
+			if(!game.itemPickedUp(i, game.getCharacter(uuid)))
 				Log.e("Player " + uuid + " can't pick that up!");
 		}
 	}
