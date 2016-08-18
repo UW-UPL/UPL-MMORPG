@@ -110,6 +110,18 @@ public class ServerGame extends Game implements ServerListener
 		}
 	}
 	
+	@Override
+	public synchronized boolean pickupItem(MMOCharacter character, Item item)
+	{
+		boolean result = super.pickupItem(character, item);
+		if(result)
+		{
+			
+		}
+		
+		return result;
+	}
+	
 	public void addClient(GameStateManager client)
 	{
 		clients.add(client);

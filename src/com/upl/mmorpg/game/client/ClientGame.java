@@ -8,7 +8,9 @@ import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.uuid.CharacterUUID;
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
@@ -45,7 +47,38 @@ public class ClientGame extends Game
 			Log.wtf("Client Initialization Failed!!", e);
 		}
 	}
+	
+	/**
+	 * An item was dropped on the map.
+	 * @param row The row in which the item was dropped.
+	 * @param col The column in which the item was dropped.
+	 * @param item The item that was dropped.
+	 */
+	public void itemDropped(int row, int col, Item item)
+	{
+		currentMap.itemDropped(row, col, item);
+	}
+	
+	/**
+	 * An item was picked up by a player.
+	 * @param item The item that was picked up.
+	 * @param recipient The character who picked up the item.
+	 * @return Whether or not that character could pick up that item.s
+	 */
+	public boolean itemPickedUp(ItemUUID item, MMOCharacter recipient)
+	{
+		Item i = currentMap.pickupItem(item);
+		if(i == null)
+			return false;
+		
+		return recipient.getInventory().add(i);
+	}
 
+	/**
+	 * Do the initial load of the map from the server.
+	 * @return Whether or not the map could be loaded from the server.
+	 * @throws IOException If there was a network error.
+	 */
 	private boolean loadMap() throws IOException
 	{
 		currentMap = (Grid2DMap)gameState.requestCurrentMap();
@@ -64,7 +97,12 @@ public class ClientGame extends Game
 		return true;
 	}
 
-	public boolean loadCharacters() throws IOException
+	/**
+	 * Do the initial load of all of the characters on the map.
+	 * @return Whether or not the characters could be loaded from the server.
+	 * @throws IOException If there was a network failure.
+	 */
+	private boolean loadCharacters() throws IOException
 	{
 		Object obj = gameState.requestCharacters();
 		@SuppressWarnings("unchecked")
@@ -83,7 +121,23 @@ public class ClientGame extends Game
 
 		return true;
 	}
+	
+	/**
+	 * Update the map properties. This includes items.
+	 * @param map The new map properties.
+	 * @return Whether or not the map could be updated.
+	 */
+	public boolean updateMap(Grid2DMap map)
+	{
+		return currentMap.update(map);
+	}
 
+	/**
+	 * Update the properties of the given character.
+	 * @param uuid The UUID of the character.
+	 * @param character The new properties to apply.
+	 * @return Whether or not this character could be updated.s
+	 */
 	public boolean updateCharacter(CharacterUUID uuid, MMOCharacter character)
 	{
 		Iterator<MMOCharacter> it = currentMap.getCharacters().iterator();
@@ -103,13 +157,27 @@ public class ClientGame extends Game
 				return true;
 			}
 		}
+		
+		/* This is a new character, just add it to the map */
+		try 
+		{
+			character.updateTransient(assets, this, currentMap);
+		} catch (IOException e) {
+			Log.wtf("Couldn't update character transient!", e);
+			return false;
+		}
+		
+		currentMap.addCharacter(character);
+		render.addRenderable(character);
 
-		return false;
+		return true;
 	}
+	
+	/** Methods that are server specific that we want to cancel out */
+	public synchronized boolean pickupItem(MMOCharacter character, Item item) { return true; }
 
 	private ClientGameStateManager gameState;
 	private JFrame window;
 	private MapControl control;
-	private RPCManager rpc;
 	private Grid2DMap currentMap;
 }

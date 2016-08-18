@@ -366,6 +366,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	public int getRow() { return (int)(locY + 0.5d); }
 	public int getColumn() { return (int)(locX + 0.5d); }
 	public CharacterUUID getUUID() { return uuid; }
+	public Inventory getInventory() { return inventory; }
 	
 	/**
 	 * Place the character in a specific row on the map. The

@@ -378,7 +378,7 @@ public class Grid2DMap extends Renderable implements Serializable
 	 * @param col The column in which to drop the item.
 	 * @return Whether or not the item could be added to the map square.
 	 */
-	public boolean itemDropped(Item item, int row, int col)
+	public boolean itemDropped(int row, int col, Item item)
 	{
 		if(row < rowCount && row >= 0
 				&& col >= 0 && col < colCount)
@@ -418,6 +418,26 @@ public class Grid2DMap extends Renderable implements Serializable
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Update this map with the properties of the new map.
+	 * @param map The new map to get properties from.
+	 */
+	public boolean update(Grid2DMap map)
+	{
+		/* Assume both maps must have the same dimensions */
+		if(map.rowCount != rowCount || map.colCount != colCount)
+			return false;
+		
+		for(int row = 0;row < rowCount;row++)
+			for(int col = 0;col < colCount;col++)
+				this.map[row][col] = map.map[row][col];
+		
+		loaded = true;
+		findAllItems();
+		generateSquareProperties();
+		return true;
 	}
 	
 	protected transient int id; /**< The id number for this map (set by Game). */

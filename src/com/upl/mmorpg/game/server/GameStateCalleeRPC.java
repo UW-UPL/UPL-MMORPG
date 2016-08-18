@@ -17,28 +17,45 @@ public class GameStateCalleeRPC implements RPCCallee
 		Log.e("Invalid RPC used!");
 	}
 
-	public StackBuffer __requestCurrentMap(StackBuffer stack)
+	public void __updateCharacter(StackBuffer stack)
 	{
 		/* Pop the arguments */
+		Object arg0 = stack.popObject();
+		Object arg1 = stack.popObject();
 
 		/* Do the function call */
-		Object result = client.requestCurrentMap();
-		/* Make a result stack */
-		StackBuffer ret_stack = new StackBuffer();
-		ret_stack.pushObject(result);
-		return ret_stack;
+		client.updateCharacter(arg0, arg1);
 	}
 
-	public StackBuffer __requestCharacters(StackBuffer stack)
+	public void __updateMap(StackBuffer stack)
 	{
 		/* Pop the arguments */
+		int arg0 = stack.popInt();
+		Object arg1 = stack.popObject();
 
 		/* Do the function call */
-		Object result = client.requestCharacters();
-		/* Make a result stack */
-		StackBuffer ret_stack = new StackBuffer();
-		ret_stack.pushObject(result);
-		return ret_stack;
+		client.updateMap(arg0, arg1);
+	}
+
+	public void __itemDropped(StackBuffer stack)
+	{
+		/* Pop the arguments */
+		int arg0 = stack.popInt();
+		int arg1 = stack.popInt();
+		Object arg2 = stack.popObject();
+
+		/* Do the function call */
+		client.itemDropped(arg0, arg1, arg2);
+	}
+
+	public void __itemPickedUp(StackBuffer stack)
+	{
+		/* Pop the arguments */
+		Object arg0 = stack.popObject();
+		Object arg1 = stack.popObject();
+
+		/* Do the function call */
+		client.itemPickedUp(arg0, arg1);
 	}
 
 	@Override
@@ -50,11 +67,17 @@ public class GameStateCalleeRPC implements RPCCallee
 		StackBuffer result = null;
 		switch(func_num)
 		{
-		case 1: /** requestCurrentMap */
-			result = __requestCurrentMap(stack);
+		case 1: /** updateCharacter */
+			__updateCharacter(stack);
 			break;
-		case 2: /** requestCharacters */
-			result = __requestCharacters(stack);
+		case 2: /** updateMap */
+			__updateMap(stack);
+			break;
+		case 3: /** itemDropped */
+			__itemDropped(stack);
+			break;
+		case 4: /** itemPickedUp */
+			__itemPickedUp(stack);
 			break;
 		default:
 			invalid_rpc(func_num);
@@ -63,6 +86,7 @@ public class GameStateCalleeRPC implements RPCCallee
 
 		return result;
 	}
-	
+
+
 	private GameStateManager client;
 }

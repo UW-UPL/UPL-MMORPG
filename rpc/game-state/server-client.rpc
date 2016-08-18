@@ -7,3 +7,8 @@ void,updateCharacter,Object,Object
 # Update the map
 # public void updateMap(int map_id, Grid2DMap map)
 void,updateMap,int,Object
+
+# public void itemDropped(int row, int col, Item item)
+void,itemDropped,int,int,Object
+# public void itemDropped(Item item, CharacterUUID recipient)
+void,itemPickedUp,Object,Object
