@@ -84,7 +84,15 @@ public class ClientGameStateManager implements GameStateInterface
 		{
 			Item i = (Item)obj;
 			CharacterUUID uuid = (CharacterUUID)obj2;
-			game.itemPickedUp(i.getUUID(), game.getCharacter(uuid));
+			
+			if(game.getCharacter(uuid) == null)
+			{
+				Log.e("I have no idea who character " + uuid + " is.");
+				return;
+			}
+			
+			if(!game.itemPickedUp(i.getUUID(), game.getCharacter(uuid)))
+				Log.e("Player " + uuid + " can't pick that up!");
 		}
 	}
     

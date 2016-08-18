@@ -19,6 +19,7 @@ import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.libnet.Server;
 import com.upl.mmorpg.lib.libnet.ServerListener;
 import com.upl.mmorpg.lib.librpc.RPCManager;
+import com.upl.mmorpg.lib.map.GameMap;
 
 public class ServerGame extends Game implements ServerListener
 {
@@ -112,19 +113,24 @@ public class ServerGame extends Game implements ServerListener
 				client.updateCharacter(c.getUUID(), c);
 		}
 	}
-	
+
 	@Override
 	public synchronized boolean pickupItem(MMOCharacter character, Item item)
 	{
 		boolean result = super.pickupItem(character, item);
+		
 		if(result)
 		{
-			
+			for(GameStateManager client : clients)
+			{
+				if(client.getCurrentMapID() == character.getCurrentMapID())
+					client.itemPickedUp(item, character.getUUID());
+			}
 		}
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public boolean addCharacter(MMOCharacter c, int map_id)
 	{
@@ -133,7 +139,7 @@ public class ServerGame extends Game implements ServerListener
 		Log.vln("A new character has been added to the game on map " + map_id);
 		return result;
 	}
-	
+
 	public void addClient(GameStateManager client)
 	{
 		clients.add(client);
@@ -160,7 +166,7 @@ public class ServerGame extends Game implements ServerListener
 			}
 			g.loadAssets();
 			g.loadMaps();
-			
+
 			/******** Wander example */
 			//			final Goblin wanderer = g.createGoblin(11, 11);
 			//			final Goblin follower = g.createGoblin(11, 20);
@@ -178,22 +184,18 @@ public class ServerGame extends Game implements ServerListener
 			//			new Thread(run).start();
 
 			/******** Item pickup example */
-			//final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
-			//collector.walkTo(6, 6);
-			//Runnable run = new Runnable()
-			//{
-			//public void run()
-			//{
-			//try { Thread.sleep(30000);} catch(Exception e) {}
-			//System.out.println("Picking up item...");;
-			//g.pickupItem(collector, 
-			//g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next(), 
-			//GameMap.EXAMPLE1);
-			//}
-			//};
-			//new Thread(run).start();
+			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
+			collector.walkTo(6, 6);
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+				}
+			};
+			new Thread(run).start();
 
-			
+
 			/******** Defender/attacker example */
 			//Goblin defender = g.createGoblin(11, 10);
 			//defender.wander(5);
@@ -211,7 +213,7 @@ public class ServerGame extends Game implements ServerListener
 			//			new Thread(run).start();
 
 			/******** Walker example */
-			
+
 			//Goblin walker = g.createGoblin(8, 8, 0);
 			//walker.walkTo(12, 12);
 			//walker.addIdle(3000);
@@ -222,39 +224,39 @@ public class ServerGame extends Game implements ServerListener
 
 			//Runnable run = new Runnable()
 			//{
-				//@Override
-				//public void run()
-				//{
-					//try
-					//{
-						//Thread.sleep(5000);
-						//walker.walkTo(6, 6);
-						//Item i = g.getItemsOnSquare(6, 6, 0).iterator().next();
-						//walker.pickupItem(6, 6, i);
-						//g.characterUpdated(walker);
-					//} catch(Exception e){}
-				//}
+			//@Override
+			//public void run()
+			//{
+			//try
+			//{
+			//Thread.sleep(5000);
+			//walker.walkTo(6, 6);
+			//Item i = g.getItemsOnSquare(6, 6, 0).iterator().next();
+			//walker.pickupItem(6, 6, i);
+			//g.characterUpdated(walker);
+			//} catch(Exception e){}
+			//}
 			//};
 			//new Thread(run).start();
-			
+
 			/******** Post-login spawn example */
-			Runnable run = new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						Thread.sleep(5000);
-						Goblin wanderer = g.createGoblin(10, 10, 0);
-						wanderer.walkTo(8, 8);
-						wanderer.addWalkTo(20, 20);
-						wanderer.addWalkTo(8, 8);
-						g.characterUpdated(wanderer);
-					} catch(Exception e){}
-				}
-			};
-			new Thread(run).start();
+			//Runnable run = new Runnable()
+			//{
+			//	@Override
+			//public void run()
+			//{
+			//try
+			//{
+			//Thread.sleep(5000);
+			//Goblin wanderer = g.createGoblin(10, 10, 0);
+			//wanderer.walkTo(8, 8);
+			//wanderer.addWalkTo(20, 20);
+			//wanderer.addWalkTo(8, 8);
+			//g.characterUpdated(wanderer);
+			//} catch(Exception e){}
+			//}
+			//};
+			//new Thread(run).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -107,9 +107,11 @@ public class ClientGame extends Game
 		Object obj = gameState.requestCharacters();
 		@SuppressWarnings("unchecked")
 		LinkedList<MMOCharacter> characters = (LinkedList<MMOCharacter>)obj;
+		this.characters.addAll(characters);
 		if(characters == null)
 			return false;
 		currentMap.setCharacters(characters);
+		Log.vln("Client got " + characters.size() + " characters.");
 		System.out.println("Got " + characters.size() + " characters.");
 		Iterator<MMOCharacter> it = characters.iterator();
 		while(it.hasNext())
@@ -167,6 +169,7 @@ public class ClientGame extends Game
 			return false;
 		}
 		
+		characters.add(character);
 		currentMap.addCharacter(character);
 		render.addRenderable(character);
 
@@ -174,6 +177,7 @@ public class ClientGame extends Game
 	}
 	
 	/** Methods that are server specific that we want to cancel out */
+	@Override
 	public synchronized boolean pickupItem(MMOCharacter character, Item item) { return true; }
 
 	private ClientGameStateManager gameState;

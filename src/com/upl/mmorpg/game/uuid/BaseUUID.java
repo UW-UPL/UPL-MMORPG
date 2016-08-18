@@ -29,6 +29,12 @@ public abstract class BaseUUID implements Serializable
 		return false;
 	}
 	
+	@Override
+	public String toString()
+	{
+		return uuid.toString();
+	}
+	
 	private UUID uuid; /**< The underlying UUID value */
 	
 	private static final long serialVersionUID = 3543652776975780500L;
