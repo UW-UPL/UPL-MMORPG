@@ -222,6 +222,20 @@ public class Game
 					return i;
 			}
 		}
+		
+		/* Does a character have this item? */
+		Iterator<MMOCharacter> it = characters.iterator();
+		while(it.hasNext())
+		{
+			MMOCharacter character = it.next();
+			Item item = character.getInventory().containsUUID(uuid);
+			
+			if(item != null)
+			{
+				Log.vln("Character " + character + " had the item we were searching for.");
+				return item;
+			}
+		}
 
 		return null;
 	}

@@ -2,23 +2,44 @@ package com.upl.mmorpg.game.item;
 
 import java.util.Iterator;
 
+import com.upl.mmorpg.game.uuid.ItemUUID;
+
 public class Inventory extends ItemList 
 {
 	public Inventory()
 	{
 		super(MAX_CAPACITY);
 	}
+	
+	/**
+	 * Check to see if an item with the given uuid is in this stack.
+	 * @param uuid The UUID to search for.
+	 * @return The item, if it exists, null otherwise.
+	 */
+	public Item containsUUID(ItemUUID uuid)
+	{
+		Iterator<Item> it = iterator();
+		while(it.hasNext())
+		{
+			Item item = it.next();
+			if(item.getUUID().equals(uuid))
+				return item;
+		}
+		
+		return null;
+	}
 
 	public int addItemStack(ItemStack stack)
 	{
 		for(int x = 0;x < stack.getCount();x++)
-			if(!addItem(new Item(stack)))
+			if(!add(new Item(stack)))
 				return x;
 		
 		return stack.getCount();
 	}
 	
-	public boolean addItem(Item item)
+	@Override
+	public boolean add(Item item)
 	{
 		/* If this is a stack, we need to know */
 		ItemStack istack = null;

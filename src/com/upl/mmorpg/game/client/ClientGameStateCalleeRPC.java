@@ -88,5 +88,6 @@ public class ClientGameStateCalleeRPC implements RPCCallee
 		return result;
 	}
 
+
 	private ClientGameStateManager client;
 }

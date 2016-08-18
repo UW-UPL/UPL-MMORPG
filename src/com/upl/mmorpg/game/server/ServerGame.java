@@ -10,7 +10,6 @@ import javax.swing.JFrame;
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
-import com.upl.mmorpg.game.client.MapControl;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.server.login.LoginManager;
 import com.upl.mmorpg.game.server.login.LoginServerCallee;
@@ -124,7 +123,7 @@ public class ServerGame extends Game implements ServerListener
 			for(GameStateManager client : clients)
 			{
 				if(client.getCurrentMapID() == character.getCurrentMapID())
-					client.itemPickedUp(item, character.getUUID());
+					client.itemPickedUp(item.getUUID(), character.getUUID());
 			}
 		}
 
@@ -214,7 +213,7 @@ public class ServerGame extends Game implements ServerListener
 //			new Thread(run).start();
 			
 			/******** Item pickup and drop example */
-			final Goblin collector = g.createGoblin(10, 6, GameMap.EXAMPLE1);
+			final Goblin collector = g.createGoblin(14, 6, GameMap.EXAMPLE1);
 			Runnable run = new Runnable()
 			{
 				public void run()

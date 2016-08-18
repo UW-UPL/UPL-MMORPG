@@ -27,11 +27,11 @@ public class ClientGame extends Game
 		window.setLocationRelativeTo(null);
 		window.setResizable(false);
 		window.setVisible(true);
+		character = null;
 
-		control = new MapControl(render, maps[0], false);
-		render.addMouseListener(control);
-		render.addMouseMotionListener(control);
-		render.startRender();
+		//control = new MapControl(render, maps[0], false);
+		//render.addMouseListener(control);
+		//render.addMouseMotionListener(control);
 
 		gameState = new ClientGameStateManager(this, rpc);
 		rpc.setCallee(new ClientGameStateCalleeRPC(gameState));
@@ -42,10 +42,13 @@ public class ClientGame extends Game
 				Log.e("MAP UPDATE FAILED.");
 			if(!loadCharacters())
 				Log.e("CHARACTER UPDATE FAILED.");
+			render.startRender();
 		} catch(Exception e)
 		{
 			Log.wtf("Client Initialization Failed!!", e);
 		}
+		
+		
 	}
 	
 	/**
@@ -130,6 +133,20 @@ public class ClientGame extends Game
 			character.updateTransient(assets, this, currentMap);
 			render.addRenderable(character);
 		}
+		
+		obj = gameState.requestPlayerUUID();
+		if(obj instanceof CharacterUUID)
+		{
+			CharacterUUID uuid = (CharacterUUID)obj;
+			character = getCharacter(uuid);
+			if(character == null)
+			{
+				Log.e("Failed to locate our player: " + uuid);
+				return false;
+			}
+			
+			render.follow(character);
+		} else Log.e("requestPlayerUUID return failure! " + obj);
 
 		return true;
 	}
@@ -186,6 +203,24 @@ public class ClientGame extends Game
 		return true;
 	}
 	
+	/**
+	 * Assign the character we are in control of.
+	 * @param character The character we are in control of.
+	 */
+	public void setCharacter(MMOCharacter character)
+	{
+		this.character = character;
+	}
+	
+	/**
+	 * Returns the character that we have control of.
+	 * @return The character we have control of.
+	 */
+	public MMOCharacter getCharacter()
+	{
+		return character;
+	}
+	
 	/** Methods that are server specific that we want to cancel out */
 	@Override
 	public synchronized boolean pickupItem(MMOCharacter character, Item item) { return true; }
@@ -194,6 +229,7 @@ public class ClientGame extends Game
 
 	private ClientGameStateManager gameState;
 	private JFrame window;
-	private MapControl control;
+	//private MapControl control;
 	private Grid2DMap currentMap;
+	private MMOCharacter character;
 }

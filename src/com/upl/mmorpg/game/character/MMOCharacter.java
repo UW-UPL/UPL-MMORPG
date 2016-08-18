@@ -482,7 +482,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public boolean receiveItem(Item i)
 	{
-		return inventory.addItem(i);
+		return inventory.add(i);
 	}
 	
 	/**

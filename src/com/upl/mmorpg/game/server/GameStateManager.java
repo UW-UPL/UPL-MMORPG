@@ -1,6 +1,9 @@
 package com.upl.mmorpg.game.server;
 
+import java.io.IOException;
+
 import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.util.StackBuffer;
@@ -28,6 +31,35 @@ public class GameStateManager implements GameStateInterface
 	public Object requestCharacters() 
 	{
 		return game.getCharactersOnMap(character.getCurrentMapID());
+	}
+
+	@Override
+	public Object requestPlayerUUID() 
+	{
+		return character.getUUID();
+	}
+
+	@Override
+	public boolean updateCharacter(Object obj) 
+	{
+		if(obj instanceof MMOCharacter)
+		{
+			MMOCharacter character = (MMOCharacter)obj;
+			if(character.getUUID().equals(this.character.getUUID()))
+			{
+				try 
+				{
+					this.character.update(character);
+					game.characterUpdated(character);
+					return true;
+				} catch (IOException e) 
+				{
+					Log.wtf("Couldn't update client's character!", e);
+				}
+			} else Log.e("UUID mismatch!");
+		}
+
+		return false;
 	}
 
 	/** Caller methods */
