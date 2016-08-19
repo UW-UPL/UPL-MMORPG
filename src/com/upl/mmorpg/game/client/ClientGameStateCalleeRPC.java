@@ -59,6 +59,15 @@ public class ClientGameStateCalleeRPC implements RPCCallee
 		client.itemPickedUp(arg0, arg1);
 	}
 
+	public void __characterDisconnected(StackBuffer stack)
+	{
+		/* Pop the arguments */
+		Object arg0 = stack.popObject();
+
+		/* Do the function call */
+		client.characterDisconnected(arg0);
+	}
+
 	@Override
 	public StackBuffer handle_call(StackBuffer stack)
 	{
@@ -80,6 +89,9 @@ public class ClientGameStateCalleeRPC implements RPCCallee
 		case 4: /** itemPickedUp */
 			__itemPickedUp(stack);
 			break;
+		case 5: /** characterDisconnected */
+			__characterDisconnected(stack);
+			break;
 		default:
 			invalid_rpc(func_num);
 			break;
@@ -87,7 +99,6 @@ public class ClientGameStateCalleeRPC implements RPCCallee
 
 		return result;
 	}
-
 
 	private ClientGameStateManager client;
 }

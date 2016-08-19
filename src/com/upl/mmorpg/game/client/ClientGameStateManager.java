@@ -170,6 +170,25 @@ public class ClientGameStateManager implements GameStateInterface
 				Log.e("Player " + uuid + " can't pick that up!");
 		} else Log.e("Bad arguments for itemPickedUp.");
 	}
+	
+	@Override
+	public void characterDisconnected(Object obj) 
+	{
+		if(obj instanceof CharacterUUID)
+		{
+			CharacterUUID uuid = (CharacterUUID)obj;
+			
+			MMOCharacter character = game.getCharacter(uuid);
+			if(character == null)
+			{
+				Log.e("Cannot disconnect player: " + uuid);
+				return;
+			}
+			
+			game.removeCharacter(character);
+		}
+		
+	}
 
 	private RPCManager rpc;
 	private ClientGame game;

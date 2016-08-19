@@ -11,9 +11,9 @@ public interface GameStateInterface
 	public void requestPickUpItem(int arg0, int arg1, Object arg2);
 
 	/* Server -> Client */
-	public void updateCharacter(Object arg0, Object arg1);
-	public void updateMap(int arg0, Object arg1);
-	public void itemDropped(int arg0, int arg1, Object arg2, Object arg3);
-	public void itemPickedUp(Object arg0, Object arg1);
-
+    public void updateCharacter(Object arg0, Object arg1);
+    public void updateMap(int arg0, Object arg1);
+    public void itemDropped(int arg0, int arg1, Object arg2, Object arg3);
+    public void itemPickedUp(Object arg0, Object arg1);
+    public void characterDisconnected(Object arg0);
 }

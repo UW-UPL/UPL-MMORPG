@@ -192,8 +192,8 @@ public abstract class Game
 				/* Let everyone know someone picked up an item */
 				questEngine.pickedUp(character, item);
 				return true;
-			}
-		}
+			} else Log.e("Character's inventory is full!");
+		} else Log.e("Character isn't on that square!");
 
 		return false;
 	}

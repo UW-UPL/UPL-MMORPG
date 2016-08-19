@@ -19,6 +19,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import com.upl.mmorpg.game.server.ServerGame;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
@@ -213,7 +214,7 @@ public class ClientLogin
 
 	public static void main(String args[])
 	{
-		///* Start the server */
+		/* Start the server */
 		// ServerGame.main(args);
 
 		/* Open the Client Window*/

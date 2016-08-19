@@ -53,7 +53,7 @@ public class GameStateManager implements GameStateInterface
 				try 
 				{
 					this.character.update(character);
-					
+
 					/* propegate this update */
 					game.characterUpdated(this.character, false);
 					return true;
@@ -65,6 +65,40 @@ public class GameStateManager implements GameStateInterface
 		}
 
 		return false;
+	}
+
+	@Override
+	public void requestdropItem(int row, int col, Object obj) 
+	{
+		if(obj instanceof ItemUUID)
+		{
+			ItemUUID uuid = (ItemUUID)obj;
+			Item item = game.getItem(uuid);
+			if(item == null)
+			{
+				Log.e("I don't know where this item is: " + uuid);
+				return;
+			}
+
+			game.dropItem(character, item);
+		}
+	}
+
+	@Override
+	public void requestPickUpItem(int row, int col, Object obj) 
+	{
+		if(obj instanceof ItemUUID)
+		{
+			ItemUUID uuid = (ItemUUID)obj;
+			Item item = game.getItem(uuid);
+			if(item == null)
+			{
+				Log.e("I don't know where this item is: " + uuid);
+				return;
+			}
+
+			game.pickupItem(character, item);
+		}
 	}
 
 	/** Caller methods */
@@ -122,6 +156,18 @@ public class GameStateManager implements GameStateInterface
 		rpc.do_call(stack, false);
 	}
 
+	public void characterDisconnected(Object arg0)
+	{
+		StackBuffer stack = new StackBuffer();
+
+		/* Push the function number */
+		stack.pushInt(5);
+		/* Push the arguments */
+		stack.pushObject(arg0);
+		/* Do the network call */
+		rpc.do_call(stack, false);
+	}
+
 	public int getCurrentMapID()
 	{
 		return character.getCurrentMapID();
@@ -131,51 +177,17 @@ public class GameStateManager implements GameStateInterface
 	{
 		return character.getCurrentMap();
 	}
-	
+
 	public CharacterUUID getPlayerUUID()
 	{
 		return character.getUUID();
 	}
-	
+
 	public MMOCharacter getPlayer()
 	{
 		return character;
 	}
 	
-	@Override
-	public void requestdropItem(int row, int col, Object obj) 
-	{
-		if(obj instanceof ItemUUID)
-		{
-			ItemUUID uuid = (ItemUUID)obj;
-			Item item = game.getItem(uuid);
-			if(item == null)
-			{
-				Log.e("I don't know where this item is: " + uuid);
-				return;
-			}
-			
-			game.dropItem(character, item);
-		}
-	}
-
-	@Override
-	public void requestPickUpItem(int row, int col, Object obj) 
-	{
-		if(obj instanceof ItemUUID)
-		{
-			ItemUUID uuid = (ItemUUID)obj;
-			Item item = game.getItem(uuid);
-			if(item == null)
-			{
-				Log.e("I don't know where this item is: " + uuid);
-				return;
-			}
-			
-			game.pickupItem(character, item);
-		}
-	}
-
 	private ServerGame game;
 	private MMOCharacter character;
 	private RPCManager rpc;

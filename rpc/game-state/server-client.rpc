@@ -12,3 +12,6 @@ void,updateMap,int,Object
 void,itemDropped,int,int,Object,Object
 # public void itemDropped(Item item, CharacterUUID recipient)
 void,itemPickedUp,Object,Object
+
+# public void characterDisconnected(CharacterUUID uuid)
+void,characterDisconnected,Object

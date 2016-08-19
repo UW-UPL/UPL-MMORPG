@@ -241,21 +241,13 @@ public class ClientGame extends Game
 	@Override
 	public synchronized boolean pickupItem(MMOCharacter character, Item item) 
 	{ 
-		/* unless this is us, we don't care */
-		if(character == this.character)
-			gameState.requestPickUpItem(this.character.getRow(), this.character.getColumn(), item.getUUID());
-
 		return true;
 	}
 
 	@Override
 	public synchronized boolean dropItem(MMOCharacter character, Item item) 
 	{ 
-		/* unless this is us, we don't care */
-		if(character == this.character)
-			gameState.requestdropItem(character.getRow(), character.getColumn(), item.getUUID());
-
-		return true; 
+		return true;
 	}
 
 	@Override public Grid2DMap getMap(int id){ return currentMap; }

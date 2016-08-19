@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import com.upl.mmorpg.game.uuid.ItemUUID;
+
 /**
  * Base class for Inventory, Bank, ect. This class can also be treated as a collection.
  * 
@@ -129,7 +131,7 @@ public class ItemList implements Serializable, Collection<Item>
 	{
 		return items.iterator();
 	}
-	
+
 	public boolean addAll(Collection<? extends Item> collection)
 	{
 		boolean changed = false;
@@ -140,15 +142,32 @@ public class ItemList implements Serializable, Collection<Item>
 				items.add(i);
 				changed = true;
 			} else throw new IllegalStateException();
-			
+
 		}
-		
+
 		return changed;
 	}
-	
+
+	@Override 
+	public boolean contains(Object obj) 
+	{
+		if(obj instanceof Item)
+		{
+			ItemUUID uuid = ((Item)obj).getUUID();
+			Iterator<Item> it = items.iterator();
+			while(it.hasNext())
+			{
+				Item i = it.next();
+				if(uuid.equals(i.getUUID()))
+					return true;
+			}
+		}
+
+		return false;
+	}
+
 	/** Collection functions */
 	@Override public void clear() { items.clear();}
-	@Override public boolean contains(Object arg0) { return items.contains(arg0); }
 	@Override public boolean containsAll(Collection<?> c) { return items.containsAll(c); }
 	@Override public boolean isEmpty() { return items.isEmpty(); }
 	@Override public boolean remove(Object o) { return items.remove(o); }

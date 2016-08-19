@@ -120,21 +120,12 @@ public class Inventory extends ItemList
 		
 		Iterator<Item> it = iterator();
 		
-		ItemStack istack = null;
-		if(item instanceof ItemStack)
-		{
-			istack = (ItemStack)item;
-			
-			/* TODO Failure here? */
-			return removeItemStack((ItemStack)item) == istack.getCount();
-		}
-		
 		while(it.hasNext())
 		{
 			Item i = it.next();
 			
-			/* Do these ids match? */
-			if(i.getId() != item.getId())
+			/* Do these uuids match? */
+			if(!i.getUUID().equals(item.getUUID()))
 				continue;
 			
 			/* Is this an item stack? */
