@@ -59,10 +59,10 @@ public class ClientGame extends Game
 					return;
 				}
 
-				character.pickupItem(6, 6, i);
-				character.addIdle(5000);
-				character.addDropItem(6, 6, i);
-				gameState.updateCharacter(character);
+				// character.pickupItem(6, 6, i);
+				// character.addIdle(5000);
+				// character.addDropItem(6, 6, i);
+				// gameState.updateCharacter(character);
 			}
 		};
 		new Thread(run).start();
@@ -237,7 +237,7 @@ public class ClientGame extends Game
 	{
 		return character;
 	}
-
+	
 	@Override
 	public synchronized boolean pickupItem(MMOCharacter character, Item item) 
 	{ 

@@ -90,10 +90,11 @@ public abstract class Game
 	 */
 	public void removeCharacter(MMOCharacter c)
 	{
-		characters.remove(c);
-		render.removeRenderable(c);
+		if(!headless)
+			render.removeRenderable(c);
 
 		/* remove the character from their map. */
+		characters.remove(c);
 		c.getCurrentMap().removeCharacter(c);
 		c.setCurrentMap(null);
 	}

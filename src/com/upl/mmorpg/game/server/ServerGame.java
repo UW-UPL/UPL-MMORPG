@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 
 import com.upl.mmorpg.game.Game;
+import com.upl.mmorpg.game.character.Goblin;
 import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.server.login.LoginManager;
@@ -119,34 +120,30 @@ public class ServerGame extends Game implements ServerListener
 	public synchronized boolean pickupItem(MMOCharacter character, Item item)
 	{
 		boolean result = super.pickupItem(character, item);
-		
+
 		if(result)
 		{
 			for(GameStateManager client : clients)
-			{
 				if(client.getCurrentMapID() == character.getCurrentMapID())
 					client.itemPickedUp(item.getUUID(), character.getUUID());
-			}
 		}
 
 		return result;
 	}
-	
+
 	@Override
 	public synchronized boolean dropItem(MMOCharacter character, Item item)
 	{
 		boolean result = super.dropItem(character, item);
-		
+
 		if(result)
 		{
 			for(GameStateManager client : clients)
-			{
 				if(client.getCurrentMapID() == character.getCurrentMapID())
 					client.itemDropped(character.getRow(), character.getColumn(), 
 							item.getUUID(), character.getUUID());
-			}
 		}
-		
+
 		return result;
 	}
 
@@ -162,6 +159,17 @@ public class ServerGame extends Game implements ServerListener
 	public void addClient(GameStateManager client)
 	{
 		clients.add(client);
+	}
+
+	@Override
+	public void removeCharacter(MMOCharacter character)
+	{
+		int map_id = character.getCurrentMapID();
+		super.removeCharacter(character);
+
+		for(GameStateManager client : clients)
+			if(client.getCurrentMapID() == map_id)
+				client.characterDisconnected(character.getUUID());
 	}
 
 	private JFrame window;
@@ -203,30 +211,30 @@ public class ServerGame extends Game implements ServerListener
 			//			new Thread(run).start();
 
 			/******** Item pickup example */
-//			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
-//			collector.walkTo(6, 6);
-//			Runnable run = new Runnable()
-//			{
-//				public void run()
-//				{
-//					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
-//				}
-//			};
-//			new Thread(run).start();
-			
+			//			final Goblin collector = g.createGoblin(8, 8, GameMap.EXAMPLE1);
+			//			collector.walkTo(6, 6);
+			//			Runnable run = new Runnable()
+			//			{
+			//				public void run()
+			//				{
+			//					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+			//				}
+			//			};
+			//			new Thread(run).start();
+
 			/******** Item pickup and drop example */
-//			final Goblin collector = g.createGoblin(14, 6, GameMap.EXAMPLE1);
-//			Runnable run = new Runnable()
-//			{
-//				public void run()
-//				{
-//					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
-//					collector.addIdle(3000);
-//					collector.addDropItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
-//					g.characterUpdated(collector, false);
-//				}
-//			};
-//			new Thread(run).start();
+			//			final Goblin collector = g.createGoblin(14, 6, GameMap.EXAMPLE1);
+			//			Runnable run = new Runnable()
+			//			{
+			//				public void run()
+			//				{
+			//					collector.pickupItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+			//					collector.addIdle(3000);
+			//					collector.addDropItem(6, 6, g.getItemsOnSquare(6, 6, GameMap.EXAMPLE1).iterator().next());
+			//					g.characterUpdated(collector, false);
+			//				}
+			//			};
+			//			new Thread(run).start();
 
 
 			/******** Defender/attacker example */
@@ -290,6 +298,18 @@ public class ServerGame extends Game implements ServerListener
 			//}
 			//};
 			//new Thread(run).start();
+
+			/********** Disconnect example */
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					Goblin goblin = g.createGoblin(11, 11, 0);
+					try { Thread.sleep(10000); } catch (InterruptedException e) {}
+					g.removeCharacter(goblin);
+				}
+			};
+			new Thread(run).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
