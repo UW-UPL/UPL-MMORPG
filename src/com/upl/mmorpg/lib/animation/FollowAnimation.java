@@ -6,13 +6,12 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
-public class FollowAnimation extends Animation 
-		implements FollowListener, AnimationListener
+public class FollowAnimation extends Animation implements FollowListener
 {
 	public FollowAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, AnimationListener listener, int duration)
+			Grid2DMap map, int duration)
 	{
-		super(game, manager, character, listener, duration);
+		super(game, manager, character, duration);
 
 		this.map = map;
 		isMoving = false;
@@ -27,7 +26,7 @@ public class FollowAnimation extends Animation
 	}
 
 	@Override
-	public void animationInterrupted(Animation source) 
+	public void interrupt(){}
 	{
 		/* This was an external interrupt */
 		isMoving = false;
@@ -75,14 +74,6 @@ public class FollowAnimation extends Animation
 	}
 
 	@Override
-	public void directionChanged(int direction) 
-	{
-		//if(isMoving)
-		//	walking.directionChanged(direction);
-		//else idle.directionChanged(direction);
-	}
-	
-	@Override
 	public void characterMoving(MMOCharacter c, int dstRow, int dstCol) 
 	{
 		if(!animating) return;
@@ -106,7 +97,7 @@ public class FollowAnimation extends Animation
 		//walking.setSmooth(false);
 	}
 	
-	@Override
+	// @Override
 	public void animationFinished(Animation animation) 
 	{
 		if(animating)

@@ -14,7 +14,6 @@ import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.animation.Animation;
-import com.upl.mmorpg.lib.animation.AnimationListener;
 import com.upl.mmorpg.lib.animation.AnimationManager;
 import com.upl.mmorpg.lib.animation.DeathAnimation;
 import com.upl.mmorpg.lib.animation.DropItemAnimation;
@@ -41,7 +40,7 @@ import com.upl.mmorpg.lib.quest.Quest;
  * @author John Detter <jdetter@wisc.edu>
  *
  */
-public abstract class MMOCharacter extends Renderable implements Serializable, AnimationListener
+public abstract class MMOCharacter extends Renderable implements Serializable
 {
 	protected MMOCharacter(double x, double y, double width, double height, 
 			Grid2DMap map, AssetManager assets, Game game, CharacterUUID uuid)
@@ -61,7 +60,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 		this.uuid = uuid;
 		hasAnimation = true;
 		
-		animation = new AnimationManager(assets, this);
+		animation = new AnimationManager(assets, game, this);
 		followers = new LinkedList<CharacterUUID>();
 		effects = new LinkedList<CharacterEffect>();
 		inventory = new Inventory();
@@ -102,9 +101,8 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void walkTo(int row, int col)
 	{
-		WalkingAnimation walking = new WalkingAnimation(game, animation, 
-				this, this, row, col);
-		animation.setAnimation(walking);
+		WalkingAnimation walking = new WalkingAnimation(game, animation, this, row, col);
+		animation.transitionTo(walking);
 	}
 	
 	/**
@@ -116,8 +114,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	public void addWalkTo(int row, int col)
 	{
 		Log.vln("Adding walk to.");
-		WalkingAnimation walking = new WalkingAnimation(game, animation, 
-				this, this, row, col);
+		WalkingAnimation walking = new WalkingAnimation(game, animation, this, row, col);
 		animation.addAnimation(walking);
 	}
 	
@@ -127,9 +124,9 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void follow(MMOCharacter character)
 	{
-		FollowAnimation follow = new FollowAnimation(game, animation, this, map, null, -1);
+		FollowAnimation follow = new FollowAnimation(game, animation, this, map, -1);
 		follow.setFollee(character);
-		animation.setAnimation(follow);
+		animation.transitionTo(follow);
 	}
 	
 	/**
@@ -138,7 +135,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void addFollow(MMOCharacter character, int duration)
 	{
-		FollowAnimation follow = new FollowAnimation(game, animation, this, map, null, duration);
+		FollowAnimation follow = new FollowAnimation(game, animation, this, map, duration);
 		follow.setFollee(character);
 		animation.addAnimation(follow);
 	}
@@ -154,7 +151,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void addIdle(int duration)
 	{
-		IdleAnimation idle = new IdleAnimation(game, animation, this, null, duration);
+		IdleAnimation idle = new IdleAnimation(game, animation, this, duration);
 		animation.addAnimation(idle); 
 	}
 	
@@ -163,8 +160,8 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void idle() 
 	{ 
-		IdleAnimation idle = new IdleAnimation(game, animation, this, null, -1);
-		animation.setAnimation(idle); 
+		IdleAnimation idle = new IdleAnimation(game, animation, this, -1);
+		animation.transitionTo(idle); 
 	}
 	
 	/**
@@ -172,7 +169,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void addDie()
 	{
-		DeathAnimation death = new DeathAnimation(game, animation, this, null);
+		DeathAnimation death = new DeathAnimation(game, animation, this);
 		animation.addAnimation(death); 
 	}
 	
@@ -181,8 +178,8 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void die() 
 	{ 
-		DeathAnimation death = new DeathAnimation(game, animation, this, null);
-		animation.setAnimation(death); 
+		DeathAnimation death = new DeathAnimation(game, animation, this);
+		animation.transitionTo(death); 
 	}
 	
 	/**
@@ -191,9 +188,9 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void attack(MMOCharacter character) 
 	{
-		PunchAnimation attack = new PunchAnimation(game, animation, this, map, null);
+		PunchAnimation attack = new PunchAnimation(game, animation, this, map);
 		attack.setAttacking(character);
-		animation.setAnimation(attack); 
+		animation.transitionTo(attack); 
 	}
 	
 	/**
@@ -204,12 +201,12 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void pickupItem(int row, int col, Item item)
 	{
-		PickupItemAnimation item_animation = new PickupItemAnimation(game, animation, this, null, item);
+		PickupItemAnimation item_animation = new PickupItemAnimation(game, animation, this, item);
 		if(getRow() != row || getColumn() != col)
 		{
 			walkTo(row, col);
 			animation.addAnimation(item_animation);
-		} else animation.setAnimation(item_animation);
+		} else animation.transitionTo(item_animation);
 	}
 	
 	/**
@@ -220,7 +217,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void addPickupItem(int row, int col, Item item)
 	{
-		PickupItemAnimation item_animation = new PickupItemAnimation(game, animation, this, null, item);
+		PickupItemAnimation item_animation = new PickupItemAnimation(game, animation, this, item);
 		if(getRow() != row || getColumn() != col)
 		{
 			addWalkTo(row, col);
@@ -236,12 +233,12 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void dropItem(int row, int col, Item item)
 	{
-		DropItemAnimation drop_animation = new DropItemAnimation(game, animation, this, null, item);
+		DropItemAnimation drop_animation = new DropItemAnimation(game, animation, this, item);
 		if(getRow() != row || getColumn() != col)
 		{
 			walkTo(row, col);
 			animation.addAnimation(drop_animation);
-		} else animation.setAnimation(drop_animation);
+		} else animation.transitionTo(drop_animation);
 	}
 	
 	/**
@@ -252,7 +249,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable, A
 	 */
 	public void addDropItem(int row, int col, Item item)
 	{
-		DropItemAnimation drop_animation = new DropItemAnimation(game, animation, this, null, item);
+		DropItemAnimation drop_animation = new DropItemAnimation(game, animation, this, item);
 		if(getRow() != row || getColumn() != col)
 		{
 			addWalkTo(row, col);

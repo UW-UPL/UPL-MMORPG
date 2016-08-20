@@ -7,12 +7,12 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.map.MapSquare;
 
-public class WanderAnimation extends Animation implements AnimationListener
+public class WanderAnimation extends Animation
 {
 	public WanderAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, AnimationListener listener, int duration)
+			Grid2DMap map, int duration)
 	{
-		super(game, manager, character, listener, duration);
+		super(game, manager, character, duration);
 
 		this.map = map;
 		isWalking = false;
@@ -25,7 +25,7 @@ public class WanderAnimation extends Animation implements AnimationListener
 	}
 
 	@Override
-	public void animationInterrupted(Animation source) 
+	public void interrupt(){} 
 	{
 		//if(source == walking || source == idle) return;
 		
@@ -87,39 +87,6 @@ public class WanderAnimation extends Animation implements AnimationListener
 		//if(isWalking)
 		//	walking.animation(seconds);
 		//else idle.animation(seconds);
-	}
-
-	@Override
-	public void directionChanged(int direction) 
-	{
-		//if(isWalking)
-		//	walking.directionChanged(direction);
-		//else idle.directionChanged(direction);
-	}
-
-	@Override
-	public void animationFinished(Animation animation) 
-	{
-		if(isWalking)
-		{
-			isWalking = false;
-			//manager.setAnimation(idle);
-			/* Idle for a bit and then wander more */
-			Runnable run = new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try 
-					{
-						Thread.sleep(1000 * (random.nextInt(5) + 1));
-					} catch (InterruptedException e) {}
-					wander();
-
-				}
-			};
-			new Thread(run).start();
-		}
 	}
 
 	public void updateTransient(Game game, MMOCharacter character)

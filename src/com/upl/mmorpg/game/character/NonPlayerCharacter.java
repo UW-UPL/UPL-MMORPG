@@ -19,14 +19,14 @@ public abstract class NonPlayerCharacter extends MMOCharacter
 
 	public void wander(int radius)
 	{
-		WanderAnimation wander = new WanderAnimation(game, animation, this, map, null, -1);
+		WanderAnimation wander = new WanderAnimation(game, animation, this, map, -1);
 		wander.setRadius(radius);
-		animation.setAnimation(wander);
+		animation.transitionTo(wander);
 	}
 	
 	public void addWander(int radius, int duration)
 	{
-		WanderAnimation wander = new WanderAnimation(game, animation, this, map, null, duration);
+		WanderAnimation wander = new WanderAnimation(game, animation, this, map, duration);
 		wander.setRadius(radius);
 		animation.addAnimation(wander);
 	}

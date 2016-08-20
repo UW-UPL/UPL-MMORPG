@@ -15,14 +15,13 @@ import com.upl.mmorpg.lib.liblog.Log;
 
 public class IdleAnimation extends Animation
 {
-	public IdleAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			AnimationListener listener, int duration) 
+	public IdleAnimation(Game game, AnimationManager manager, MMOCharacter character, int duration) 
 	{
-		super(game, manager, character, listener, duration);
+		super(game, manager, character, duration);
 	}
 
 	@Override
-	public void animationInterrupted(Animation animation) {}
+	public void interrupt(){}
 
 	@Override
 	public void animationStarted() 
@@ -45,8 +44,5 @@ public class IdleAnimation extends Animation
 			manager.nextAnimation();
 	}
 
-	@Override
-	public void directionChanged(int direction) {}
-	
 	private static final long serialVersionUID = 2015342140727303213L;
 }

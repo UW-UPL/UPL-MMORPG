@@ -5,15 +5,14 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 
 public class DeathAnimation extends Animation
 {
-	public DeathAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			AnimationListener listener) 
+	public DeathAnimation(Game game, AnimationManager manager, MMOCharacter character) 
 	{
-		super(game, manager, character, listener, 2000);
+		super(game, manager, character, 2000);
 		this.game = game;
 	}
 
 	@Override
-	public void animationInterrupted(Animation animation) {}
+	public void interrupt(){}
 
 	@Override
 	public void animationStarted() 
@@ -28,13 +27,11 @@ public class DeathAnimation extends Animation
 	{
 		game.removeCharacter(character);
 		game.getQuestEngine().died(character);
+		manager.nextAnimation();
 	}
 
 	@Override
 	public void animation(double seconds)  {}
-	
-	@Override
-	public void directionChanged(int direction) {}
 	
 	private static final long serialVersionUID = -3895351315046806201L;
 }

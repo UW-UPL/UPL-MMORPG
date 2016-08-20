@@ -23,8 +23,7 @@ public abstract class Animation implements Serializable
 	 * @param listener The listener we should send animation events to.
 	 * @param length The estimated length of the animation (milliseconds). -1 for infinite.
 	 */
-	public Animation(Game game, AnimationManager manager, MMOCharacter character, 
-			AnimationListener listener, int length)
+	public Animation(Game game, AnimationManager manager, MMOCharacter character, int length)
 	{
 		this.game = game;
 		this.manager = manager;
@@ -32,16 +31,15 @@ public abstract class Animation implements Serializable
 		
 		this.vector_x = 0;
 		this.vector_y = 0;
-		this.listener = listener;
 		this.length = ((double)length) / 1000.0d;
 		seconds_passed = 0.0d;
 	}
 	
 	/**
-	 * Called when the current animation has been interrupted by another
-	 * animation.
+	 * Called when the current animation should stop as soon as possible
+	 * and tell the manager to move to the next animation.
 	 */
-	public abstract void animationInterrupted(Animation animation);
+	public abstract void interrupt();
 	
 	/**
 	 * The current animation is now in the foreground.
@@ -59,12 +57,6 @@ public abstract class Animation implements Serializable
 	 * last animation (usually a very very small fraction).
 	 */
 	public abstract void animation(double seconds);
-	
-	/**
-	 * The character has changed directions due to this animation.
-	 * @param direction The new direction.
-	 */
-	public abstract void directionChanged(int direction);
 	
 	/**
 	 * Called by the animation manager. This just prepares the actual animation
@@ -153,7 +145,7 @@ public abstract class Animation implements Serializable
 				direction = AnimationManager.FRONT_RIGHT;
 			else direction = AnimationManager.FRONT;
 		} else {
-			/* Either looking left or right */
+			/* Either looking left or right or on the same square */
 			if(myCol > col)
 				direction = AnimationManager.LEFT;
 			else if(myCol < col)
@@ -200,17 +192,14 @@ public abstract class Animation implements Serializable
 	 * @param listener The animation listener for this animation.
 	 * @param character The character we are animating.
 	 */
-	public void updateTransient(Game game, AnimationListener listener, 
-			MMOCharacter character, AnimationManager manager)
+	public void updateTransient(Game game, MMOCharacter character, AnimationManager manager)
 	{
 		this.game = game;
-		this.listener = listener;
 		this.character = character;
 		this.manager = manager;
 	}
 	
 	protected transient Game game; /**< The current game. */
-	protected transient AnimationListener listener; /**< The animation listener we send events to. */
 	protected transient AnimationManager manager; /**< The animation manager that manages reels and other assets. */
 	protected transient MMOCharacter character; /**< The character that we are animating. */
 	

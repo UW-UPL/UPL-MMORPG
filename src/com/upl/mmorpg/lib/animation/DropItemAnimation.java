@@ -16,14 +16,14 @@ import com.upl.mmorpg.lib.liblog.Log;
  */
 public class DropItemAnimation extends Animation
 {
-	public DropItemAnimation(Game game, AnimationManager manager, MMOCharacter character, AnimationListener listener, Item item) 
+	public DropItemAnimation(Game game, AnimationManager manager, MMOCharacter character, Item item) 
 	{
-		super(game, manager, character, listener, 1);
+		super(game, manager, character, 1);
 		this.item = item.getUUID();
 	}
 
 	@Override
-	public void animationInterrupted(Animation animation) {}
+	public void interrupt(){}
 
 	@Override
 	public void animationStarted() 
@@ -46,9 +46,6 @@ public class DropItemAnimation extends Animation
 	@Override
 	public void animation(double seconds) {}
 
-	@Override
-	public void directionChanged(int direction) {}
-	
 	private static final long serialVersionUID = -4243819479990411151L;
 	
 	private ItemUUID item;
