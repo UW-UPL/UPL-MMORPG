@@ -198,6 +198,14 @@ public class ServerGame extends Game implements ServerListener
 //			final Goblin wanderer = g.createGoblin(11, 11, 0);
 //			wanderer.wander(5);
 //			g.characterUpdated(wanderer, false);
+			
+			/******** Follow example */
+			final Goblin wanderer = g.createGoblin(11, 11, 0);
+			final Goblin follower = g.createGoblin(9, 9, 0);
+			wanderer.wander(5);
+			follower.follow(wanderer);
+			g.characterUpdated(wanderer, false);
+			g.characterUpdated(follower, false);
 
 			/******** Item pickup example */
 			//			final Goblin collector = g.createGoblin(8, 8, 0);

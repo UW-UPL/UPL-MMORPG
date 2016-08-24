@@ -23,6 +23,26 @@ public class WalkingAnimation extends Animation
 	}
 	
 	/**
+	 * Create an animation where the character walks along the given path.
+	 * @param p The path to walk along.
+	 * @param map The map to use for path finding.
+	 * @return Whether or not the path can be walked on.
+	 */
+	public boolean alongPath(Path p, Grid2DMap map)
+	{
+		int midRow = p.getNextRow();
+		int midCol = p.getNextCol();
+		
+		GridGraph graph = new GridGraph(character.getRow(), character.getColumn(), map);
+		Path firstPath = graph.shortestPathTo(midRow, midCol);
+		if(firstPath == null) return false;
+		firstPath.catPath(p);
+		setPath(firstPath);
+		
+		return true;
+	}
+	
+	/**
 	 * Calculate the path to the provided destination row and column.
 	 * @param map The map to create the path from.
 	 * @return Whether or not the path could be created.
@@ -118,6 +138,9 @@ public class WalkingAnimation extends Animation
 		int dir = lookTowards(walkingPath.getNextRow(), walkingPath.getNextCol());
 		manager.setReelDirection(dir);
 		this.generateVectors(dir);
+		
+		/* Tell followees where we are going */
+		character.notifyFolowers(walkingPath);
 	}
 
 	@Override

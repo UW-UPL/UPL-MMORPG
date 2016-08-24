@@ -215,7 +215,7 @@ public class ClientLogin
 	public static void main(String args[])
 	{
 		/* Start the server */
-		//ServerGame.main(args);
+		ServerGame.main(args);
 
 		/* Open the Client Window*/
 		ClientLogin login = new ClientLogin();

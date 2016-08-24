@@ -23,11 +23,34 @@ public class Path implements Serializable
 		path.add(new GridPoint(point.getRow(), point.getColumn()));
 	}
 	
+	public void addFirstPoint(int row, int col)
+	{
+		path.addFirst(new GridPoint(row, col));
+	}
+	
+	public GridPoint removeLastPoint()
+	{
+		return path.removeLast();
+	}
+	
 	public void catPath(Path path)
 	{
-		Iterator<GridPoint> it = path.iterator();
+		System.out.println("ORIGINAL:");
+		print();
+		System.out.println("APPEND:");
+		path.print();
+		Path copy = path.copy();
+		
+		/* Does the last point need to be removed? */
+		if(copy.getNextRow() == getLast().getRow()
+				&& copy.getNextCol() == getLast().getColumn())
+			copy.moveForward();
+		
+		Iterator<GridPoint> it = copy.iterator();
 		while(it.hasNext())
 			addPoint(it.next());
+		System.out.println("RESULT:");
+		print();
 	}
 	
 	public Iterator<GridPoint> iterator()

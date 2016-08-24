@@ -26,7 +26,7 @@ public class LoginManager implements LoginInterface
 		
 		NonPlayerCharacter character = game.createGoblin(14, 14, GameMap.EXAMPLE1);
 		GameStateManager gameState = new GameStateManager(game, character, rpc);
-		character.wander(5);
+		//character.wander(5);
 		game.addClient(gameState);
 		
 		return true;

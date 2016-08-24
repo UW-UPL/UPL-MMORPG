@@ -11,16 +11,15 @@ import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.item.Inventory;
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.uuid.CharacterUUID;
+import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.GridPoint;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.animation.Animation;
 import com.upl.mmorpg.lib.animation.AnimationManager;
 import com.upl.mmorpg.lib.animation.DeathAnimation;
 import com.upl.mmorpg.lib.animation.DropItemAnimation;
-import com.upl.mmorpg.lib.animation.FollowAnimation;
 import com.upl.mmorpg.lib.animation.IdleAnimation;
 import com.upl.mmorpg.lib.animation.PickupItemAnimation;
-import com.upl.mmorpg.lib.animation.PunchAnimation;
 import com.upl.mmorpg.lib.animation.WalkingAnimation;
 import com.upl.mmorpg.lib.animation.effect.CharacterEffect;
 import com.upl.mmorpg.lib.animation.effect.DamageEffect;
@@ -106,6 +105,32 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	}
 	
 	/**
+	 * Walk along a path. If the path isn't right next to the character,
+	 * it will be navigated to first.
+	 * @param p The path to walk upon.
+	 */
+	public void walkAlong(Path p)
+	{
+		Log.vln(this + " is walking along a path!");
+		WalkingAnimation walking = new WalkingAnimation(game, animation, this, 0, 0);
+		walking.alongPath(p, getCurrentMap());
+		animation.transitionTo(walking);
+	}
+	
+	/**
+	 * Walk along a path. If the path isn't right next to the character,
+	 * it will be navigated to first.
+	 * @param p The path to walk upon.
+	 */
+	public void addWalkAlong(Path p)
+	{
+		Log.vln(this + " is walking along a path!");
+		WalkingAnimation walking = new WalkingAnimation(game, animation, this, 0, 0);
+		walking.alongPath(p, getCurrentMap());
+		animation.addAnimation(walking);
+	}
+	
+	/**
 	 * Add a walking animation to the queue. This can safely be added
 	 * from any thread.
 	 * @param row The row to walk to.
@@ -124,9 +149,14 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	 */
 	public void follow(MMOCharacter character)
 	{
-		FollowAnimation follow = new FollowAnimation(game, animation, this, map, -1);
-		follow.setFollee(character);
-		animation.transitionTo(follow);
+		/* Move to that character */
+		character.addFollower(uuid);
+		GridGraph graph = new GridGraph(getRow(), getColumn(), character.getCurrentMap());
+		Path walkingPath = graph.shortestPathTo(character.getRow(), character.getColumn());
+		walkingPath.removeLastPoint();
+		if(walkingPath.isEmpty())
+			return;
+		walkTo(walkingPath.getLast().getRow(), walkingPath.getLast().getColumn());
 	}
 	
 	/**
@@ -135,9 +165,9 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	 */
 	public void addFollow(MMOCharacter character, int duration)
 	{
-		FollowAnimation follow = new FollowAnimation(game, animation, this, map, duration);
-		follow.setFollee(character);
-		animation.addAnimation(follow);
+		//FollowAnimation follow = new FollowAnimation(game, animation, this, map, duration);
+		//follow.setFollee(character);
+		//animation.addAnimation(follow);
 	}
 	
 	public void addFollower(CharacterUUID follow) { followers.add(follow); }
@@ -165,6 +195,15 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	}
 	
 	/**
+	 * Idle this character for the given amount of milliseconds.
+	 */
+	public void idle(int duration) 
+	{ 
+		IdleAnimation idle = new IdleAnimation(game, animation, this, duration);
+		animation.transitionTo(idle); 
+	}
+	
+	/**
 	 * Add a death animation to the animation queue.
 	 */
 	public void addDie()
@@ -188,9 +227,9 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	 */
 	public void attack(MMOCharacter character) 
 	{
-		PunchAnimation attack = new PunchAnimation(game, animation, this, map);
-		attack.setAttacking(character);
-		animation.transitionTo(attack); 
+		//PunchAnimation attack = new PunchAnimation(game, animation, this, map);
+		//attack.setAttacking(character);
+		//animation.transitionTo(attack); 
 	}
 	
 	/**
@@ -340,17 +379,6 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		}
 		
 		return point;
-	}
-	
-	/**
-	 * Get the current path if this character is currently
-	 * walking to a destination.
-	 * @return The path of this character.
-	 */
-	public Path getPath()
-	{
-		//return walking.getPath();
-		return null;
 	}
 	
 	/** Quest methods */
@@ -538,6 +566,34 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		hasAnimation = true;
 	}
 	
+	/**
+	 * Notify all of the followers that we are now walking.
+	 * @param p The path we are planning on following.
+	 */
+	public void notifyFolowers(Path p)
+	{	
+		p.addFirstPoint(getRow(), getColumn());
+		p = p.copy();
+		p.removeLastPoint();
+		if(p.isEmpty())
+			return;
+		
+		for(CharacterUUID id : followers)
+		{
+			MMOCharacter character = game.getCharacter(id);
+			if(character == null)
+			{
+				Log.e("I don't know where character " + id + " is. (notifyFollowers)");
+				continue;
+			}
+			
+			Log.vln("Character " + character + " notified by character they are following.");
+			character.idle(250);
+			character.addWalkAlong(p);
+			game.characterUpdated(character, false);
+		}
+	}
+	
 	protected transient AssetManager assets; /**< The asset manager to use for loading assets. */
 	protected transient Grid2DMap map; /**< The map the character is currently playing on. */
 	protected transient Game game; /**< The game the player is currently playing in. */
@@ -550,7 +606,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 	protected AnimationManager animation;
 	
 	/* Characters that are following this character */
-	protected LinkedList<CharacterUUID> followers;
+	protected LinkedList<CharacterUUID> followers; /**< The characters who are following us */
 
 	/** Character properties (time related) */
 	protected CharacterUUID uuid; /**< The unique identity number for this character  */
