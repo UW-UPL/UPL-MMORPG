@@ -40,13 +40,17 @@ public class DropItemAnimation extends Animation
 		manager.nextAnimation();
 	}
 
+	@Override public void animationReelFinished() {}
+	@Override public void animation(double seconds) {}
+	@Override public void animationStopped() {}
+	
 	@Override
-	public void animationReelFinished() {}
-
-	@Override
-	public void animation(double seconds) {}
+	public String toString()
+	{
+		return "Drop Item Animation";
+	}
+	
+	private ItemUUID item; /**< The UUID of the item that is being dropped. */
 
 	private static final long serialVersionUID = -4243819479990411151L;
-	
-	private ItemUUID item;
 }

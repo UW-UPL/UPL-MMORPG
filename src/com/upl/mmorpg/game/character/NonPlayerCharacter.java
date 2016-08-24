@@ -3,15 +3,14 @@ package com.upl.mmorpg.game.character;
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.uuid.CharacterUUID;
 import com.upl.mmorpg.lib.animation.WanderAnimation;
-import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public abstract class NonPlayerCharacter extends MMOCharacter 
 {
 	public NonPlayerCharacter(double x, double y, double width, double height,
-			Grid2DMap map, AssetManager assets, Game game, CharacterUUID entity_id) 
+			Grid2DMap map, Game game, CharacterUUID entity_id) 
 	{
-		super(x, y, width, height, map, assets, game, entity_id);
+		super(x, y, width, height, map, game, entity_id);
 	}
 
 	@Override
@@ -19,14 +18,14 @@ public abstract class NonPlayerCharacter extends MMOCharacter
 
 	public void wander(int radius)
 	{
-		WanderAnimation wander = new WanderAnimation(game, animation, this, map, -1);
+		WanderAnimation wander = new WanderAnimation(game, animation, this);
 		wander.setRadius(radius);
 		animation.transitionTo(wander);
 	}
 	
-	public void addWander(int radius, int duration)
+	public void addWander(int radius)
 	{
-		WanderAnimation wander = new WanderAnimation(game, animation, this, map, duration);
+		WanderAnimation wander = new WanderAnimation(game, animation, this);
 		wander.setRadius(radius);
 		animation.addAnimation(wander);
 	}

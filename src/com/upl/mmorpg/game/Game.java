@@ -48,6 +48,15 @@ public abstract class Game
 		/* Supported Characters */
 		Goblin.prefetchAssets(assets, this);
 	}
+	
+	/**
+	 * Returns the asset manager for this game.
+	 * @return The asset manager for this game.
+	 */
+	public AssetManager getAssetManager()
+	{
+		return assets;
+	}
 
 	/**
 	 * Load all of the maps as assets.
@@ -311,7 +320,7 @@ public abstract class Game
 	 */
 	public Goblin createGoblin(int row, int col, int map_id)
 	{
-		Goblin g = new Goblin(row, col, getMap(map_id), assets, this, CharacterUUID.generate());
+		Goblin g = new Goblin(row, col, getMap(map_id), this, CharacterUUID.generate());
 		if(!addCharacter(g, map_id))
 			Log.e("Failed to add goblin to map!!");
 		return g;

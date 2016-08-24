@@ -21,7 +21,10 @@ public class IdleAnimation extends Animation
 	}
 
 	@Override
-	public void interrupt(){}
+	public void interrupt()
+	{
+		manager.nextAnimation();
+	}
 
 	@Override
 	public void animationStarted() 
@@ -43,6 +46,15 @@ public class IdleAnimation extends Animation
 		if(length > 0 && seconds_passed >= length)
 			manager.nextAnimation();
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Idle Animation";
+	}
+	
+	@Override
+	public void animationStopped() {}
 
 	private static final long serialVersionUID = 2015342140727303213L;
 }

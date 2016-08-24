@@ -30,8 +30,14 @@ public class DeathAnimation extends Animation
 		manager.nextAnimation();
 	}
 
+	@Override public void animation(double seconds)  {}
+	@Override public void animationStopped() {}
+	
 	@Override
-	public void animation(double seconds)  {}
+	public String toString()
+	{
+		return "Death Animation";
+	}
 	
 	private static final long serialVersionUID = -3895351315046806201L;
 }

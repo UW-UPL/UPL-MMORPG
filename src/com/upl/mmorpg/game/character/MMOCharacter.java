@@ -35,7 +35,7 @@ import com.upl.mmorpg.lib.quest.Quest;
  * Represents the base class for all characters in the game. This class
  * should be extended by all regular and non player characters. This class
  * should be able to be serialized with little or no updating required on
- * the client side. All animations also need to be serializble.
+ * the client side. All animations also need to be serializable.
  * 
  * @author John Detter <jdetter@wisc.edu>
  *
@@ -43,7 +43,7 @@ import com.upl.mmorpg.lib.quest.Quest;
 public abstract class MMOCharacter extends Renderable implements Serializable
 {
 	protected MMOCharacter(double x, double y, double width, double height, 
-			Grid2DMap map, AssetManager assets, Game game, CharacterUUID uuid)
+			Grid2DMap map, Game game, CharacterUUID uuid)
 	{
 		super();
 		this.locX = x;
@@ -51,7 +51,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		this.width = width;
 		this.height = height;
 		this.map = map;
-		this.assets = assets;
+		this.assets = game.getAssetManager();
 		this.health = 0;
 		this.attackSpeed = 0.0d;
 		this.game = game;
@@ -60,7 +60,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		this.uuid = uuid;
 		hasAnimation = true;
 		
-		animation = new AnimationManager(assets, game, this);
+		animation = new AnimationManager(game, this);
 		followers = new LinkedList<CharacterUUID>();
 		effects = new LinkedList<CharacterEffect>();
 		inventory = new Inventory();
@@ -275,11 +275,11 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		BufferedImage img = animation.getFrame();
 		if(img == null) 
 		{
-			Log.e("MMOCharacter frame is null!s");
+			Log.e("MMOCharacter frame is null!");
 			return;
 		}
 		
-		drawImage(panel, g, animation.getFrame(), locX, locY, width, height);
+		drawImage(panel, g, img, locX, locY, width, height);
 	}
 	
 	@Override
@@ -504,7 +504,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		this.assets = assets;
 		this.game = game;
 		this.map = map;
-		animation.updateTransient(assets, game, this);
+		animation.updateTransient(game, this);
 		
 		effects = new LinkedList<CharacterEffect>();
 		quests = new LinkedList<Quest>();
@@ -524,7 +524,7 @@ public abstract class MMOCharacter extends Renderable implements Serializable
 		
 		/* Update animations */
 		this.animation = character.animation;
-		animation.updateTransient(assets, game, this);
+		animation.updateTransient(game, this);
 		
 		/* Update properties */
 		this.walkingSpeed = character.walkingSpeed;

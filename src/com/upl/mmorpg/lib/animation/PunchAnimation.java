@@ -20,5 +20,11 @@ public class PunchAnimation extends AttackAnimation
 		manager.setAnimationSpeed(50);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "Punch Animation";
+	}
+	
 	private static final long serialVersionUID = 5185740540745833021L;
 }

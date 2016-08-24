@@ -5,6 +5,7 @@ import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.algo.GridGraph;
 import com.upl.mmorpg.lib.algo.Path;
 import com.upl.mmorpg.lib.liblog.Log;
+import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class WalkingAnimation extends Animation
 {
@@ -19,6 +20,21 @@ public class WalkingAnimation extends Animation
 		this.destCol = destCol;
 		arrived = false;
 		interrupted =  false;
+	}
+	
+	/**
+	 * Calculate the path to the provided destination row and column.
+	 * @param map The map to create the path from.
+	 * @return Whether or not the path could be created.
+	 */
+	public boolean calculatePath(Grid2DMap map)
+	{
+		GridGraph graph = new GridGraph(character.getRow(), character.getColumn(), map);
+		Path p = graph.shortestPathTo(destRow, destCol);
+		if(p == null) return false;
+		setPath(p);
+		
+		return true;
 	}
 
 	public void setPath(Path path)
@@ -51,6 +67,9 @@ public class WalkingAnimation extends Animation
 			return walkingPath.copy();
 		else return null;
 	}
+
+	@Override
+	public void animationStopped() {}
 
 	@Override
 	public void interrupt(){}
@@ -106,7 +125,12 @@ public class WalkingAnimation extends Animation
 	{
 		if(arrived)
 			manager.nextAnimation();
-		else Log.e("Why did our walk animation end?");
+		else {
+			/* We need to start the walk loop animation*/
+			if(!manager.setReel("walk", true))
+				throw new RuntimeException("WALK ANIMATION NOT SUPPORTED");
+			manager.setAnimationSpeed(15);
+		}
 	}
 
 	public void interruptPath()
@@ -150,7 +174,7 @@ public class WalkingAnimation extends Animation
 		/* normalize the direction vectors to either -1, 0, or 1 */
 		if(diffX > 0) diffX = 1;
 		else if(diffX < 0) diffX = -1;
-		
+
 		if(diffY > 0) diffY = 1;
 		else if(diffY < 0) diffY = -1;
 

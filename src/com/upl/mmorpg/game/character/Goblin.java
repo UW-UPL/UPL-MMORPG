@@ -10,10 +10,9 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public class Goblin extends NonPlayerCharacter
 {
-	public Goblin(int row, int column, Grid2DMap map, AssetManager assets, 
-			Game game, CharacterUUID uuid) 
+	public Goblin(int row, int column, Grid2DMap map, Game game, CharacterUUID uuid) 
 	{
-		super(0, 0, 1, 1, map, assets, game, uuid);
+		super(0, 0, 1, 1, map, game, uuid);
 		this.setGridPosition(row, column);
 		
 		try 
@@ -44,5 +43,5 @@ public class Goblin extends NonPlayerCharacter
 		return "Goblin";
 	}
 	
-	private static final long serialVersionUID = 1203515561216565986L;
+	private static final long serialVersionUID = 3042143857518272848L;
 }

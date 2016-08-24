@@ -23,9 +23,6 @@ public class PickupItemAnimation extends Animation
 	}
 
 	@Override
-	public void interrupt(){}
-
-	@Override
 	public void animationStarted() 
 	{
 		Item i = game.getItem(item);
@@ -41,13 +38,18 @@ public class PickupItemAnimation extends Animation
 		manager.nextAnimation();
 	}
 
-	@Override
-	public void animationReelFinished() {}
-
-	@Override
-	public void animation(double seconds) {}
-
-	private static final long serialVersionUID = -4243819479990411151L;
+	@Override public void interrupt(){}
+	@Override public void animationReelFinished() {}
+	@Override public void animation(double seconds) {}
+	@Override public void animationStopped() {}
 	
-	private ItemUUID item;
+	@Override
+	public String toString()
+	{
+		return "Pickup Item Animation";
+	}
+	
+	private ItemUUID item; /**< The UUID of the item to pick up */
+	
+	private static final long serialVersionUID = -4243819479990411151L;
 }

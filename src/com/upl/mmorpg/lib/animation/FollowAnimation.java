@@ -114,6 +114,18 @@ public class FollowAnimation extends Animation implements FollowListener
 				return;
 		}
 	}
+	
+	@Override
+	public void animationStopped() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Follow Animation";
+	}
 
 	private CharacterUUID following;
 	private Grid2DMap map;

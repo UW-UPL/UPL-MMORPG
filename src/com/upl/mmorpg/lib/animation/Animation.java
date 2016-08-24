@@ -59,6 +59,13 @@ public abstract class Animation implements Serializable
 	public abstract void animation(double seconds);
 	
 	/**
+	 * Notification telling the animation that it is being removed from the animation
+	 * queue either because it told the animation manager it is done or the animation
+	 * manager needs to remove it from the queue.
+	 */
+	public abstract void animationStopped();
+	
+	/**
 	 * Called by the animation manager. This just prepares the actual animation
 	 * for rendering. This should NOT be overridden, animation should be overridden
 	 * instead.

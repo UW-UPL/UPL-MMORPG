@@ -64,6 +64,12 @@ public abstract class AttackAnimation extends FollowAnimation
 	
 	protected abstract void attack_animation();
 	
+	@Override
+	public String toString()
+	{
+		return "Attack animation";
+	}
+	
 	private boolean animating;
 	private double lastAttack;
 	private transient MMOCharacter attacking;

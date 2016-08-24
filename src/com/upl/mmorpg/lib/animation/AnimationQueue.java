@@ -1,12 +1,15 @@
 package com.upl.mmorpg.lib.animation;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.upl.mmorpg.game.Game;
+import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.liblog.Log;
 
-public class AnimationQueue implements Collection<Animation>
+public class AnimationQueue implements Collection<Animation>, Serializable
 {
 	public AnimationQueue(AnimationManager manager, Animation defaultAnimation)
 	{
@@ -16,7 +19,25 @@ public class AnimationQueue implements Collection<Animation>
 		queue.add(defaultAnimation);
 	}
 	
-	public Animation getCurrent()
+	/**
+	 * Stops all of the animations and clears the
+	 * animation queue.
+	 */
+	public void cleanup()
+	{
+		for(Animation animation : queue)
+			animation.animationStopped();
+		queue.clear();
+		queue = null;
+		defaultAnimation = null;
+		manager = null;
+	}
+	
+	/**
+	 * Returns the current animation.
+	 * @return The current animation.
+	 */
+	public synchronized Animation getCurrent()
 	{
 		if(queue.isEmpty())
 			checkDefault();
@@ -34,6 +55,7 @@ public class AnimationQueue implements Collection<Animation>
 			queue.add(defaultAnimation);
 			manager.animationChanged();
 			defaultAnimation.animationStarted();
+			Log.vln("Default animation added to queue.");
 		}
 	}
 	
@@ -45,21 +67,32 @@ public class AnimationQueue implements Collection<Animation>
 	 */
 	public synchronized void transitionTo(Animation animation)
 	{
+		Animation current = getCurrent();
 		queue.clear();
-		checkDefault();
+		queue.add(current);
 		queue.add(animation);
-		queue.getFirst().interrupt();
+		current.interrupt();
+		checkDefault();
 	}
 	
 	/**
 	 * Move to the next animation.
 	 */
-	public void nextAnimation()
+	public synchronized void nextAnimation()
 	{
 		queue.removeFirst();
 		checkDefault();
 		manager.animationChanged();
 		queue.getFirst().animationStarted();
+	}
+	
+	/**
+	 * Returns whether or not the default animation is playing.
+	 * @return Whether or not the default animation is playing.
+	 */
+	public synchronized boolean isDefault()
+	{
+		return getCurrent() == defaultAnimation;
 	}
 	
 	@Override
@@ -127,7 +160,22 @@ public class AnimationQueue implements Collection<Animation>
 	
 	@Override public synchronized Iterator<Animation> iterator() { return queue.iterator(); }
 
-	private AnimationManager manager;
+	public void updateTransient(Game game, MMOCharacter character, AnimationManager manager)
+	{
+		this.manager = manager;
+		defaultAnimation.updateTransient(game, character, manager);
+		
+		Iterator<Animation> it = iterator();
+		while(it.hasNext())
+		{
+			Animation animation = it.next();
+			animation.updateTransient(game, character, manager);
+		}
+	}
+	
+	private transient AnimationManager manager;
 	private Animation defaultAnimation;
 	private LinkedList<Animation> queue;
+	
+	private static final long serialVersionUID = -5408433584481058868L;
 }
