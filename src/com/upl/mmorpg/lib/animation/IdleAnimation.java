@@ -50,7 +50,7 @@ public class IdleAnimation extends Animation
 	@Override
 	public String toString()
 	{
-		return "Idle Animation";
+		return "Idle Animation (duration: " + length + " seconds)";
 	}
 	
 	@Override

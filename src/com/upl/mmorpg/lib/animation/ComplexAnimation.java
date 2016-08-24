@@ -121,8 +121,8 @@ public abstract class ComplexAnimation extends Animation
 		public synchronized void nextAnimation()
 		{
 			super.nextAnimation();
-			parent.nextAnimation();
 			Log.vln("ComplexAnimation -- nextAnimation");
+			parent.nextAnimation();
 		}
 		
 		private transient ComplexAnimation parent;

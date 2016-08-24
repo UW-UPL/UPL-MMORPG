@@ -205,6 +205,7 @@ public class AnimationManager implements Serializable
 	public synchronized void nextAnimation()
 	{
 		Log.vln("AnimationManager -- nextAnimation");
+		Log.vln("AnimationManager -- was playing: " + animationQueue.getCurrent());
 		subManager = null;
 		animationQueue.nextAnimation();
 		Log.vln("AnimationManager -- now playing: " + animationQueue.getCurrent());

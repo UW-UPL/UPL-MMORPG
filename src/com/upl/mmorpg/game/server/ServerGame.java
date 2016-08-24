@@ -197,16 +197,7 @@ public class ServerGame extends Game implements ServerListener
 			/******** Wander example */
 			final Goblin wanderer = g.createGoblin(11, 11, 0);
 			wanderer.wander(5);
-
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					try { Thread.sleep(10000); } catch(Exception e){}
-					wanderer.wander(10);
-				}
-			};
-			new Thread(run).start();
+			g.characterUpdated(wanderer, false);
 
 			/******** Item pickup example */
 			//			final Goblin collector = g.createGoblin(8, 8, 0);

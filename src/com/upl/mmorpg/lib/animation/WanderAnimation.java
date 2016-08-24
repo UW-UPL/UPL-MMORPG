@@ -75,8 +75,11 @@ public class WanderAnimation extends ComplexAnimation
 	@Override
 	public void nextAnimation() 
 	{
-		if(subManager.isPlayingDefault())
+		if(!subManager.isPlayingDefault())
+		{
+			Log.vln("We are not playing the default animation, so we will pass for now.");
 			return;
+		}
 		if(isWalking)
 			idle();
 		else wander();
