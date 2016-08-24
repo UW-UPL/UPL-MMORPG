@@ -83,6 +83,8 @@ public class WanderAnimation extends ComplexAnimation
 		if(isWalking)
 			idle();
 		else wander();
+		
+		game.characterUpdated(character, false);
 	}
 	
 	@Override

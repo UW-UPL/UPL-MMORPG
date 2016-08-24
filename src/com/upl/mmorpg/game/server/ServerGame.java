@@ -195,9 +195,9 @@ public class ServerGame extends Game implements ServerListener
 			g.loadMaps();
 
 			/******** Wander example */
-			final Goblin wanderer = g.createGoblin(11, 11, 0);
-			wanderer.wander(5);
-			g.characterUpdated(wanderer, false);
+//			final Goblin wanderer = g.createGoblin(11, 11, 0);
+//			wanderer.wander(5);
+//			g.characterUpdated(wanderer, false);
 
 			/******** Item pickup example */
 			//			final Goblin collector = g.createGoblin(8, 8, 0);

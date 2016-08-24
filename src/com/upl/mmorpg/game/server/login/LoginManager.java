@@ -1,6 +1,6 @@
 package com.upl.mmorpg.game.server.login;
 
-import com.upl.mmorpg.game.character.MMOCharacter;
+import com.upl.mmorpg.game.character.NonPlayerCharacter;
 import com.upl.mmorpg.game.server.GameStateManager;
 import com.upl.mmorpg.game.server.ServerGame;
 import com.upl.mmorpg.lib.liblog.Log;
@@ -24,8 +24,9 @@ public class LoginManager implements LoginInterface
 	{
 		Log.vnetln(username + " has logged in.");
 		
-		MMOCharacter character = game.createGoblin(12, 6, GameMap.EXAMPLE1);
+		NonPlayerCharacter character = game.createGoblin(14, 14, GameMap.EXAMPLE1);
 		GameStateManager gameState = new GameStateManager(game, character, rpc);
+		character.wander(5);
 		game.addClient(gameState);
 		
 		return true;
