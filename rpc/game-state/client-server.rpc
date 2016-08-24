@@ -1,0 +1,24 @@
+# Return value, method name, arg1, arg2, ... argn
+
+# Request the representation of the current map
+# public Grid2DMap requestCurrentMap(void);
+Object,requestCurrentMap
+
+# Request the characters on the current map
+# public LinkedList<MMOCharacter> requestCharacters(void);
+Object,requestCharacters
+
+# Request the UUID of our player
+# public CharacterUUID requestPlayerUUID(void);
+Object,requestPlayerUUID
+
+# Send the server an update for this character
+boolean,updateCharacter,Object
+
+# Let the server know we want to drop an item
+# public boolean droppedItem(int row, int col, ItemUUID item)
+void,requestdropItem,int,int,Object
+
+# Let the server know we want to pick up an item
+# public boolean pickedUpItem(int row, int col, ItemUUID item)
+void,requestPickUpItem,int,int,Object

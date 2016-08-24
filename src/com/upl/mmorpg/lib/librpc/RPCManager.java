@@ -14,30 +14,35 @@ public class RPCManager implements NetworkListener
 	public RPCManager(Socket socket, int cid, RPCCallee callee) throws IOException
 	{
 		this.callee = callee;
-		
+
 		tickets = new TicketManager();
 		client = new NetworkManager(this, socket, cid);
+	}
+
+	public RPCManager(Socket socket, int cid) throws IOException
+	{
+		this(socket, cid, null);
 	}
 
 	public RPCManager(String address, int port, RPCCallee callee) throws IOException
 	{
 		Socket socket = new Socket(address, port);
 		this.callee = callee;
-		
+
 		tickets = new TicketManager();
 		client = new NetworkManager(this, socket, 0);
 	}
-	
+
 	public void setCallee(RPCCallee callee)
 	{
 		this.callee = callee;
 	}
-	
+
 	public void setListener(RPCListener listen)
 	{
 		this.listen = listen;
 	}
-	
+
 	public StackBuffer do_call(StackBuffer buff, boolean block)
 	{
 		/* Generate a ticket */
@@ -50,11 +55,11 @@ public class RPCManager implements NetworkListener
 		/* Send the bytes */
 		client.writeBytes(buff.toArray());
 		client.flush();
-		
+
 		Log.vnetln("Sent out RPC CALL: " + ticket);
 
 		if(!block) return null;
-		
+
 		/* Wait on the ticket */
 		StackBuffer result = (StackBuffer)
 				tickets.block(ticket, 5000);
@@ -86,23 +91,26 @@ public class RPCManager implements NetworkListener
 
 		switch(rpc_type)
 		{
-			case RPC_CALL:
-				/* Call the handler */
-				Log.vvln("Received RPC CALL ticket: "+ ticket_num);
+		case RPC_CALL:
+			/* Call the handler */
+			Log.vvln("Received RPC CALL ticket: "+ ticket_num);
+			if(callee != null)
+			{
 				buffer = callee.handle_call(buffer);
 				if(buffer != null)
 					send_result(buffer, ticket_num);
-				break;
-			case RPC_RESULT:
-				Log.vvln("Received RPC RESULT ticket: "+ ticket_num);
-				tickets.release(ticket_num, buffer);
-				break;
-			default:
-				Log.e("RECEIVED JUNK");
-				break;
+			} else Log.e("RPCMANAGER -- NO CALLEE SET!!!\n");
+			break;
+		case RPC_RESULT:
+			Log.vvln("Received RPC RESULT ticket: "+ ticket_num);
+			tickets.release(ticket_num, buffer);
+			break;
+		default:
+			Log.e("RECEIVED JUNK");
+			break;
 		}
 	}
-	
+
 	public void shutdown()
 	{
 		client.shutdown();
@@ -123,7 +131,7 @@ public class RPCManager implements NetworkListener
 	private TicketManager tickets;
 	private RPCCallee callee;
 	private RPCListener listen;
-	
+
 	private static final int RPC_CALL = 1;
 	private static final int RPC_RESULT = 2;
 }

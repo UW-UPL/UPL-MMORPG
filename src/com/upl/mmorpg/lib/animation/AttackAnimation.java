@@ -6,28 +6,17 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 
 public abstract class AttackAnimation extends FollowAnimation
 {
-	public AttackAnimation(Game game, AnimationManager manager, 
-			MMOCharacter character, Grid2DMap map,
-			AnimationListener listener) 
+	public AttackAnimation(Game game, AnimationManager manager, MMOCharacter character, Grid2DMap map) 
 	{
-		super(game, manager, character, map, listener);
+		super(game, manager, character, map, 1);
 		animating = false;
 		lastAttack = 0.0d;
-		
-		idle = new IdleAnimation(game, manager, character, listener);
 	}
 	
-	@Override
-	public void animationFinished()
-	{
-		super.animationFinished();
-		this.lookTowards(attacking.getRow(), attacking.getColumn());
-	}
-
 	public void setAttacking(MMOCharacter attacking)
 	{
 		this.attacking = attacking;
-		this.setFollee(attacking);
+		// this.setFollee(attacking);
 	}
 	
 	public void interruptAttack()
@@ -36,9 +25,8 @@ public abstract class AttackAnimation extends FollowAnimation
 	}
 	
 	@Override
-	public void animationInterrupted(Animation source) 
+	public void interrupt()
 	{
-		super.animationInterrupted(source);
 		animating = false;
 	}
 
@@ -48,14 +36,14 @@ public abstract class AttackAnimation extends FollowAnimation
 		super.animationStarted();
 		animating = true;
 		lastAttack = 0.0d;
-		idle.animationStarted();
+		//idle.animationStarted();
 	}
 
 	@Override
 	public void animationReelFinished() 
 	{
 		super.animationReelFinished();
-		idle.animationStarted();
+		//idle.animationStarted();
 	}
 
 	@Override
@@ -77,16 +65,14 @@ public abstract class AttackAnimation extends FollowAnimation
 	protected abstract void attack_animation();
 	
 	@Override
-	public void directionChanged(int direction) 
+	public String toString()
 	{
-		super.directionChanged(direction);
+		return "Attack animation";
 	}
 	
 	private boolean animating;
 	private double lastAttack;
 	private transient MMOCharacter attacking;
-	
-	private IdleAnimation idle;
 	
 	private static final long serialVersionUID = -1742965394212302361L;
 }

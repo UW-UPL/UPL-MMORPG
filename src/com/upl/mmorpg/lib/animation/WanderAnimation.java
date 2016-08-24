@@ -4,50 +4,31 @@ import java.util.Random;
 
 import com.upl.mmorpg.game.Game;
 import com.upl.mmorpg.game.character.MMOCharacter;
-import com.upl.mmorpg.lib.algo.GridGraph;
-import com.upl.mmorpg.lib.algo.Path;
+import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.map.Grid2DMap;
 import com.upl.mmorpg.lib.map.MapSquare;
 
-public class WanderAnimation extends Animation implements AnimationListener
+public class WanderAnimation extends ComplexAnimation
 {
-	public WanderAnimation(Game game, AnimationManager manager, MMOCharacter character,
-			Grid2DMap map, AnimationListener listener)
+	public WanderAnimation(Game game, AnimationManager manager, MMOCharacter character)
 	{
-		super(game, manager, character, listener);
+		super(game, manager, character);
 
-		this.map = map;
-		walking = new WalkingAnimation(game, manager, character, this);
-		idle = new IdleAnimation(game, manager, character, this);
-		isWalking = false;
-		animating = false;
+		this.map = character.getCurrentMap();
 		this.startRow = character.getRow();
 		this.startCol = character.getColumn();
+		isWalking = false;
 		radius = 0;
 		random = new Random(System.nanoTime());
 	}
-
-	@Override
-	public void animationInterrupted(Animation source) 
-	{
-		if(source == walking || source == idle) return;
-		
-		/* This was an external interrupt */
-		walking.animationInterrupted(source);
-		idle.animationInterrupted(source);
-		isWalking = false;
-		animating = false;
-	}
-
-	@Override
-	public void animationStarted() 
-	{
-		if(radius == 0) return;
-		isWalking = false;
-		animating = true;
-		wander();
-	}
 	
+	@Override
+	public void animationStarted()
+	{
+		super.animationStarted();
+		idle();
+	}
+
 	public void setRadius(int radius)
 	{
 		this.radius = radius;
@@ -56,9 +37,8 @@ public class WanderAnimation extends Animation implements AnimationListener
 	private void wander()
 	{
 		int attempts = 0;
-		while(animating && !isWalking)
+		while(attempts < 100)
 		{
-			if(attempts == 100) break;
 			attempts++;
 			/* Generate a new row and col to walk to */
 			int row = this.startRow + random.nextInt((radius * 2) + 1) - radius;
@@ -67,74 +47,66 @@ public class WanderAnimation extends Animation implements AnimationListener
 			MapSquare square = map.getSquare(row, col);
 			if(square == null || !square.isPassable()) continue;
 			
+			Log.vln("Wander will now walk to (" + row + ", " + col + ")");
+			WalkingAnimation walk = new WalkingAnimation(game, manager, character, row, col);
+			
+			/* Can we walk here? */
+			if(!walk.calculatePath(map))
+				continue;
+			
 			isWalking = true;
-			GridGraph graph = new GridGraph(character.getRow(), 
-					character.getColumn(), map);
-			Path p = graph.shortestPathTo(row, col);
-			walking.setPath(p);
-			manager.setAnimation(walking);
+			manager.transitionTo(walk);
+			return;
 		}
+		
+		Log.e("WANDER FAILED");
+		idle();
+	}
+	
+	public void idle()
+	{
+		int duration = 2 + random.nextInt(3); /* amount of time to idle */
+		duration *= 1000; /* convert to millis */
+		isWalking = false;
+		Log.vln("Wander animation will idle for " + duration + " milliseconds.");
+		manager.transitionTo(new IdleAnimation(game, manager, character, duration));
 	}
 
 	@Override
-	public void animationReelFinished() 
+	public void nextAnimation() 
 	{
-		if(isWalking)
-			walking.animationReelFinished();
-		else idle.animationReelFinished();
-	}
-
-	@Override
-	public void animation(double seconds) 
-	{
-		if(isWalking)
-			walking.animation(seconds);
-		else idle.animation(seconds);
-	}
-
-	@Override
-	public void directionChanged(int direction) 
-	{
-		if(isWalking)
-			walking.directionChanged(direction);
-		else idle.directionChanged(direction);
-	}
-
-	@Override
-	public void animationFinished() 
-	{
-		if(isWalking)
+		if(!subManager.isPlayingDefault())
 		{
-			isWalking = false;
-			manager.setAnimation(idle);
-			/* Idle for a bit and then wander more */
-			Runnable run = new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try 
-					{
-						Thread.sleep(1000 * (random.nextInt(5) + 1));
-					} catch (InterruptedException e) {}
-					wander();
-
-				}
-			};
-			new Thread(run).start();
+			Log.vln("We are not playing the default animation, so we will pass for now.");
+			return;
 		}
+		if(isWalking)
+			idle();
+		else wander();
+		
+		game.characterUpdated(character, false);
 	}
-
-	private WalkingAnimation walking;
-	private IdleAnimation idle;
-	private Grid2DMap map;
-	private int radius;
-	private int startRow;
-	private int startCol;
-
-	private boolean animating;
-	private boolean isWalking;
-	private transient Random random;
+	
+	@Override
+	public void updateTransient(Game game, MMOCharacter character, AnimationManager manager)
+	{
+		super.updateTransient(game, character, manager);
+		map = character.getCurrentMap();
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Wander Animation";
+	}
+	
+	private transient Grid2DMap map; /**< The map we're currently on */
+	
+	private Random random; /**< Random used for generating wandering */
+	private int radius; /**< The radius of our wander field */
+	private int startRow; /**< The row we started from */
+	private int startCol; /**< The column we started from */
+	private boolean isWalking; /**< Whether or not we are walking right now */
 	
 	private static final long serialVersionUID = 9139723565757939753L;
 }

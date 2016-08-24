@@ -19,6 +19,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import com.upl.mmorpg.game.server.ServerGame;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCManager;
@@ -129,7 +130,7 @@ public class ClientLogin
 		System.out.println("Login success!");
 		
 		frame.dispose();
-		
+		new ClientGame(new AssetManager(), rpc);
 	}
 	
 	public void loginFailure()
@@ -138,6 +139,27 @@ public class ClientLogin
 		welcomeL.setText("Username/password combo failed!");
 		welcomeL.repaint();
 	}
+	
+	public void login(final String username, final String password)
+	{
+		Runnable run = new Runnable()
+		{
+			public void run()
+			{
+				final boolean success = login.login(username, password.getBytes());
+					Runnable run2 = new Runnable()
+					{
+						public void run()
+						{
+							if(success) loginSuccess();
+							else loginFailure();
+						}
+					};
+					SwingUtilities.invokeLater(run2);
+			}
+		};
+		new Thread(run).start();
+	}
 
 	private void setListeners()
 	{
@@ -145,24 +167,7 @@ public class ClientLogin
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				Runnable run = new Runnable()
-				{
-					public void run()
-					{
-						final boolean success = login.login(usernameTF.getText(), 
-								passwordTF.getText().getBytes());
-							Runnable run2 = new Runnable()
-							{
-								public void run()
-								{
-									if(success) loginSuccess();
-									else loginFailure();
-								}
-							};
-							SwingUtilities.invokeLater(run2);
-					}
-				};
-				new Thread(run).start();
+				login(usernameTF.getText(), passwordTF.getText());
 			}
 		});
 
@@ -209,10 +214,13 @@ public class ClientLogin
 
 	public static void main(String args[])
 	{
-		///* Start the server */
-		// ServerGame.main(args);
+		/* Start the server */
+		ServerGame.main(args);
 
 		/* Open the Client Window*/
-		new ClientLogin();
+		ClientLogin login = new ClientLogin();
+		// Uncomment the lines below for automatic login (testing only)
+		try { Thread.sleep(2000);} catch (InterruptedException e) {}
+		login.login("jdetter", "password");
 	}
 }

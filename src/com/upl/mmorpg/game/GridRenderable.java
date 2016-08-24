@@ -8,7 +8,7 @@ public abstract class GridRenderable extends Renderable
 	{
 		this.row = row;
 		this.col = col;
-		this.positionUpdated();
+		positionUpdated();
 	}
 	
 	public int getRow() { return row; }
@@ -24,4 +24,6 @@ public abstract class GridRenderable extends Renderable
 	
 	private int row; /**< The row of the renderable */
 	private int col; /**< The column of the renderable */
+	
+	private static final long serialVersionUID = -4852028202705458744L;
 }

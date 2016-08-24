@@ -2,23 +2,44 @@ package com.upl.mmorpg.game.item;
 
 import java.util.Iterator;
 
+import com.upl.mmorpg.game.uuid.ItemUUID;
+
 public class Inventory extends ItemList 
 {
 	public Inventory()
 	{
 		super(MAX_CAPACITY);
 	}
+	
+	/**
+	 * Check to see if an item with the given uuid is in this stack.
+	 * @param uuid The UUID to search for.
+	 * @return The item, if it exists, null otherwise.
+	 */
+	public Item containsUUID(ItemUUID uuid)
+	{
+		Iterator<Item> it = iterator();
+		while(it.hasNext())
+		{
+			Item item = it.next();
+			if(item.getUUID().equals(uuid))
+				return item;
+		}
+		
+		return null;
+	}
 
 	public int addItemStack(ItemStack stack)
 	{
 		for(int x = 0;x < stack.getCount();x++)
-			if(!addItem(new Item(stack)))
+			if(!add(new Item(stack)))
 				return x;
 		
 		return stack.getCount();
 	}
 	
-	public boolean addItem(Item item)
+	@Override
+	public boolean add(Item item)
 	{
 		/* If this is a stack, we need to know */
 		ItemStack istack = null;
@@ -74,37 +95,37 @@ public class Inventory extends ItemList
 		}
 
 		/* Just try to use the parent addItem */
-		return super.addItem(item);
+		return super.add(item);
 	}
 	
-	public int removeItemStack(ItemStack stack)
+	private int removeItemStack(ItemStack stack)
 	{
 		for(int x = 0;x < stack.getCount();x++)
-			if(!removeItem(new Item(stack)))
+			if(!remove(new Item(stack)))
 				return x;
 		
 		return stack.getCount();
 	}
 	
-	public boolean removeItem(Item item)
+	@Override
+	public boolean remove(Object obj)
 	{
-		Iterator<Item> it = iterator();
+		if(!(obj instanceof Item || obj instanceof ItemStack))
+			return false;
 		
-		ItemStack istack = null;
-		if(item instanceof ItemStack)
-		{
-			istack = (ItemStack)item;
-			
-			/* TODO Failure here? */
-			return removeItemStack((ItemStack)item) == istack.getCount();
-		}
+		if(obj instanceof ItemStack)
+			return removeItemStack((ItemStack)obj) > 0;
+		
+		Item item = (Item)obj;
+		
+		Iterator<Item> it = iterator();
 		
 		while(it.hasNext())
 		{
 			Item i = it.next();
 			
-			/* Do these ids match? */
-			if(i.getId() != item.getId())
+			/* Do these uuids match? */
+			if(!i.getUUID().equals(item.getUUID()))
 				continue;
 			
 			/* Is this an item stack? */

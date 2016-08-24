@@ -4,13 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.upl.mmorpg.lib.libfile.FileManager;
+import com.upl.mmorpg.lib.liblog.Log;
 
 public class StackBuffer 
 {
@@ -151,7 +151,7 @@ public class StackBuffer
 			pushDouble(arr[x]);
 	}
 	
-	public void pushObject(Serializable obj)
+	public void pushObject(Object obj)
 	{
 		ByteArrayOutputStream bos = null;
 		ObjectOutputStream oos = null;
@@ -303,22 +303,25 @@ public class StackBuffer
 		ByteArrayInputStream bin = null;
 		ObjectInputStream ois = null;
 		Object result = null;
+		int read_bytes = 0;
 		
 		try
 		{
 			bin = new ByteArrayInputStream(rbuff);
 			bin.skip(rbuff_pos);
+			int available = bin.available();
 			ois = new ObjectInputStream(bin);
 			result = ois.readObject();
-		} catch(Exception e){ result = null; }
+			read_bytes = available - bin.available();
+		} catch(Exception e){ Log.wtf("Failed to read object from stream", e); result = null; }
 		
 		try {bin.close();} catch(Exception e){}
 		try {ois.close();} catch(Exception e){}
 		bin = null;
 		ois = null;
 		
-		if(result == null)
-			throw new RuntimeException("Failed to read object from stream.");
+		if(result != null)
+			rbuff_pos += read_bytes;
 		
 		return result;
 	}

@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import com.upl.mmorpg.game.Game;
+import com.upl.mmorpg.game.character.MMOCharacter;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderMath;
 import com.upl.mmorpg.lib.libfile.FileManager;
@@ -14,22 +16,117 @@ import com.upl.mmorpg.lib.liblog.Log;
 
 public class AnimationManager implements Serializable
 {
-	public AnimationManager(AssetManager assets)
+	/**
+	 * Create a new animation manager.
+	 * @param game The game we're playing in.
+	 * @param character The character we are animating.
+	 */
+	public AnimationManager(Game game, MMOCharacter character)
 	{
-		this.assets = assets;
+		this.assets = game.getAssetManager();
 		currentReel = null;
 		reelPos = -1;
 		reelDirection = FRONT;
-		currentAnimation = null;
 		currentFrame = null;
 		animation_total = 0;
 		animation_speed = 0;
-		endReelNotified = false;
+		animating = true;
+		currentReelName = null;
+		reelsPath = null;
+		subManager = null;
+		animationQueue = new AnimationQueue(this, new IdleAnimation(game, this, character, -1));
 		
 		map = new HashMap<String, BufferedImage[][]>();
 	}
 	
-	public boolean setReel(String reelName, boolean loop)
+	/**
+	 * Make a copy of an animation manager.
+	 * @param manager The animation manager to copy.
+	 * @param game The current game.
+	 * @param character The character we are animating.
+	 */
+	public AnimationManager(AnimationManager manager, Game game, MMOCharacter character)
+	{
+		this.assets = manager.assets;
+		this.currentReel = null;
+		this.reelPos = -1;
+		this.reelDirection = FRONT;
+		this.currentFrame = null;
+		this.animation_total = manager.animation_total;
+		this.animation_speed = manager.animation_speed;
+		this.animating = false;
+		this.currentReelName = manager.currentReelName;
+		this.reelsPath = manager.reelsPath;
+		this.subManager = null;
+		this.map = manager.map;
+		this.animationQueue = new AnimationQueue(this, new IdleAnimation(game, this, character, -1));
+	}
+	
+	/**
+	 * Returns whether or not the animation that is playing is the default animation.
+	 * @return Whether or not the animation that is playing is the default animation.
+	 */
+	public boolean isPlayingDefault()
+	{
+		return animationQueue.isDefault();
+	}
+	
+	/**
+	 * Set the sub animation manager. Calls to this manager will
+	 * be proxied to the sub manager until a new animation is used.
+	 * @param submanager The new manager to use.
+	 */
+	public synchronized void setSubManager(AnimationManager subManager)
+	{
+		this.subManager = subManager;
+	}
+	
+	/**
+	 * Clear the sub manager and start using this one again.
+	 */
+	public synchronized void clearSubManager()
+	{
+		subManager = null;
+	}
+	
+	/**
+	 * Returns the sub animation manager.
+	 * @return The sub animation manager.
+	 */
+	public AnimationManager getSubManager()
+	{
+		return subManager;
+	}
+	
+	/**
+	 * Reset the animation manager so that it continues animating.
+	 */
+	protected synchronized void animationChanged()
+	{
+		animating = true;
+	}
+	
+	/**
+	 * Called when this animation manager should stop updating the
+	 * character's animation.
+	 */
+	public synchronized void stopManaging()
+	{
+		animating = false;
+		if(subManager != null)
+			subManager.stopManaging();
+		subManager = null;
+		animationQueue.cleanup();
+		animationQueue = null;
+	}
+	
+	/**
+	 * Set the current reel.
+	 * @param reelName The name of the reel.
+	 * @param loop Whether or not to loop the reel when it ends.
+	 * @return Whether or not that reel exists.
+	 */
+	public synchronized boolean setReel(String reelName, boolean loop)
 	{
 		BufferedImage[][] reel = map.get(reelName);
 		if(reel == null) return false;
@@ -40,30 +137,84 @@ public class AnimationManager implements Serializable
 		this.animation_total = 0;
 		this.animation_loop = loop;
 		this.maxReelPos = reel[this.reelDirection].length;
-		this.endReelNotified = false;
+		this.animating = true;
+		this.currentReelName = reelName;
 		
 		this.currentFrame = reel[this.reelDirection][0];
 		
 		return true;
 	}
 	
-	public int getMaxFrameForReel(String reelName)
+	/**
+	 * Set the currently animating reel.
+	 * @param reelName The name of the reel.
+	 * @return Whether or not the reel could be set.
+	 */
+	private synchronized boolean loadReel(String reelName)
+	{
+		BufferedImage[][] reel = map.get(reelName);
+		if(reel == null) return false;
+		
+		currentReel = reel;
+		maxReelPos = reel[reelDirection].length;
+		animating = true;
+		currentReelName = reelName;
+		
+		currentFrame = reel[reelDirection][reelPos];
+		
+		return true;
+	}
+	
+	/**
+	 * Returns the amount of frames in the reel.
+	 * @param reelName The name of the reel.
+	 * @return The number of reels in the frame
+	 */
+	public synchronized int getFrameCountForReel(String reelName)
 	{
 		BufferedImage[][] reel = map.get(reelName);
 		if(reel == null) return -1;
 		return reel[0].length;
 	}
 
-	public synchronized void setAnimation(Animation animation)
+	/**
+	 * Add an animation to the animation queue.
+	 * @param animation The animation to add to the queue.
+	 */
+	public synchronized void addAnimation(Animation animation)
 	{
-		if(this.currentAnimation != null)
-			currentAnimation.animationInterrupted(animation);
-		this.currentAnimation = animation;
-		this.endReelNotified = false;
-		animation.animationStarted();
-		this.setAnimationFrame(0);
+		animationQueue.add(animation);
+		Log.vvln("Animation " + animation + " added to animation manager");
 	}
 	
+	/**
+	 * Transition to the given animation. The current animation will
+	 * be given an opportunity to finish.
+	 * @param animation The animation to transition to.
+	 */
+	public synchronized void transitionTo(Animation animation)
+	{
+		subManager = null;
+		animationQueue.transitionTo(animation);
+	}
+	
+	/**
+	 * Cycle to the next animation. If there aren't any animations left,
+	 * the default animation will be played.
+	 */
+	public synchronized void nextAnimation()
+	{
+		Log.vln("AnimationManager -- nextAnimation");
+		Log.vln("AnimationManager -- was playing: " + animationQueue.getCurrent());
+		subManager = null;
+		animationQueue.nextAnimation();
+		Log.vln("AnimationManager -- now playing: " + animationQueue.getCurrent());
+	}
+	
+	/**
+	 * Set the current frame number.
+	 * @param frame The frame number to set.
+	 */
 	public synchronized void setAnimationFrame(int frame)
 	{
 		if(frame >= this.maxReelPos || frame < 0)
@@ -72,16 +223,30 @@ public class AnimationManager implements Serializable
 		currentFrame = currentReel[reelDirection][reelPos];
 	}
 	
+	/**
+	 * Get the currently displayed frame.
+	 * @return The currently displayed frame.
+	 */
 	public synchronized BufferedImage getFrame()
 	{
+		if(subManager != null)
+			return subManager.getFrame();
 		return currentFrame;
 	}
 	
+	/**
+	 * Set the speed at which to animate the reel.
+	 * @param fps The amount of frames to display per second.
+	 */
 	public synchronized void setAnimationSpeed(int fps)
 	{
 		this.animation_speed = RenderMath.calculateAnimation(fps);
 	}
 	
+	/**
+	 * Set the direction of the current animation reel.
+	 * @param direction The new direction of the animation reel.
+	 */
 	public synchronized void setReelDirection(int direction)
 	{
 		if(direction >= 0 && direction < directions_str.length
@@ -92,12 +257,16 @@ public class AnimationManager implements Serializable
 		}
 	}
 	
-	public int getReelDirection()
+	/**
+	 * Returns the direction of the current reel.
+	 * @return The direction of the current reel.
+	 */
+	public synchronized int getReelDirection()
 	{
 		return this.reelDirection;
 	}
 	
-	public boolean loadReels(String path) throws IOException
+	public synchronized boolean loadReels(String path) throws IOException
 	{
 		if(!path.endsWith(File.separator))
 			path = path + File.separator;
@@ -127,7 +296,7 @@ public class AnimationManager implements Serializable
 			{
 				if(!exists[x])
 				{
-					Log.vln("Reel " + reelNames[i] + " could not be imported: missing a directory.");
+					Log.e("Reel " + reelNames[i] + " could not be imported: missing a directory.");
 					break;
 				}
 			}
@@ -140,14 +309,14 @@ public class AnimationManager implements Serializable
 			String example_reels[] = FileManager.getFiles(test_dir);
 			if(example_reels == null)
 			{
-				Log.vln("Reel " + reelNames[i] + " could not be imported: couldn't stat directory.");
+				Log.e("Reel " + reelNames[i] + " could not be imported: couldn't stat directory.");
 				continue;
 			}
 			
 			int reelCount = example_reels.length;
 			if(reelCount > 1000)
 			{
-				Log.vln("Reel " + reelNames[i] + " could not be imported: too many reels! (MAX 1000)");
+				Log.e("Reel " + reelNames[i] + " could not be imported: too many reels! (MAX 1000)");
 				continue;
 			}
 			
@@ -165,7 +334,7 @@ public class AnimationManager implements Serializable
 				
 				if(reel.length != reelCount)
 				{
-					Log.vln("Reel " + reelNames[i] + " could not be imported: reel counts don't match" 
+					Log.e("Reel " + reelNames[i] + " could not be imported: reel counts don't match" 
 							+ " direction: " + direction + " length: " + reel.length);
 					break;
 				}
@@ -180,7 +349,7 @@ public class AnimationManager implements Serializable
 				for(int y = 0;y < reels[0].length;y++)
 				{
 					direction_reel[y] = assets.loadImage(dir + reel[y]);
-					if(x == 0) Log.vln("\t" + reel[y]);
+					if(x == 0) Log.vvln("\t" + reel[y]);
 				}
 				
 				/* Set the reel for this direction */
@@ -190,14 +359,26 @@ public class AnimationManager implements Serializable
 			if(x != 8) continue;
 			
 			map.put(reelNames[i], reels);
-			Log.vln("Added reel " + reelNames[i]);
+			Log.vvln("Added reel " + reelNames[i]);
 		}
 
+		this.reelsPath = path;
 		return true;
 	}
 	
 	public void animation(double seconds)
 	{
+		AnimationManager sub = subManager;
+		if(sub != null)
+		{
+			sub.animation(seconds);
+			return;
+		}
+		
+		if(!animating) return;
+		
+		Animation currentAnimation = animationQueue.getCurrent();
+		
 		if(animation_speed <= 0)
 			return;
 		
@@ -215,9 +396,9 @@ public class AnimationManager implements Serializable
 					reelPos = 0;
 					setAnimationFrame(reelPos);
 				} else {
-					if(!endReelNotified && currentAnimation != null)
+					animating = false;
+					if(currentAnimation != null)
 						currentAnimation.animationReelFinished();
-					endReelNotified = true;
 				}
 			} else {
 				currentFrame = currentReel[reelDirection][reelPos];
@@ -228,30 +409,63 @@ public class AnimationManager implements Serializable
 		}
 		
 		if(currentAnimation != null)
-			currentAnimation.animation(seconds);
+			currentAnimation.doAnimation(seconds);
 	}
 	
-	protected transient Animation currentAnimation;
+	/**
+	 * Update the transient properties of this object.
+	 * @param assets The asset manager to load assets from.
+	 * @param game The game we're playing in.
+	 * @param character The character we are animating.
+	 * @throws IOException Thrown when an asset we need can't be found.
+	 */
+	public synchronized void updateTransient(Game game, MMOCharacter character) throws IOException
+	{
+		this.assets = game.getAssetManager();
+		map = new HashMap<String, BufferedImage[][]>();
+		if(!loadReels(reelsPath))
+			Log.e("FAILED TO LOAD REELS: " + reelsPath);
+		if(!loadReel(currentReelName))
+			Log.e("FAILED TO LOAD REEL: " + currentReelName);
+		Log.vvln("Character has " + animationQueue.size() + " animations.");
+		
+		/* Update the animation queue */
+		animationQueue.updateTransient(game, character, this);
+		
+		/* Get the sub manager if we have a complex animation */
+		Animation current = animationQueue.getCurrent();
+		if(current != null && current instanceof ComplexAnimation)
+		{
+			subManager = ((ComplexAnimation)current).getManager();
+			subManager.updateTransient(game, character);
+		} else subManager = null;
+	}
 	
-	protected transient AssetManager assets;
-	protected transient BufferedImage currentFrame;
-	protected transient BufferedImage currentReel[][];
-	protected int reelDirection;
-	protected int reelPos;
-	protected int maxReelPos;
-	protected boolean endReelNotified;
+	protected transient AssetManager assets; /**< The asset manager to load assets from */
+	protected transient BufferedImage currentFrame; /**< The current reel we are rendering */
+	protected transient BufferedImage currentReel[][]; /**< Assets for the current reel that is playing */
+	protected transient AnimationManager subManager; /**< The animation manager for the complex animation */
+	protected AnimationQueue animationQueue; /**< The queue for our animations, which is custom. */
+	protected String currentReelName; /**< The path of the current reel. */
+	protected String reelsPath; /**< Where did we load our reels from? */
+	protected int reelDirection; /**< Which direction the character is looking */
+	protected int reelPos; /**< The current frame number */
+	protected int maxReelPos; /**< The number of the last animation frame */
+	protected boolean animating; /**< Whether or not we can animate right now */
 
-	protected boolean animation_loop;
-	protected double animation_speed;
-	protected double animation_total;
+	protected boolean animation_loop; /**< Whether or not to loop the reel */
+	protected double animation_speed; /**< The amount of seconds in between frame numbers */
+	protected double animation_total; /**< The amount of time spent on the current frame. */
 
 	protected transient HashMap<String, BufferedImage[][]> map;
 
+	/** Array for converting a direction to the resulting string (debug) */
 	public static final String directions_str[] = {
 			"front", "front_left", "front_right", "right", 
 			"back", "back_right", "back_left", "left"
 			};
 	
+	/** Direction definitions */
 	public static final int FRONT = 0;
 	public static final int FRONT_LEFT = 1;
 	public static final int FRONT_RIGHT = 2;

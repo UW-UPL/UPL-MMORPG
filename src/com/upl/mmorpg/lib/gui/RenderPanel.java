@@ -19,11 +19,11 @@ public class RenderPanel extends JPanel implements Runnable
 	public RenderPanel(boolean vsync, boolean showfps, boolean headless)
 	{
 		this.headless = headless;
-
 		timer = new DynamicRenderTimer(FRAMES_PER_SECOND, this);
 
 		viewX = 0;
 		viewY = 0;
+		follow = null;
 		zoom = DEFAULT_ZOOM;
 		/* Initilize panels */
 		backPane = new LinkedList<Renderable>();
@@ -50,6 +50,15 @@ public class RenderPanel extends JPanel implements Runnable
 
 		/* Make this panel visible */
 		this.setVisible(true);
+	}
+
+	/**
+	 * Follow an object with the screen.
+	 * @param render The object to follow.
+	 */
+	public void follow(Renderable render)
+	{
+		this.follow = render;
 	}
 
 	/**
@@ -140,7 +149,7 @@ public class RenderPanel extends JPanel implements Runnable
 		midPane.remove(render);
 	}
 
-	public synchronized void removeAllRenderable()
+	public synchronized void removeAllRenderables()
 	{
 		midPane.clear();
 	}
@@ -156,7 +165,7 @@ public class RenderPanel extends JPanel implements Runnable
 		glassPane.remove(render);
 	}
 
-	public synchronized void removeAllGPRenderable()
+	public synchronized void removeAllGPRenderables()
 	{
 		glassPane.clear();
 	}
@@ -171,7 +180,7 @@ public class RenderPanel extends JPanel implements Runnable
 		backPane.remove(render);
 	}
 
-	public synchronized void removeAllBPRenderable()
+	public synchronized void removeAllBPRenderables()
 	{
 		backPane.clear();
 	}
@@ -224,7 +233,8 @@ public class RenderPanel extends JPanel implements Runnable
 			Log.vrndln("Rendering component: " + render.getRenderName());
 			if(render.hasAnimation)
 				render.animation(seconds);
-			render.render(g, this);
+			if(render.renderable)
+				render.render(g, this);
 		}
 	}
 
@@ -243,11 +253,23 @@ public class RenderPanel extends JPanel implements Runnable
 	private synchronized void renderAll(Graphics2D g, double seconds)
 	{
 		/* Move to the proper spot on the canvas */
-		int vx = (int)-getViewX();
-		int vy = (int)-getViewY();
-
 		Graphics2D notransform = (Graphics2D)g.create();
-		g.translate(vx, vy);
+		
+		if(follow != null)
+		{
+			int vx = -(int)(follow.getCenterX() * zoom);
+			vx += this.getWidth() / 2;
+			int vy = -(int)(follow.getCenterY() * zoom);
+			vy += this.getHeight() / 2;
+			this.viewX = -vx;
+			this.viewY = -vy;
+			g.translate(vx, vy);
+		} else {
+			int vx = (int)-getViewX();
+			int vy = (int)-getViewY();
+			g.translate(vx, vy);
+		}
+		
 		renderPane(backPane, (Graphics2D)g.create(), seconds);
 		renderPane(midPane, (Graphics2D)g.create(), seconds);
 		renderEffects(midPane, (Graphics2D)g.create(), seconds);
@@ -368,6 +390,7 @@ public class RenderPanel extends JPanel implements Runnable
 	private LinkedList<Renderable> midPane;
 	private LinkedList<Renderable> backPane;
 	private CollisionManager collision_manager;
+	private Renderable follow; /**< The renderable to follow with the screen (null if not following) */
 
 	private double viewX;
 	private double viewY;
@@ -384,6 +407,7 @@ public class RenderPanel extends JPanel implements Runnable
 
 	private class FPSMeasure extends TextView implements Runnable
 	{
+
 		public FPSMeasure(RenderPanel panel)
 		{
 			super("FPS: XX");
@@ -449,8 +473,10 @@ public class RenderPanel extends JPanel implements Runnable
 			this.setY(this.getHeight());
 		}
 
-		private Thread framesThread; /* Thread for measuring fps */
-		private boolean measuring; /* whether or not we are generating stats */
-		private RenderPanel panel;
+		private transient Thread framesThread; /* Thread for measuring fps */
+		private transient boolean measuring; /* whether or not we are generating stats */
+		private transient RenderPanel panel;
+
+		private static final long serialVersionUID = -1570266011398908831L;
 	}
 }

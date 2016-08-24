@@ -1,6 +1,5 @@
-package com.upl.mmorpg.game.server;
+package com.upl.mmorpg.game.server.login;
 
-import com.upl.mmorpg.game.server.login.LoginManager;
 import com.upl.mmorpg.lib.liblog.Log;
 import com.upl.mmorpg.lib.librpc.RPCCallee;
 import com.upl.mmorpg.lib.util.StackBuffer;

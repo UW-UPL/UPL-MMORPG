@@ -31,4 +31,6 @@ public class ExampleLine extends Renderable
 	{
 		return "ExampleLine";
 	}
+	
+	private static final long serialVersionUID = -6197301347488661326L;
 }

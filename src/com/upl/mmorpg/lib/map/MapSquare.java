@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import com.upl.mmorpg.game.item.Item;
 import com.upl.mmorpg.game.item.ItemList;
+import com.upl.mmorpg.game.uuid.ItemUUID;
 import com.upl.mmorpg.lib.gui.AssetManager;
 import com.upl.mmorpg.lib.gui.RenderPanel;
 import com.upl.mmorpg.lib.gui.Renderable;
@@ -131,8 +132,7 @@ public class MapSquare extends Renderable implements Serializable
 	 */
 	public boolean itemDropped(Item item)
 	{
-		boolean result;
-		result = list.addItem(item);
+		boolean result = list.add(item);
 		updateItemProperties();
 		return result;
 	}
@@ -187,6 +187,45 @@ public class MapSquare extends Renderable implements Serializable
 	public ItemList getItems()
 	{
 		return list;
+	}
+	
+	/**
+	 * Returns whether or not this square contains an item with the given UUID.
+	 * @param uuid The UUID of the item to search for.
+	 * @return Whether or not the item is on this square.
+	 */
+	public boolean containsItem(ItemUUID uuid)
+	{
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			if(i.getUUID().equals(uuid))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Remove an item from this map square. Returns the item that was removed.
+	 * @param uuid The UUID of the item to remove.
+	 * @return The item if it was removed, null if the item was not removed.
+	 */
+	public Item removeItem(ItemUUID uuid)
+	{
+		Iterator<Item> it = list.iterator();
+		while(it.hasNext())
+		{
+			Item i = it.next();
+			if(i.getUUID().equals(uuid))
+			{
+				it.remove();
+				return i;
+			}
+		}
+		
+		return null;
 	}
 	
 	public String getImageName() { return image_name; }

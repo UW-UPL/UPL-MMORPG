@@ -10,7 +10,8 @@ import com.upl.mmorpg.lib.quest.action.CharacterDamaged;
 import com.upl.mmorpg.lib.quest.action.CharacterDied;
 import com.upl.mmorpg.lib.quest.action.CharacterKilled;
 import com.upl.mmorpg.lib.quest.action.CharacterMovedTo;
-import com.upl.mmorpg.lib.quest.action.PickedUp;
+import com.upl.mmorpg.lib.quest.action.DroppedItem;
+import com.upl.mmorpg.lib.quest.action.PickedUpItem;
 import com.upl.mmorpg.lib.quest.action.QuestAction;
 
 public class QuestEngine
@@ -43,7 +44,12 @@ public class QuestEngine
 	
 	public void pickedUp(MMOCharacter character, Item item)
 	{
-		addQuest(new PickedUp(game, character, item));
+		addQuest(new PickedUpItem(game, character, item));
+	}
+	
+	public void dropped(MMOCharacter character, Item item)
+	{
+		addQuest(new DroppedItem(game, character, item));
 	}
 	
 	private void addQuest(QuestAction quest)

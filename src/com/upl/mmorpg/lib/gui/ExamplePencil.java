@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 public class ExamplePencil extends Renderable
 {
+	
 	public ExamplePencil()
 	{
 		points = new LinkedList<Point>();
@@ -47,7 +48,9 @@ public class ExamplePencil extends Renderable
 		return "ExamplePencil";
 	}
 	
-	private LinkedList<Point> points;
-	private double lastx;
-	private double lasty;
+	private transient LinkedList<Point> points;
+	private transient double lastx;
+	private transient double lasty;
+	
+	private static final long serialVersionUID = 7355518952039916144L;
 }

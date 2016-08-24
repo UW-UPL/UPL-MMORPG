@@ -10,7 +10,6 @@ import com.upl.mmorpg.lib.map.Grid2DMap;
 public class MapControl implements MouseMotionListener, MouseListener, Runnable {
 	public MapControl(RenderPanel render, Grid2DMap map, boolean autoscroll) {
 		this.render = render;
-		this.map = map;
 		this.autoscroll = autoscroll;
 
 		moveUp = false;
@@ -22,7 +21,7 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 		lastX = 0;
 		lastY = 0;
 	}
-
+	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (!dragging)
@@ -152,5 +151,4 @@ public class MapControl implements MouseMotionListener, MouseListener, Runnable 
 	private double lastY;
 	private boolean dragging;
 	private RenderPanel render;
-	private Grid2DMap map;
 }
