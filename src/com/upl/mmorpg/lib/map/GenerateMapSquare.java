@@ -26,55 +26,7 @@ public class GenerateMapSquare extends MapSquare
 		this.ready = true;
 	}
 	
-	/**
-	 * Receive a game tick.
-	 */
-	public void tick()
-	{
-		ticks++;
-		if(ticks > regenerate && regenerate >= 0)
-		{
-			ready = true;
-			ticks = 0;
-			destroyed = false;
-		}
-	}
-	
-	/**
-	 * Make this square ready for generation (game is starting)
-	 */
-	public void reset()
-	{
-		ticks = 0;
-		ready = true;
-	}
-	
-	/**
-	 * Returns whether or not this square is ready to generate a new item.
-	 * @return Whether or not this square is ready to generate a new item.
-	 */
-	public boolean isReady()
-	{
-		return ready;
-	}
-	
-	/**
-	 * Generate the item that this space generates.
-	 * @return The item that this square generates, null if this square
-	 * isn't ready to generate a new item.
-	 */
-	public synchronized Item generate()
-	{
-		if(ready)
-		{
-			ticks = 0;
-			destroyed = true;
-			ready = false;
-			return new Item(generate, true);
-		}
-		
-		return null;
-	}
+
 	
 	private Item generate; /**< The item to generate */
 	private int regenerate; /**< The regenerate rate */
