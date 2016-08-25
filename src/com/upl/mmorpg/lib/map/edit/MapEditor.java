@@ -249,6 +249,14 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		addPanel(75, itemPanel);
 		new ItemDroptool(ItemDef.WEAPON, itemPanel);
 		
+		addLabel("    Minerals    ");
+		JPanel mineralPanel = new JPanel();
+		addPanel(75, mineralPanel);
+		new MineralTool("assets/minerals/coal_mineral.png", mineralPanel);
+		new MineralTool("assets/minerals/iron_mineral.png", mineralPanel);
+		new MineralTool("assets/minerals/tin_mineral.png", mineralPanel);
+		new MineralTool("assets/minerals/copper_mineral.png", mineralPanel);
+		
 		addLabel("    Tile Properties    ");
 		JPanel tilePropertiesPanel = new JPanel();
 		addPanel(80, tilePropertiesPanel);
@@ -854,6 +862,41 @@ public class MapEditor implements ActionListener, MouseMotionListener, MouseList
 		}
 		
 		private Item dropItem;
+	}
+	
+	private class MineralTool extends OverlayTool
+	{
+		public MineralTool(String texture_file, JPanel panel) throws IOException 
+		{
+			super(texture_file, panel);
+		}
+		
+		public void mouseDragged(int row, int col)
+		{
+			if(row < 0 || col < 0) return;
+			
+			EditableMapSquare square = null;
+			boolean set = false;
+			
+			if((square = map.getSquare(row, col)) == null)
+			{
+				square = new EditableMapSquare(row, col, null, null, null);
+				set = true;
+			} else {
+				square.setOverlay(texture_file);
+				square.setPassThrough(false);
+			}
+			
+			try 
+			{
+				/* reload images */
+				square.loadImages(assets);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			if(set) map.setSquare(row, col, square);
+		}
 	}
 	
 	public static void main(String args[])

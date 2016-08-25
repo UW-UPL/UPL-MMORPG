@@ -61,7 +61,9 @@ public class Grid2DMap extends Renderable implements Serializable
 			{
 				MapSquare square = map.getSquare(row, col);
 				if(square != null)
+				{
 					this.map[row][col] = new MapSquare(square);
+				}
 			}
 		
 		this.loaded = true;

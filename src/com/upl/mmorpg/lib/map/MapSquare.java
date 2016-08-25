@@ -103,6 +103,10 @@ public class MapSquare extends Renderable implements Serializable
 		return "Map Square: " + image_name;
 	}
 
+	/**
+	 * Set whether or not this square is destroyed.
+	 * @param destroyed Whether or not this square is destroyed.
+	 */
 	public void setDestroyed(boolean destroyed)
 	{
 		if(destructible)
@@ -110,16 +114,28 @@ public class MapSquare extends Renderable implements Serializable
 		else this.destroyed = false;
 	}
 
+	/**
+	 * Returns whether or not this space is destroyed.
+	 * @return Whether or not this space is destroyed.
+	 */
 	public boolean isDestroyed()
 	{
 		return destroyed;
 	}
 	
+	/**
+	 * Returns whether or not a map link lands here.
+	 * @return Whether or not a map link lands here.
+	 */
 	public boolean isLinkLanding()
 	{
 		return isLinkLanding;
 	}
 	
+	/**
+	 * Returns whether or not this space can be passed through.
+	 * @return Whether or not this space can be passed through.
+	 */
 	public boolean isPassable()
 	{
 		return passThrough;
@@ -254,6 +270,65 @@ public class MapSquare extends Renderable implements Serializable
 		return false;
 	}
 	
+	/**
+	 * Receive a game tick.
+	 */
+	public void tick()
+	{
+		ticks++;
+		if(ticks > regenerate && regenerate >= 0)
+		{
+			ready = true;
+			ticks = 0;
+			destroyed = false;
+		}
+	}
+	
+	/**
+	 * Make this square ready for generation (game is starting)
+	 */
+	public void reset()
+	{
+		ticks = 0;
+		ready = true;
+	}
+	
+	/**
+	 * Returns whether or not this square is ready to generate a new item.
+	 * @return Whether or not this square is ready to generate a new item.
+	 */
+	public boolean isReady()
+	{
+		return ready;
+	}
+	
+	/**
+	 * Generate the item that this space generates.
+	 * @return The item that this square generates, null if this square
+	 * isn't ready to generate a new item.
+	 */
+	public synchronized Item generate()
+	{
+		if(ready)
+		{
+			ticks = 0;
+			destroyed = true;
+			ready = false;
+			return new Item(generate, true);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Returns whether or not this space generates items.
+	 * @return Whether or not this space generates items.
+	 */
+	public boolean generates()
+	{
+		return generate != null;
+	}
+	
 	protected int row; /**< The row of this map square. */
 	protected int col; /**< The column of this map square. */
 	protected String image_name; /**< The asset name of the image for this MapSquare. */
@@ -272,6 +347,12 @@ public class MapSquare extends Renderable implements Serializable
 	protected int link_row; /**< The row the link takes the player to. */
 	protected int link_col; /**< The column the link takes the player to. */
 	protected ItemList list; /**< All of the items on the square. */
+	
+	/** Generate properties */
+	protected Item generate; /**< The item to generate */
+	protected int regenerate; /**< The regenerate rate */
+	protected int ticks; /**< The amount of ticks that have passed */
+	protected boolean ready; /**< Whether or not we are ready to generate a new item */
 	
 	private static final long serialVersionUID = -5877817070442524231L;
 }

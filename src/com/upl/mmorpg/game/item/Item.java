@@ -20,18 +20,30 @@ import com.upl.mmorpg.lib.gui.Renderable;
 public class Item extends Renderable implements Serializable
 {
 	/**
-	 * Copy an item exactly (includes exact UUID).
+	 * Copy an item exactly, except generate a new uuid if the boolean is true.
 	 * @param i The item to make an exact copy of.
+	 * @param newItem Whether or not this needs a new UUID.
 	 */
-	public Item(Item i)
+	public Item(Item i, boolean newItem)
 	{
 		id = i.id;
-		uuid = i.uuid;
+		if(newItem)
+			uuid = ItemUUID.generate();
+		else uuid = i.uuid;
 		type = i.type;
 		name = i.name;
 		asset_path = i.asset_path;
 		value = i.value;
 		asset = i.asset;
+	}
+	
+	/**
+	 * Copy an item exactly (includes exact UUID).
+	 * @param i The item to make an exact copy of.
+	 */
+	public Item(Item i)
+	{
+		this(i, false);
 	}
 	
 	/**
@@ -63,7 +75,7 @@ public class Item extends Renderable implements Serializable
 	 */
 	public Item(Item i, int row, int col, double tile_size)
 	{
-		this(i);
+		this(i, false);
 		setLocation(col * tile_size, row * tile_size);
 		setSize(tile_size);
 	}

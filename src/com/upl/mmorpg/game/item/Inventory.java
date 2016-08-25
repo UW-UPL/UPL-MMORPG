@@ -32,7 +32,7 @@ public class Inventory extends ItemList
 	public int addItemStack(ItemStack stack)
 	{
 		for(int x = 0;x < stack.getCount();x++)
-			if(!add(new Item(stack)))
+			if(!add(new Item(stack, false)))
 				return x;
 		
 		return stack.getCount();
@@ -101,7 +101,7 @@ public class Inventory extends ItemList
 	private int removeItemStack(ItemStack stack)
 	{
 		for(int x = 0;x < stack.getCount();x++)
-			if(!remove(new Item(stack)))
+			if(!remove(new Item(stack, false)))
 				return x;
 		
 		return stack.getCount();
