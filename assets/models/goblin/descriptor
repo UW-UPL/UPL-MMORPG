@@ -4,3 +4,6 @@ walk,66,105
 walk_end,106,120
 punch,130,160
 death,180,210
+mine_start,230,239
+mine_swing,240,259
+mine_end,260,270
